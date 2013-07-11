@@ -1,0 +1,37 @@
+<p id="notice"><%= notice %></p>
+
+<p>
+  <strong>Name:</strong>
+  <%= @person.name %>
+</p>
+
+<h1>События</h1>
+<%= render @person.stories%>
+
+
+<p>
+	Добавить событие
+</p>
+
+
+<%= form_for([@person, @person.stories.build]) do |f| %>
+<%= f.date_field :date %>
+<%= f.check_box :is_positive %>
+<%= f.submit %>
+<% end %>
+
+
+<br>
+<h1>Графики</h1>
+
+<%= render "graph1"%>
+<%= render "graph2"%>
+
+  
+
+
+
+<br>
+
+<%= link_to 'Edit', edit_person_path(@person) %> |
+<%= link_to 'Back', people_path %>
