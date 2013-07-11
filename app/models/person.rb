@@ -1,3 +1,4 @@
+#coding: utf-8
 class Person < ActiveRecord::Base
 	has_many :stories, dependent: :destroy
 	def get_data_for_graph1
