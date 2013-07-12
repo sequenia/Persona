@@ -6,17 +6,16 @@
 <div id="graphdiv"></div>
 <script type="text/javascript">
 
- var data = [<%= @person.get_array_data.map(&:to_s).join(',') %>];
- var values = [<%= @person.get_array_values.map(&:to_s).join(',') %>];
- 
- var points = [];
- for(var i=0; i<data.length; i++)
- {
-   points.push([new Date(data[i] * 1000), (values[i])?10:-10] );
- }
- g = new Dygraph(document.getElementById("graphdiv"),
-                       points,
-                       {
-                               labels: [ "X", "Y" ]
-                       });
+var data   = <%= @person.get_array_data%>;
+var values = <%= @person.get_array_values%>;
+var points = [];
+for(var i=0; i<data.length; i++)
+{
+  points.push([new Date(data[i] * 1000), (values[i])?10:-10] );
+}
+g = new Dygraph(document.getElementById("graphdiv"),
+                      points,
+                      {
+                              labels: [ "X", "Y" ]
+                      });
 </script>

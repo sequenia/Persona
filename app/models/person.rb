@@ -20,7 +20,7 @@ class Person < ActiveRecord::Base
 			date_arr << stories[i].date.to_datetime.to_i
 			i += 1
 		end
-		return date_arr
+		return date_arr.to_json
 	end
 
 	def get_array_values
@@ -30,7 +30,7 @@ class Person < ActiveRecord::Base
 			value_arr << stories[i].is_positive
 			i += 1
 		end
-		return value_arr
+		return value_arr.to_json
 	end
 
 	def get_data_for_graph2
