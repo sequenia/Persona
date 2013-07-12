@@ -1,21 +1,45 @@
+
+
 <p>График1</p>
 <%= @person.get_data_for_graph1%>
 
+<link href="flotDescription.css" rel="stylesheet" type="text/css">
+<!--[if lte IE 8]><script language="javascript" type="text/javascript" src="../../excanvas.min.js"></script><![endif]-->
+<script language="javascript" type="text/javascript" src="jquery.js"></script>
+<script language="javascript" type="text/javascript" src="jquery.flot.js"></script>
 
-<script type="text/javascript" src="http://dygraphs.com/dygraph-combined.js"></script>
-<div id="graphdiv"></div>
 <script type="text/javascript">
 
-var data   = <%= @person.get_array_data%>;
-var values = <%= @person.get_array_values%>;
-var points = [];
-for(var i=0; i<data.length; i++)
-{
-  points.push([new Date(data[i] * 1000), (values[i])?10:-10] );
-}
-g = new Dygraph(document.getElementById("graphdiv"),
-                      points,
-                      {
-                              labels: [ "X", "Y" ]
-                      });
-</script>
+  jQuery(function() {
+
+  var data   = <%= @person.get_array_data%>;
+  var values = <%= @person.get_array_values%>;
+  var xaxisSign = [];
+  var points = [];
+  for(var i=0; i<data.length; i++)
+  {
+    points.push([data[i], (values[i])?10:-10] );
+    xaxisSign.push([data[i], (new Date(data[i] * 1000)).toLocaleDateString()]);
+  }
+
+    jQuery.plot("#placeholder", [points], 
+      {
+        series: 
+        {
+          lines: { show: true },
+          points: { show: true }
+        },
+        xaxis:
+        {
+          ticks: xaxisSign
+        }
+      }
+    );
+
+  });
+
+ </script>
+
+<div class="demo-container">
+  <div id="placeholder" class="demo-placeholder"></div>
+</div>
