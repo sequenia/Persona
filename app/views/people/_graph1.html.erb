@@ -12,29 +12,110 @@
 
   jQuery(function() {
 
-  var data   = <%= @person.get_array_data%>;
-  var values = <%= @person.get_array_values%>;
-  var xaxisSign = [];
-  var points = [];
-  for(var i=0; i<data.length; i++)
-  {
-    points.push([data[i], (values[i])?10:-10] );
-    xaxisSign.push([data[i], (new Date(data[i] * 1000)).toLocaleDateString()]);
-  }
+    var dates = <%= @person.get_dates_array%>;
 
-    jQuery.plot("#placeholder", [points], 
+    if(dates.length < 3)
+    {
+      alert("Слишком мало дат");
+    }
+    else
+    {
+      var MemoryDate1 = dates[1];
+      var MemoryDate2 = dates[2];
+      var BirthDate   = dates[0];
+      var Zero        = MemoryDate1;
+      var T           = MemoryDate2 - MemoryDate1;
+      var Xcoeff      = 2 * Math.PI / T; <!--Нужно перебрать для всех дат, кроме даты рождения-->
+      var GraphPoints = [];
+      var CtrlPoints  = [];
+      var MinusPoints = [];
+      var PlusPoints  = [];
+      var ZeroPoints  = [];
+
+      <!--Ищем 0, самый близкий к дате рождения-->
+      <!--Чтобы провести до него 1 период синусоиды-->
+      <!--Дальше синусоида пойдет в соответствии с опорными точками-->
+      while(Zero - BirthDate > T)
       {
-        series: 
+        Zero = Zero - T;
+      }
+      var PreXCoeff = 2 * Math.PI / (Zero - BirthDate);
+
+      <!--За ноль координат принимаем найденный ноль,-->
+      <!--так как главный период синусоиды начинается именно оттуда-->
+
+      <!--Строим первый период синусоиды (от даты рождения до найденного нуля)-->
+      for(var i = BirthDate - Zero; i < Zero - Zero; i += 1000)
+      {
+        GraphPoints.push([i + Zero, Math.sin(PreXCoeff * i - Math.PI)]);
+      }
+
+      <!--Строим остальную синусоиду (с главным периодом)-->
+      for(var i = Zero - Zero; i <= MemoryDate2 - Zero + 2000000; i += 1000)
+      {
+        GraphPoints.push([i + Zero, Math.sin(Xcoeff * i - Math.PI)]);
+      }
+
+      <!--Проставляем точки на графике-->
+      var counter = 0;
+      var IsPositive = new Boolean(true);
+      MinusPoints.push([BirthDate,   0]);
+      ZeroPoints.push( [BirthDate + (Zero - BirthDate) / 2,   0]);
+      CtrlPoints.push([MemoryDate1, 0]);
+      CtrlPoints.push([MemoryDate2, 0]);
+      for(var i = Zero; i <= MemoryDate2 + 2000000; i += T / 2)
+      {
+        if(i != MemoryDate1 && i != MemoryDate2)
         {
+          if(counter % 2 == 0)
+          {
+            if(IsPositive) PlusPoints.push([i, 0]);
+            else MinusPoints.push([i, 0]);
+            IsPositive = !IsPositive;
+          }
+          else
+          {
+            ZeroPoints.push([i,   0]);
+          }
+        }
+        counter++;
+      }
+
+      jQuery.plot("#placeholder", 
+      [
+        {
+          label: "Ваш график",
+          data: GraphPoints,
           lines: { show: true },
+          points: { show: false }
+        },
+        {
+          label: "Опорные точки",
+          data: CtrlPoints,
+          lines: { show: false },
           points: { show: true }
         },
-        xaxis:
         {
-          ticks: xaxisSign
+          label: "Минусы",
+          data: MinusPoints,
+          lines: { show: false },
+          points: { show: true }
+        },
+        {
+          label: "Плюсы",
+          data: PlusPoints,
+          lines: { show: false },
+          points: { show: true }
+        },
+        {
+          label: "Нули",
+          data: ZeroPoints,
+          lines: { show: false },
+          points: { show: true }
         }
-      }
-    );
+      ]);
+
+    }
 
   });
 
