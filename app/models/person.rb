@@ -1,18 +1,6 @@
 # coding: utf-8
 class Person < ActiveRecord::Base
 	has_many :stories, dependent: :destroy
-	def get_data_for_graph1
-		stories_counter = stories.count()
-		if (stories_counter) <3 then
-			return "число событий <3, не могу построить график"
-		end	
-		stories_text = ""
-		stories.each do |story|
-			stories_text+=story.date.to_s + ", "
-		end	
-	return stories_text
-	end	
-
 	def get_dates_with_signs
 		date_arr = []
 		i = 0
@@ -20,6 +8,7 @@ class Person < ActiveRecord::Base
 			date_arr << [stories[i].date.to_datetime.to_i, stories[i].is_positive]
 			i += 1
 		end
+		date_arr.sort! { |x, y| x[0] <=> y[0]}
 		return date_arr.to_json
 	end	
 
