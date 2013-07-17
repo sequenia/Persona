@@ -12,6 +12,7 @@
 <script type="text/javascript">
   var CoefConvRubyToJSDate = 1000;
   var SinusCalculateStep   = 1000000;
+  var MaxDateStr = '2064-01-01';
 
   function genPointsToSinus(LeftEndPoint, RightEndPoint, Step, XCoeff, Offset, CoordZero)
   {
@@ -121,11 +122,21 @@
     return Graph;
   }
 
-  jQuery(function() {
+  function getDate(DateWithSign)
+  {
+    return DateWithSign[0];
+  }
 
-    var dates = <%= @person.get_dates_array%>;
-    var maxDate = Math.max.apply(null, dates);
-    var minDate = Math.min.apply(null, dates);
+  function getSign(DateWithSign)
+  {
+    return DateWithSign[1];
+  }
+
+  $(function() {
+
+    var dates = <%= @person.get_dates_with_signs%>;
+    var maxDate = Number(new Date(MaxDateStr)) / 1000;
+    var birthDate = getDate(dates[0]);
 
     if(dates.length < 3)
     {
@@ -138,14 +149,18 @@
           {
             for(var j = i + 1; j < dates.length; j++)
             {
-              var Graph = graphInit(dates[0], dates[i], dates[j], maxDate);
-              datasets[(new Date(dates[i] * CoefConvRubyToJSDate)).toLocaleDateString() + ", " + (new Date(dates[j] * CoefConvRubyToJSDate)).toLocaleDateString()] = 
+              if(getSign(dates[i]) != getSign(dates[j]))
               {
-                "Sinus" : Graph["Sinus"],
-                "Minus" : Graph["Minus"],
-                "Zero"  : Graph["Zero"],
-                "Plus"  : Graph["Plus"],
-                "CtrlPoints" : Graph["CtrlPoints"]
+                var Graph = graphInit(birthDate, getDate(dates[i]), getDate(dates[j]), maxDate);
+                datasets[(new Date(getDate(dates[i]) * CoefConvRubyToJSDate)).toLocaleDateString() + 
+                  ", " + (new Date(getDate(dates[j]) * CoefConvRubyToJSDate)).toLocaleDateString()] = 
+                {
+                  "Sinus" : Graph["Sinus"],
+                  "Minus" : Graph["Minus"],
+                  "Zero"  : Graph["Zero"],
+                  "Plus"  : Graph["Plus"],
+                  "CtrlPoints" : Graph["CtrlPoints"]
+                }
               }
             }
           }
@@ -157,10 +172,8 @@
               "' checked='checked' id='id" + key + "'></input>" +
               "<label for='id" + key + "'>"
               + key + "</label>");
-          });
+          });    
 
-          choiceContainer.find("input").click(plotAccordingToChoices);
-          
           function plotAccordingToChoices() 
           {
 
@@ -192,7 +205,7 @@
                 {
                   mode: "time",
                   timeformat: "%d/%m/%Y",
-                  panRange: [minDate * CoefConvRubyToJSDate, maxDate * CoefConvRubyToJSDate]
+                  panRange: [birthDate * CoefConvRubyToJSDate, maxDate * CoefConvRubyToJSDate]
                 },
                 zoom: 
                 {
@@ -204,8 +217,10 @@
                 }
             };
 
-            jQuery.plot("#placeholder", data, options);
+            $.plot("#placeholder", data, options);
           }
+
+          choiceContainer.find("input").click(plotAccordingToChoices);
 
           plotAccordingToChoices();
     }

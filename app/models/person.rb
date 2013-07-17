@@ -13,25 +13,15 @@ class Person < ActiveRecord::Base
 	return stories_text
 	end	
 
-	def get_dates_array
+	def get_dates_with_signs
 		date_arr = []
 		i = 0
 		while i < stories.count() do
-			date_arr << stories[i].date.to_datetime.to_i
+			date_arr << [stories[i].date.to_datetime.to_i, stories[i].is_positive]
 			i += 1
 		end
 		return date_arr.to_json
-	end
-
-	def get_values_array
-		value_arr = []
-		i = 0
-		while i < stories.count() do
-			value_arr << stories[i].is_positive
-			i += 1
-		end
-		return value_arr.to_json
-	end
+	end	
 
 	def get_data_for_graph2
 		stories_counter = stories.count()
