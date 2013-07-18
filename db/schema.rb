@@ -11,12 +11,13 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 20130707131500) do
+ActiveRecord::Schema.define(version: 20130718063757) do
 
   create_table "people", force: true do |t|
     t.string   "name"
     t.datetime "created_at"
     t.datetime "updated_at"
+    t.date     "birth"
   end
 
   create_table "points", force: true do |t|
@@ -30,8 +31,7 @@ ActiveRecord::Schema.define(version: 20130707131500) do
     t.datetime "updated_at"
     t.integer  "person_id"
     t.date     "date"
-    t.boolean  "isPositive"
-    t.boolean  "is_positive"
+    t.integer  "type"
   end
 
   add_index "stories", ["person_id"], name: "index_stories_on_person_id"
