@@ -1,7 +1,7 @@
 class StoriesController < ApplicationController
 	def create
 		@person = Person.find(params[:person_id])
-		@story = @person.stories.create(params[:story].permit(:date, :is_positive))
+		@story = @person.stories.create(params[:story].permit(:date, :type))
 		redirect_to person_path(@person)
 	end
 
