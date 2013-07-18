@@ -16,7 +16,7 @@
 
 <%= form_for([@person, @person.stories.build]) do |f| %>
 <%= f.date_field :date %>
-<%= select("stories", "type", [["Negative", Story::NEGATIVE], ["Positive", Story::POSITIVE]], {include_blank: false}) %>
+<%= f.select(:story_type, [["Negative", Story::NEGATIVE], ["Positive", Story::POSITIVE]]) %>
 <%= f.submit %>
 <% end %>
 

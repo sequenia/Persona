@@ -5,7 +5,7 @@ class Person < ActiveRecord::Base
 		date_arr = []
 		i = 0
 		while i < stories.count() do
-			date_arr << [stories[i].date.to_datetime.to_i, stories[i].is_positive]
+			date_arr << [stories[i].date.to_datetime.to_i, stories[i].story_type]
 			i += 1
 		end
 		date_arr.sort! { |x, y| x[0] <=> y[0]}

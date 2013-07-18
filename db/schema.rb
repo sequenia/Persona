@@ -11,7 +11,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 20130718063757) do
+ActiveRecord::Schema.define(version: 20130718092056) do
 
   create_table "people", force: true do |t|
     t.string   "name"
@@ -31,7 +31,7 @@ ActiveRecord::Schema.define(version: 20130718063757) do
     t.datetime "updated_at"
     t.integer  "person_id"
     t.date     "date"
-    t.integer  "type"
+    t.integer  "story_type"
   end
 
   add_index "stories", ["person_id"], name: "index_stories_on_person_id"
