@@ -1,6 +1,8 @@
 # coding: utf-8
 class Person < ActiveRecord::Base
+	
 	has_many :stories, dependent: :destroy
+
 	def get_dates_with_signs
 		date_arr = []
 		i = 0
@@ -11,6 +13,10 @@ class Person < ActiveRecord::Base
 		date_arr.sort! { |x, y| x[0] <=> y[0]}
 		return date_arr.to_json
 	end	
+
+	def get_birth
+        return birth.to_datetime.to_i
+	end
 
 	def get_data_for_graph2
 		stories_counter = stories.count()

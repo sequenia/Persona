@@ -7,7 +7,8 @@
 <script type="text/javascript">
   var CoefConvRubyToJSDate = 1000;
   var SinusCalculateStep   = 1000000;
-  var MaxDateStr = '2064-01-01';
+  var MaxDateStr           = '2064-01-01';
+  var MinReqDates          = 3
 
   function genPointsToSinus(LeftEndPoint, RightEndPoint, Step, XCoeff, Offset, CoordZero)
   {
@@ -131,16 +132,16 @@
 
     var dates = <%= @person.get_dates_with_signs%>;
     var maxDate = Number(new Date(MaxDateStr)) / 1000;
-    var birthDate = getDate(dates[0]);
-
-    if(dates.length < 3)
+    var birthDate = <%= @person.get_birth %>;
+    
+    if(dates.length < MinReqDates)
     {
       alert("Слишком мало дат");
     }
     else
     {       
           var datasets = {};
-          for(var i = 1; i < dates.length - 1; i++)
+          for(var i = 0; i < dates.length - 1; i++)
           {
             for(var j = i + 1; j < dates.length; j++)
             {
