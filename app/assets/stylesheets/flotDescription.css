@@ -1,9 +1,9 @@
 .demo-container 
 {
 	box-sizing: border-box;
-	width: 1280px;
+	width: 1080px;
 	height: 300px;
-	padding: 20px 15px 15px 15px;
+	padding: 0px 15px 15px 15px;
 	margin: 15px auto 30px auto;
 	border: 1px solid #ddd;
 	background: #fff;

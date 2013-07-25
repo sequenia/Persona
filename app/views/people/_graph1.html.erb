@@ -3,7 +3,6 @@
   var CoefConvRubyToJSDate = 1000;
   var SinusCalculateStep   = 1000000;
   var MaxDateStr           = '2064-01-01';
-  var MinReqDates          = 3
 
   function genPointsToSinus(LeftEndPoint, RightEndPoint, Step, XCoeff, Offset, CoordZero)
   {
@@ -19,7 +18,7 @@
   {
     var CtrlPoints  = [];
     var MinusPoints = [];
-    var PlusPoints  = [];
+    var PlusPoints  = []; 
     var ZeroPoints  = [];
     var counter = 0;
     var IsPositive = new Boolean(true);
@@ -124,104 +123,98 @@
   }
 
   $(function() {
-//alert("Слишком мало дат");
+
     var dates = <%= @person.get_dates_with_signs%>;
     var maxDate = Number(new Date(MaxDateStr)) / 1000;
-    var birthDate = <%= @person.get_birth %>;
-    
-    if(dates.length < MinReqDates)
+    var birthDate = <%= @person.get_birth %>;      
+    var datasets = {};
+
+    for(var i = 0; i < dates.length - 1; i++)
     {
-      alert("Слишком мало дат");
-    }
-    else
-    {       
-          var datasets = {};
-          for(var i = 0; i < dates.length - 1; i++)
+      for(var j = i + 1; j < dates.length; j++)
+      {
+        if(getSign(dates[i]) != getSign(dates[j]))
+        {
+          var Graph = graphInit(birthDate, getDate(dates[i]), getDate(dates[j]), maxDate);
+          datasets[(new Date(getDate(dates[i]) * CoefConvRubyToJSDate)).toLocaleDateString() + 
+            ", " + (new Date(getDate(dates[j]) * CoefConvRubyToJSDate)).toLocaleDateString()] = 
           {
-            for(var j = i + 1; j < dates.length; j++)
-            {
-              if(getSign(dates[i]) != getSign(dates[j]))
-              {
-                var Graph = graphInit(birthDate, getDate(dates[i]), getDate(dates[j]), maxDate);
-                datasets[(new Date(getDate(dates[i]) * CoefConvRubyToJSDate)).toLocaleDateString() + 
-                  ", " + (new Date(getDate(dates[j]) * CoefConvRubyToJSDate)).toLocaleDateString()] = 
-                {
-                  "Sinus" : Graph["Sinus"],
-                  "Minus" : Graph["Minus"],
-                  "Zero"  : Graph["Zero"],
-                  "Plus"  : Graph["Plus"],
-                  "CtrlPoints" : Graph["CtrlPoints"]
-                }
-              }
-            }
+            "Sinus" : Graph["Sinus"],
+            "Minus" : Graph["Minus"],
+            "Zero"  : Graph["Zero"],
+            "Plus"  : Graph["Plus"],
+            "CtrlPoints" : Graph["CtrlPoints"]
           }
-
-          var graphColor = 0;
-          $.each(datasets, function(key, val)
-          {
-            val["Sinus"].color = graphColor;
-            ++graphColor;
-          });
-
-          var choiceContainer = $("#choices");
-          $.each(datasets, function(key, val) 
-          {
-            choiceContainer.append("<br/><input type='checkbox' name='" + key +
-              "' checked='checked' id='id" + key + "'></input>" +
-              "<label for='id" + key + "'>"
-              + key + "</label>");
-          });    
-
-          function plotAccordingToChoices() 
-          {
-
-            var data = [];
-
-            choiceContainer.find("input:checked").each(function () 
-            {
-              var key = $(this).attr("name");
-              if (key && datasets[key]) 
-              {
-                  data.push(datasets[key]["Sinus"]);
-                  data.push(datasets[key]["Minus"]);
-                  data.push(datasets[key]["Plus"]);
-                  data.push(datasets[key]["Zero"]);
-                  data.push(datasets[key]["CtrlPoints"]);
-              }
-            });
-
-            var options = 
-            {
-                yaxis:
-                {
-                  show: true,
-                  font: {size: 0},
-                  panRange: [-1.5, 1.5],
-                  zoomRange: [1, 1]
-                },
-                xaxis: 
-                {
-                  mode: "time",
-                  timeformat: "%d/%m/%Y",
-                  panRange: [birthDate * CoefConvRubyToJSDate, maxDate * CoefConvRubyToJSDate]
-                },
-                zoom: 
-                {
-                  interactive: true
-                },
-                pan: 
-                {
-                  interactive: true
-                }
-            };
-
-            $.plot("#placeholder", data, options);
-          }
-
-          choiceContainer.find("input").click(plotAccordingToChoices);
-
-          plotAccordingToChoices();
+        }
+      }
     }
+
+    var graphColor = 0;
+    $.each(datasets, function(key, val)
+    {
+      val["Sinus"].color = graphColor;
+      ++graphColor;
+    });
+
+    var choiceContainer = $("#choices");
+    $.each(datasets, function(key, val) 
+    {
+      choiceContainer.append("<br/><input type='checkbox' name='" + key +
+        "' checked='checked' id='id" + key + "'></input>" +
+        "<label for='id" + key + "'>"
+        + key + "</label>");
+    });    
+
+    function plotAccordingToChoices() 
+    {
+
+      var data = [];
+
+      choiceContainer.find("input:checked").each(function () 
+      {
+        var key = $(this).attr("name");
+        if (key && datasets[key]) 
+        {
+            data.push(datasets[key]["Sinus"]);
+            data.push(datasets[key]["Minus"]);
+            data.push(datasets[key]["Plus"]);
+            data.push(datasets[key]["Zero"]);
+            data.push(datasets[key]["CtrlPoints"]);
+        }
+      });
+
+      var options = 
+      {
+          yaxis:
+          {
+            show: true,
+            font: {size: 0},
+            panRange: [-1.5, 1.5],
+            zoomRange: [1, 1]
+          },
+          xaxis: 
+          {
+            mode: "time",
+            timeformat: "%d/%m/%Y",
+            panRange: [birthDate * CoefConvRubyToJSDate, maxDate * CoefConvRubyToJSDate]
+          },
+          zoom: 
+          {
+            interactive: true
+          },
+          pan: 
+          {
+            interactive: true
+          }
+      };
+
+      $.plot("#placeholder", data, options);
+    }
+
+    choiceContainer.find("input").click(plotAccordingToChoices);
+
+    plotAccordingToChoices();
+
 
   });
 
@@ -230,7 +223,7 @@
 <div id="content">
 
     <div class="demo-container">
-      <div id="placeholder" class="demo-placeholder" style="float:left; width:950px;"></div>
+      <div id="placeholder" class="demo-placeholder" style="float:left; width:750px;"></div>
       <p id="choices" style="float:right; width:200px;"></p>
     </div>
 

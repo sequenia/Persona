@@ -1,9 +1,14 @@
 <p id="notice"><%= notice %></p>
 
 <p>
+  <h3>
   <strong>Имя:</strong>
   <%= @person.name %>
+  </h3>
 </p>
+
+
+
 <h2>Добавление события</h2>
 <div class="hero-unit">
 <%=form_for([@person, @person.stories.build]) do |f| %>
@@ -14,22 +19,36 @@
 <%= f.submit :class => "btn btn-primary", :value => "Создать событие" %> 
 <% end %>
 <br>
+</div>
+
+<% if @person.valide_dates_for_graph  %>
 <h2>График</h2>
-
+<div class="hero-unit">
 <%= render "graph1"%>
-
+<% end %>
 <br>
 </div>
 <h2>События</h2>
-<% i = 0 %>
-<% @person.stories.each do %>
+<div class="hero-unit h1">
+<table class="table">
+	
+<tr>
+	<th>Дата</th>
+	<th>Значение</th>
+	<th>Действие</th>
+</tr>	
+<tbody>
+<% for i in 0..@person.get_dates_count - 1 %>
 <% if i % 3 == 0 %> <br>
 <% end %>
+<tr>
 <%= render @person.stories[i] %>
-;
 <% i+=1 %>
+</tr>
 <%end%>
-
+</tbody>
+</table>
+</div>
 
 <br>
 <br>

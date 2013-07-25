@@ -14,6 +14,34 @@ class Person < ActiveRecord::Base
 		return date_arr.to_json
 	end	
 
+	def get_dates_count
+		return stories.count()
+	end	
+
+
+	def valide_dates_for_graph
+		 cnt = stories.count()
+         result = true
+         count_pos = 0
+         count_neg = 0 
+         if cnt > 2 then
+         	i = 1
+            while i < cnt do
+            	if stories[i].story_type == 1 
+            		then count_pos += 1
+            	else count_neg += 1	
+            	end	
+            	i += 1	
+            end
+         end
+         
+         if count_neg == 0 or count_pos == 0 
+         	then result = false 
+		 end
+
+         return result
+	end	
+
 	def get_birth
         return birth.to_datetime.to_i
 	end
