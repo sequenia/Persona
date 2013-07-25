@@ -1,33 +1,37 @@
 <p id="notice"><%= notice %></p>
 
 <p>
-  <strong>Name:</strong>
+  <strong>Имя:</strong>
   <%= @person.name %>
 </p>
-
-<h1>События</h1>
-<%= render @person.stories%>
-
-
-<p>
-	Добавить событие
-</p>
-
-
-<%= form_for([@person, @person.stories.build]) do |f| %>
+<h2>Добавление события</h2>
+<div class="hero-unit">
+<%=form_for([@person, @person.stories.build]) do |f| %>
 <%= f.date_field :date %>
-<%= f.select(:story_type, [["Negative", Story::NEGATIVE], ["Positive", Story::POSITIVE]]) %>
-<%= f.submit %>
-<% end %>
-
 <br>
-<h1>Графики</h1>
+<%= f.select(:story_type, [["Negative", Story::NEGATIVE], ["Positive", Story::POSITIVE]]) %>
+<br>
+<%= f.submit :class => "btn btn-primary", :value => "Создать событие" %> 
+<% end %>
+<br>
+<h2>График</h2>
 
 <%= render "graph1"%>
-<%= render "graph2"%>
+
+<br>
+</div>
+<h2>События</h2>
+<% i = 0 %>
+<% @person.stories.each do %>
+<% if i % 3 == 0 %> <br>
+<% end %>
+<%= render @person.stories[i] %>
+;
+<% i+=1 %>
+<%end%>
 
 
 <br>
-
-<%= link_to 'Edit', edit_person_path(@person) %> |
-<%= link_to 'Back', people_path %>
+<br>
+<%= link_to 'Редактировать', edit_person_path(@person) %> |
+<%= link_to 'Назад', people_path %>

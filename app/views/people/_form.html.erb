@@ -11,6 +11,8 @@
     </div>
   <% end %>
 
+<div class="hero-unit">
+
   <div class="field">
     Имя <br>
     <%= f.text_field :name %><br>
@@ -18,6 +20,9 @@
     <%= f.date_field :birth %> 
   </div>
   <div class="actions">
-    <%= f.submit %>
+   <%= f.submit :class => "btn btn-large btn-success", :value => "Новая персона" %> 
   </div>
+</div>
+
+
 <% end %>
