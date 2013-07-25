@@ -124,7 +124,7 @@
   }
 
   $(function() {
-alert("Слишком мало дат");
+//alert("Слишком мало дат");
     var dates = <%= @person.get_dates_with_signs%>;
     var maxDate = Number(new Date(MaxDateStr)) / 1000;
     var birthDate = <%= @person.get_birth %>;
