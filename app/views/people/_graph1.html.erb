@@ -1,8 +1,32 @@
-
 <script type="text/javascript">
   var CoefConvRubyToJSDate = 1000;
   var SinusCalculateStep   = 1000000;
   var MaxDateStr           = '2064-01-01';
+  var plot;
+  var overview;
+  var options;
+  var data;
+
+  function rgbToHex(R,G,B) {return toHex(R)+toHex(G)+toHex(B)}
+
+  function toHex(n) 
+  {
+    n = parseInt(n,10);
+    if (isNaN(n)) return "00";
+    n = Math.max(0,Math.min(n,255));
+    return "0123456789ABCDEF".charAt((n-n%16)/16)
+      + "0123456789ABCDEF".charAt(n%16);
+  }
+
+  var redColor   = "#" + rgbToHex(150, 0, 0);
+  var greenColor = "#" + rgbToHex(0, 150, 0);
+  var blueColor  = "#" + rgbToHex(0, 0, 150);
+  var grayColor  = "#" + rgbToHex(150, 150, 150);
+
+  function getRandomInt(min, max)
+  {
+    return Math.floor(Math.random() * (max - min + 1)) + min;
+  }
 
   function genPointsToSinus(LeftEndPoint, RightEndPoint, Step, XCoeff, Offset, CoordZero)
   {
@@ -43,13 +67,79 @@
       }
       counter++;
     }
-    var AllPoints = {
+    var AllPoints = 
+    {
       "CtrlPoints"  : CtrlPoints,
       "MinusPoints" : MinusPoints,
       "PlusPoints"  : PlusPoints,
       "ZeroPoints"  : ZeroPoints
     }
     return AllPoints;
+  }
+
+  function pointsToLife(Label, Data, Color)
+  {
+    return { 
+      label: Label,
+      data: Data,
+      color: Color
+    };
+  }
+
+  function pointsToGraph(Data, Color)
+  {
+    return { 
+      data: Data,
+      lines: { show: false },
+      points: 
+      { 
+        show: true,
+        radius: 3,
+        lineWidth: 2, // in pixels
+        fill: false,
+        fillColor: Color,
+        symbol: "circle" // or callback
+      },
+      color: Color
+    };
+  }
+
+  function lifeInit(BirthDate, EndPoint)
+  {
+    var Graph  = {};
+    var GraphPoints = [];
+    var Points = [];
+
+    var BDate  = new Date(BirthDate * CoefConvRubyToJSDate);
+    var EndDate = new Date(EndPoint * CoefConvRubyToJSDate);
+    var Multiply = (BDate.getDate() * 100 + (BDate.getMonth() + 1)) * BDate.getFullYear();
+    var MultiplyStr = Multiply.toString();
+    var counter = 0;
+    var len = MultiplyStr.length;
+
+    BDate = new Date(BDate.getFullYear(), 0, 1);
+
+    while(BDate < EndDate)
+    {
+      GraphPoints.push([BDate.valueOf(), (MultiplyStr[counter].charCodeAt(0) - "0".charCodeAt(0)) / 4 + 2.5]);
+
+      BDate = new Date(BDate.getFullYear() + 1, 0, 1);
+      counter++;
+      if(counter == len) counter = 0;
+    }
+
+    Graph["Sinus"] = 
+    {
+        data: GraphPoints,
+        lines: { show: true },
+        points: { show: true }
+    };
+    Graph["CtrlPoints"] = pointsToLife("Точки, определившие период синусоиды", Points, greenColor);
+    Graph["Minus"] = pointsToLife("Минусы", Points, redColor);
+    Graph["Plus"] = pointsToLife("Плюсы", Points, blueColor);
+    Graph["Zero"] = pointsToLife("Нули", Points, grayColor);
+
+    return Graph;
   }
 
   function graphInit(BirthDate, MemoryDate1, MemoryDate2, EndPoint)
@@ -78,36 +168,17 @@
 
     var OtherPoints = genOtherPoints(BirthDate, MemoryDate1, MemoryDate2, EndPoint, Zero, T);
 
-    Graph["Sinus"] = {
-          label: (new Date(MemoryDate1 * CoefConvRubyToJSDate)).toLocaleDateString() + ", " + (new Date(MemoryDate2 * CoefConvRubyToJSDate)).toLocaleDateString(),
-          data: GraphPoints,
-          lines: { show: true },
-          points: { show: false }
-        };
-    Graph["CtrlPoints"] = { 
-          data: OtherPoints["CtrlPoints"],
-          lines: { show: false },
-          points: { show: true },
-          color: 3
-        };
-    Graph["Minus"] = { 
-          data: OtherPoints["MinusPoints"],
-          lines: { show: false },
-          points: { show: true },
-          color: 2
-        };
-    Graph["Plus"] = {      
-          data: OtherPoints["PlusPoints"],
-          lines: { show: false },
-          points: { show: true },
-          color: 1
-        };
-    Graph["Zero"] = {  
-          data: OtherPoints["ZeroPoints"],
-          lines: { show: false },
-          points: { show: true },
-          color: 4
-        };
+    Graph["Sinus"] = 
+    {
+      data: GraphPoints,
+      lines: { show: false },
+      points: { show: false },
+      dashes: { show: true, dashLength: 5, lineWidth: 1 }
+    };
+    Graph["CtrlPoints"] = pointsToGraph(OtherPoints["CtrlPoints"], greenColor);
+    Graph["Minus"] = pointsToGraph(OtherPoints["MinusPoints"], redColor);
+    Graph["Plus"] = pointsToGraph(OtherPoints["PlusPoints"], blueColor);
+    Graph["Zero"] = pointsToGraph(OtherPoints["ZeroPoints"], grayColor);
 
     return Graph;
   }
@@ -122,12 +193,30 @@
     return DateWithSign[1];
   }
 
+  function setLines(dataSets, Graph, label)
+  {
+    dataSets[label] = 
+    {
+      "Sinus" : Graph["Sinus"],
+      "Minus" : Graph["Minus"],
+      "Zero"  : Graph["Zero"],
+      "Plus"  : Graph["Plus"],
+      "CtrlPoints" : Graph["CtrlPoints"]
+    }
+  }
+
   $(function() {
 
-    var dates = <%= @person.get_dates_with_signs%>;
+    var dates = <%= @person.get_dates_with_signs %>;
     var maxDate = Number(new Date(MaxDateStr)) / 1000;
-    var birthDate = <%= @person.get_birth %>;      
+    var birthDate = <%= @person.get_birth %>;
+    var birthYear = new Date((new Date(birthDate * CoefConvRubyToJSDate)).getFullYear(), 0, 1);
     var datasets = {};
+    var yearDatasets = {};
+    var monthDatasets = {};
+
+    var colorsCount = 0;
+    setLines(datasets, lifeInit(birthDate, maxDate), "Дискретизация")
 
     for(var i = 0; i < dates.length - 1; i++)
     {
@@ -136,39 +225,70 @@
         if(getSign(dates[i]) != getSign(dates[j]))
         {
           var Graph = graphInit(birthDate, getDate(dates[i]), getDate(dates[j]), maxDate);
-          datasets[(new Date(getDate(dates[i]) * CoefConvRubyToJSDate)).toLocaleDateString() + 
-            ", " + (new Date(getDate(dates[j]) * CoefConvRubyToJSDate)).toLocaleDateString()] = 
-          {
-            "Sinus" : Graph["Sinus"],
-            "Minus" : Graph["Minus"],
-            "Zero"  : Graph["Zero"],
-            "Plus"  : Graph["Plus"],
-            "CtrlPoints" : Graph["CtrlPoints"]
-          }
+          setLines(datasets, Graph, (new Date(getDate(dates[i]) * CoefConvRubyToJSDate)).toLocaleDateString() + 
+            ", " + (new Date(getDate(dates[j]) * CoefConvRubyToJSDate)).toLocaleDateString());
+          colorsCount++;
         }
       }
     }
 
-    var graphColor = 0;
+    var colorsCounter = 0;
+    var choiceContainer = $("#choicestable");
+    var htmlStr = "";
+
+    htmlStr += "<thead>";
+    htmlStr += "<tr><th>Показать</th><th>Цвет</th><th>Подпись</th></tr>";
+    htmlStr += "</thead>";
     $.each(datasets, function(key, val)
     {
-      val["Sinus"].color = graphColor;
-      ++graphColor;
-    });
+      var r = 0;
+      var g = 0;
+      var b = 0;
+      if(key != "Дискретизация")
+      {
+        r = getRandomInt(0, 255);
+        g = getRandomInt(0, 255);
+        b = getRandomInt(0, 255);
+        colorsCounter++;
+      }
+      else
+      {
+        r = 0;
+        g = 0;
+        b = 0;
+      }
 
-    var choiceContainer = $("#choices");
-    $.each(datasets, function(key, val) 
-    {
-      choiceContainer.append("<br/><input type='checkbox' name='" + key +
-        "' checked='checked' id='id" + key + "'></input>" +
-        "<label for='id" + key + "'>"
-        + key + "</label>");
-    });    
+      val["Sinus"].color = "#" + rgbToHex(r, g, b);
+
+      htmlStr += "<tr>";
+
+      htmlStr += 
+      "<td>" +
+        "<input type='checkbox' name='" + key + "' checked='checked' id='id" + key + "'></input>" +
+      "</td>" + 
+      "<td>" +
+        "<div style='width:14px; border:1px solid #ccc;padding:1px'>" + 
+          "<div style='width:4px;height:0;border:5px solid rgb(" + 
+          Math.floor(r).toString() + "," + 
+          Math.floor(g).toString() + "," + 
+          Math.floor(b).toString() +  
+          ");overflow:hidden'></div>" +
+        "</div>" + 
+      "</td>" +
+      "<td>" +
+        key +
+      "</td>";
+
+      htmlStr += "</tr>";
+    });  
+
+    choiceContainer.append(htmlStr); 
+
 
     function plotAccordingToChoices() 
     {
 
-      var data = [];
+      data = [];
 
       choiceContainer.find("input:checked").each(function () 
       {
@@ -176,27 +296,41 @@
         if (key && datasets[key]) 
         {
             data.push(datasets[key]["Sinus"]);
+            data.push(datasets[key]["CtrlPoints"]);
             data.push(datasets[key]["Minus"]);
             data.push(datasets[key]["Plus"]);
             data.push(datasets[key]["Zero"]);
-            data.push(datasets[key]["CtrlPoints"]);
         }
       });
 
-      var options = 
+      options = 
       {
+          lines: 
+          {
+            show: true,
+            lineWidth: 1
+          },
           yaxis:
           {
             show: true,
-            font: {size: 0},
-            panRange: [-1.5, 1.5],
-            zoomRange: [1, 1]
+            panRange: [-1.5, 7],
+            zoomRange: [1, 1],
+            min: -1.5,
+            max: 7,
+            ticks: 
+            [
+              [ 0, "" ], [ -1, ""], [1, ""], [2.5, "0"], 
+              [2.75, "1"], [3, "2"], [3.25, "3"], [3.5, "4"],
+              [3.75, "5"], [4, "6"], [4.25, "7"], [4.5, "8"],
+              [4.75, "9"]
+            ]
           },
           xaxis: 
           {
-            mode: "time",
-            timeformat: "%d/%m/%Y",
-            panRange: [birthDate * CoefConvRubyToJSDate, maxDate * CoefConvRubyToJSDate]
+              mode: "time",
+              timeformat: "%d/%m/%Y",
+              panRange: [birthYear.valueOf(), maxDate * CoefConvRubyToJSDate],
+              position: 'bottom'
           },
           zoom: 
           {
@@ -208,23 +342,33 @@
           }
       };
 
-      $.plot("#placeholder", data, options);
+      plot = $.plot("#placeholder", data, options);
+
     }
 
     choiceContainer.find("input").click(plotAccordingToChoices);
 
     plotAccordingToChoices();
 
-
   });
 
  </script>
 
+<p id="peopleselect" class= "peopleselecter"></p>
+
 <div id="content">
 
+    <input type="radio" name="graphType" value="1" checked> Годовой график <br>
+    <input type="radio" name="graphType" value="2" > Месячный график <br>
+
     <div class="demo-container">
-      <div id="placeholder" class="demo-placeholder" style="float:left; width:750px;"></div>
-      <p id="choices" style="float:right; width:200px;"></p>
+      <div id="placeholder" class="demo-placeholder" style="float:left; width:850px; height: 460px;"></div>
+      <p id="choices" style="float:right; width:280px;">
+        <table id="choicestable" class= "legendtable">
+          <tbody>
+          </tbody>
+        </table>
+      </p>
     </div>
 
 </div>

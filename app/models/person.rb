@@ -25,7 +25,7 @@ class Person < ActiveRecord::Base
          count_pos = 0
          count_neg = 0 
          if cnt > 2 then
-         	i = 1
+         	i = 0
             while i < cnt do
             	if stories[i].story_type == 1 
             		then count_pos += 1
@@ -57,4 +57,19 @@ class Person < ActiveRecord::Base
 		end	
 	return stories_text
 	end	
+
+	def get_person_names
+		person_arr = []
+		all_persons = Person.all
+
+		i = 0
+		while i < all_persons.count() do
+			person_arr << [all_persons[i].id, all_persons[i].name]
+			i += 1
+		end
+
+		return person_arr.to_json
+		
+	end
+
 end
