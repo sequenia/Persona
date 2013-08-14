@@ -60,7 +60,7 @@
   }
 
   // Генерация точек для графика (минусы, плюсы и тд)
-  function genOtherPoints(BirthDate, MemoryDate1, MemoryDate2, EndPoint, Zero, T)
+  function genOtherPoints(BirthDate, MemoryDate1, MemoryDate2, EndPoint, Zero, T1, T2)
   {
 
       var CtrlPoints  = [];
@@ -68,27 +68,37 @@
       var PlusPoints  = []; 
       var ZeroPoints  = [];
       var counter = 0;
-      var IsPositive = new Boolean(true);
+      var IsPositive = false;
 
-      MinusPoints.push([BirthDate * CoefConvRubyToJSDate,   0]);
-      ZeroPoints.push( [(BirthDate + (Zero - BirthDate) / 2) * CoefConvRubyToJSDate,   0]);
       CtrlPoints.push([MemoryDate1 * CoefConvRubyToJSDate, 0]);
       CtrlPoints.push([MemoryDate2 * CoefConvRubyToJSDate, 0]);
 
-      for(var i = Zero; i <= EndPoint; i += T / 2)
+      for(var i = BirthDate; i < Zero; i += T2 / 2)
       {
-          if(i != MemoryDate1 && i != MemoryDate2)
+          if(counter % 2 == 0)
           {
-              if(counter % 2 == 0)
-              {
-                  if(IsPositive) PlusPoints.push([i * CoefConvRubyToJSDate, 0]);
-                  else MinusPoints.push([i * CoefConvRubyToJSDate, 0]);
-                  IsPositive = !IsPositive;
-              }
-              else
-              {
-                  ZeroPoints.push([i * CoefConvRubyToJSDate,   0]);
-              }
+              if(IsPositive) PlusPoints.push([i * CoefConvRubyToJSDate, 0]);
+              else MinusPoints.push([i * CoefConvRubyToJSDate, 0]);
+              IsPositive = !IsPositive;
+          }
+          else
+          {
+              ZeroPoints.push([i * CoefConvRubyToJSDate,   0]);
+          }
+          counter++;
+      }
+
+      for(var i = Zero; i <= EndPoint; i += T1 / 2)
+      {
+          if(counter % 2 == 0)
+          {
+              if(IsPositive) PlusPoints.push([i * CoefConvRubyToJSDate, 0]);
+              else MinusPoints.push([i * CoefConvRubyToJSDate, 0]);
+              IsPositive = !IsPositive;
+          }
+          else
+          {
+              ZeroPoints.push([i * CoefConvRubyToJSDate,   0]);
           }
           counter++;
       }
@@ -236,7 +246,7 @@
           genPointsToSinus(Zero, EndPoint, sinusCalculateStep, XCoeff, Math.PI, Zero)
         );
 
-      var OtherPoints = genOtherPoints(BirthDate, MemoryDate1, MemoryDate2, EndPoint, Zero, T);
+      var OtherPoints = genOtherPoints(BirthDate, MemoryDate1, MemoryDate2, EndPoint, Zero, T, (Zero - BirthDate) / period);
 
       if(personType == 1)
       {
