@@ -18,7 +18,8 @@
   var monthDatasetsOtherPerson = {};
 
   var choiceContainer;
-  var choiceContainerOtherPerson;
+  var choiceTable;
+  var choiceTableOtherPerson;
   var otherPersons;
 
   var maxDate = Number(new Date(MaxDateStr)) / 1000;
@@ -30,13 +31,11 @@
 
   function toHex(n) 
   {
-
       n = parseInt(n,10);
       if (isNaN(n)) return "00";
       n = Math.max(0,Math.min(n,255));
       return "0123456789ABCDEF".charAt((n-n%16)/16)
         + "0123456789ABCDEF".charAt(n%16);
-
   }
 
   var redColor   = "#" + rgbToHex(150, 0, 0);
@@ -46,27 +45,21 @@
 
   function getRandomInt(min, max)
   {
-
       return Math.floor(Math.random() * (max - min + 1)) + min;
-
   }
 
-  // Генерация точек синуса в промжутке с заданным смещением
+  // Генерация точек для синуса
   function genPointsToSinus(LeftEndPoint, RightEndPoint, Step, XCoeff, Offset, CoordZero)
   {
       var Points = [];
-
       for(var i = LeftEndPoint - CoordZero; i < RightEndPoint - CoordZero; i += Step)
       {
-
           Points.push([(i + CoordZero) * CoefConvRubyToJSDate, Math.sin(XCoeff * i - Offset)]);
-
       }
-
       return Points;
   }
 
-  // Генерация точек на графике
+  // Генерация точек для графика (минусы, плюсы и тд)
   function genOtherPoints(BirthDate, MemoryDate1, MemoryDate2, EndPoint, Zero, T)
   {
 
@@ -84,29 +77,20 @@
 
       for(var i = Zero; i <= EndPoint; i += T / 2)
       {
-
           if(i != MemoryDate1 && i != MemoryDate2)
           {
-
               if(counter % 2 == 0)
               {
-
                   if(IsPositive) PlusPoints.push([i * CoefConvRubyToJSDate, 0]);
                   else MinusPoints.push([i * CoefConvRubyToJSDate, 0]);
                   IsPositive = !IsPositive;
-
               }
               else
               {
-
                   ZeroPoints.push([i * CoefConvRubyToJSDate,   0]);
-
               }
-
           }
-
           counter++;
-
       }
 
       var AllPoints = 
@@ -120,25 +104,19 @@
       return AllPoints;
   }
 
-  // Генерация хэша с точками для линии жизни
-
+  // Генерация хэша с точками в необходимом для плота виде
   function pointsToLife(Label, Data, Color)
   {
-
       return {
-
         label: Label,
         data: Data,
         color: Color
-
       };
-
   }
 
-  // Генерация хэша с точками для синусов
+  // Генерация хэша с точками для синусов в необходимом для плота виде
   function pointsToGraph(Data, Color)
   {
-
       return { 
           data: Data,
           lines: { show: false },
@@ -153,13 +131,11 @@
           },
           color: Color
       };
-
   }
 
-  // Создание графика линии жизни
+  // Создание хэша с графом линии жизни (Линия + точки)
   function lifeInit(BirthDate, EndPoint, personType)
   {
-
       var Graph  = {};
       var GraphPoints = [];
       var Points = [];
@@ -175,13 +151,11 @@
 
       while(BDate < EndDate)
       {
-
           GraphPoints.push([BDate.valueOf(), (MultiplyStr[counter].charCodeAt(0) - "0".charCodeAt(0)) / 4 + 2.5]);
 
           BDate = new Date(BDate.getFullYear() + 1, 0, 1);
           counter++;
           if(counter == len) counter = 0;
-
       }
 
       if(personType == 1)
@@ -216,7 +190,6 @@
 
   function labelInit(personType)
   {
-
       var Graph  = {};
       var Points = [];
 
@@ -224,12 +197,10 @@
 
       if(personType == 0)
       {
-
           Graph["CtrlPoints"] = pointsToLife("Точки, определившие период синусоиды", Points, greenColor);
           Graph["Minus"] = pointsToLife("Минусы", Points, redColor);
           Graph["Plus"] = pointsToLife("Плюсы", Points, blueColor);
           Graph["Zero"] = pointsToLife("Нули", Points, grayColor);
-
       }
       else 
       {
@@ -256,9 +227,7 @@
 
       while(Zero - BirthDate > T * period)
       {
-
           Zero = Zero - T * period;
-
       }
 
       var PreXCoeff = period * 2 * Math.PI / (Zero - BirthDate);
@@ -301,21 +270,16 @@
 
   function getDate(DateWithSign)
   {
-
       return DateWithSign[0];
-
   }
 
   function getSign(DateWithSign)
   {
-
       return DateWithSign[1];
-
   }
 
   function setLines(dataSets, Graph, label)
   {
-
       dataSets[label] = 
       {
           "Sinus" : Graph["Sinus"],
@@ -324,7 +288,6 @@
           "Plus"  : Graph["Plus"],
           "CtrlPoints" : Graph["CtrlPoints"]
       }
-
   }
 
   // Создать датасет для персоны с указанным периодом
@@ -338,39 +301,30 @@
 
       for(var i = 0; i < Dates.length - 1; i++)
       {
-
           for(var j = i + 1; j < Dates.length; j++)
           {
-
               if(getSign(Dates[i]) != getSign(Dates[j]))
               {
-
                   var Graph = graphInit(BirthDate, getDate(Dates[i]), getDate(Dates[j]), MaxDate, period, personType);
                   setLines(Datasets, Graph, (new Date(getDate(Dates[i]) * CoefConvRubyToJSDate)).toLocaleDateString() + 
                     ", " + (new Date(getDate(Dates[j]) * CoefConvRubyToJSDate)).toLocaleDateString());
-
               }
-
           }
-
       }
 
       return Datasets;
-
   }
 
-  function pushToData(key)
-  {
-      data.push(datasets[key]["Sinus"]);
-      data.push(datasets[key]["Minus"]);
-      data.push(datasets[key]["Plus"]);
-      data.push(datasets[key]["Zero"]);
-      data.push(datasets[key]["CtrlPoints"]);
-
-  }
-
+  // Забивает в датасеты второго человека и делает для него чекбоксы
   function upgradePlotByOtherPerson(otherPersonId)
   {
+
+      var choiceTableStr = "<div id='choicestable'>" + choiceTable.html() + "</div>";
+
+      choiceContainer.empty();
+
+      choiceTableStr += "<br/><div id='choicetableotherperson'><table class= 'legendtable'>";
+
       <% Person.all.each do |per| %>
           if(<%= per.id %> == otherPersonId)
           {
@@ -380,7 +334,13 @@
               
 
               yearDatasetsOtherPerson = createDatasets(birthDate, maxDate, dates, yearPeriod, 1);
-              monthDatasetsOtherPerson = createDatasets(birthDate, maxDate, dates, monthPeriod, 1);
+              monthDatasetsOtherPerson = createDatasets(birthDate, maxDate, dates, monthPeriod, 1);       
+      
+              choiceTableStr += "<%= per.name %>";
+              choiceTableStr += "<thead>";
+              choiceTableStr += "<tr><th>Показать</th><th>Цвет</th><th>Подпись</th></tr>";
+              choiceTableStr += "</thead>";
+
               $.each(yearDatasetsOtherPerson, function(key, val)
               { 
                   if(key != "Легенда")
@@ -404,73 +364,105 @@
                       val["Sinus"].color = "#" + rgbToHex(r, g, b);
                       monthDatasetsOtherPerson[key]["Sinus"].color = val["Sinus"].color;
 
+                      choiceTableStr += "<tr>";
+
+                      choiceTableStr += 
+                      "<td>" +
+                          "<input type='checkbox' name='" + key + "' checked='checked' id='id" + key + "'></input>" +
+                      "</td>" + 
+                      "<td>" +
+                          "<div style='width:14px; border:1px solid #ccc;padding:1px'>" + 
+                            "<div style='width:4px;height:0;border:5px solid rgb(" + 
+                            Math.floor(r).toString() + "," + 
+                            Math.floor(g).toString() + "," + 
+                            Math.floor(b).toString() +  
+                            ");overflow:hidden'></div>" +
+                          "</div>" + 
+                      "</td>" +
+                      "<td>" +
+                          key +
+                      "</td>";
+
+                      choiceTableStr += "</tr>";
+
                   }
-              });  
+              }); 
           }
       <% end %>
+
+      choiceTableStr += "</table></div>";
+
+      choiceContainer.append(choiceTableStr);
+
+      choiceTable = $("#choicestable");
+
+      choiceTableOtherPerson = $("#choicetableotherperson");
+
+      choiceContainer.find("input").click(plotAccordingToChoicesCheck);
   }
 
-  // Внесение изменений на страницу (Чекбоксы, радиокнопки)
-  // А так же отрисовка графа после изменений
-  function plotAccordingToChoices() 
+  function setDataSet(DSet, DSetOtherPerson)
   {
+      var otherPersonId = $('select[name=otherPersons]').val();
 
+      datasets = DSet;
+
+      if(otherPersonId != -1)
+      {
+            datasetsOtherPerson = DSetOtherPerson;
+      }
+  }
+
+  function pushToData(DSets, Key)
+  {
+      data.push(DSets[Key]["Sinus"]);
+      data.push(DSets[Key]["Minus"]);
+      data.push(DSets[Key]["Plus"]);
+      data.push(DSets[Key]["Zero"]);
+      data.push(DSets[Key]["CtrlPoints"]);
+  }
+
+  function choices()
+  {
       var graphType = $('input[name=graphType]:checked').val();
       var otherPersonId = $('select[name=otherPersons]').val();
 
       if(otherPersonId == -1)
-        birthYearOtherPerson = Number(new Date(MaxDateStr));
-
-      upgradePlotByOtherPerson(otherPersonId);
+        birthYearOtherPerson = Number(new Date(MaxDateStr));    
 
       datasetsOtherPerson = {};
 
       if(graphType == 1)
       {
-
-          datasets = yearDatasets;
-          if(otherPersonId != -1)
-          {
-            datasetsOtherPerson = yearDatasetsOtherPerson;
-          }
-
+          setDataSet(yearDatasets, yearDatasetsOtherPerson);
       }
       else
       {
-
-          datasets = monthDatasets;
-          if(otherPersonId != -1)
-          {
-            datasetsOtherPerson = monthDatasetsOtherPerson;
-          }
-
+          setDataSet(monthDatasets, monthDatasetsOtherPerson);
       }
 
       data = [];
 
-      choiceContainer.find("input:checked").each(function () 
+      choiceTable.find("input:checked").each(function () 
       {
-
           var key = $(this).attr("name");
           if (key && datasets[key]) 
           {
+              pushToData(datasets, key);
+          }
+      });
 
-              pushToData(key);
+      pushToData(datasets, "Легенда");
 
+      choiceTableOtherPerson.find("input:checked").each(function () 
+      {
+          var key = $(this).attr("name");
+          if (key && datasetsOtherPerson[key]) 
+          {
+              pushToData(datasetsOtherPerson, key);
           }
 
       });
-
-      $.each(datasetsOtherPerson, function(key, val)
-      {
-          data.push(datasetsOtherPerson[key]["Sinus"]);
-          data.push(datasetsOtherPerson[key]["Minus"]);
-          data.push(datasetsOtherPerson[key]["Plus"]);
-          data.push(datasetsOtherPerson[key]["Zero"]);
-          data.push(datasetsOtherPerson[key]["CtrlPoints"]);
-      });
-
-      pushToData("Легенда");
 
       options = 
       {
@@ -512,94 +504,129 @@
       };
 
       plot = $.plot("#placeholder", data, options);
+  }
 
+  function plotAccordingToChoicesCheck()
+  {
+      choices();
+  } 
+
+  // Внесение изменений на страницу (Чекбоксы, радиокнопки)
+  // А так же отрисовка графа после изменений
+  function plotAccordingToChoicesChangePerson() 
+  {
+      var otherPersonId = $('select[name=otherPersons]').val();
+
+      upgradePlotByOtherPerson(otherPersonId);
+
+      choices();
+  }
+
+  function plotAccordingToChoicesGraphType() 
+  {
+      var otherPersonId = $('select[name=otherPersons]').val();
+
+      upgradePlotByOtherPerson(otherPersonId);
+
+      choices();
+  }
+
+  function drawChoicesTable()
+  {
+      var htmlStr = "";
+      htmlStr = "<div id='choicestable'><table class= 'legendtable'>";
+      htmlStr += "<%= @person.name %>";
+      htmlStr += "<thead>";
+      htmlStr += "<tr><th>Показать</th><th>Цвет</th><th>Подпись</th></tr>";
+      htmlStr += "</thead>";
+
+      $.each(yearDatasets, function(key, val)
+      { 
+          if(key != "Легенда")
+          {
+              var r = 0;
+              var g = 0;
+              var b = 0;
+              if(key != "Дискретизация")
+              {
+                  r = getRandomInt(0, 255);
+                  g = getRandomInt(0, 255);
+                  b = getRandomInt(0, 255);
+              }
+              else
+              {
+                  r = 0;
+                  g = 0;
+                  b = 0;
+              }
+
+              val["Sinus"].color = "#" + rgbToHex(r, g, b);
+              monthDatasets[key]["Sinus"].color = val["Sinus"].color;
+
+              htmlStr += "<tr>";
+
+              htmlStr += 
+              "<td>" +
+                  "<input type='checkbox' name='" + key + "' checked='checked' id='id" + key + "'></input>" +
+              "</td>" + 
+              "<td>" +
+                  "<div style='width:14px; border:1px solid #ccc;padding:1px'>" + 
+                    "<div style='width:4px;height:0;border:5px solid rgb(" + 
+                    Math.floor(r).toString() + "," + 
+                    Math.floor(g).toString() + "," + 
+                    Math.floor(b).toString() +  
+                    ");overflow:hidden'></div>" +
+                  "</div>" + 
+              "</td>" +
+              "<td>" +
+                  key +
+              "</td>";
+
+              htmlStr += "</tr>";
+          }
+      });  
+
+      htmlStr += "</table></div>";
+
+      choiceContainer.append(htmlStr + "<div id = choicetableotherperson></div>");
   }
 
 
   $(function() {
 
-    var htmlStr = "";
+      var htmlStr = "";
 
-    personSelecter = $("#otherPersons");
-    otherPersons = <%= raw @person.get_person_names %>;
+      personSelecter = $("#otherPersons");
+      otherPersons = <%= raw @person.get_person_names %>;
 
-    htmlStr += "<option value=" +  "-1" +  ">" + "Без второй персоны" + "</option>";
+      htmlStr += "<option value=" +  "-1" +  ">" + "Без второй персоны" + "</option>";
 
-    for(var i = 0; i < otherPersons.length; i++)
-    {
+      for(var i = 0; i < otherPersons.length; i++)
+      {
+          htmlStr += "<option value=" +  otherPersons[i][0].toString() +  ">" + otherPersons[i][1] + "</option>";
+      }
 
-        htmlStr += "<option value=" +  otherPersons[i][0].toString() +  ">" + otherPersons[i][1] + "</option>";
+      personSelecter.append(htmlStr);
 
-    }
+      var dates = <%= @person.get_dates_with_signs %>;
+      var birthDate = <%= @person.get_birth %>;
+      birthYear = new Date((new Date(birthDate * CoefConvRubyToJSDate)).getFullYear(), 0, 1);
+      
 
-    personSelecter.append(htmlStr);
+      yearDatasets = createDatasets(birthDate, maxDate, dates, yearPeriod, 0);
+      monthDatasets = createDatasets(birthDate, maxDate, dates, monthPeriod, 0);
 
-    var dates = <%= @person.get_dates_with_signs %>;
-    var birthDate = <%= @person.get_birth %>;
-    birthYear = new Date((new Date(birthDate * CoefConvRubyToJSDate)).getFullYear(), 0, 1);
-    
+      choiceContainer = $("#choicestablediv");
+       
+      drawChoicesTable();
 
-    yearDatasets = createDatasets(birthDate, maxDate, dates, yearPeriod, 0);
-    monthDatasets = createDatasets(birthDate, maxDate, dates, monthPeriod, 0);
+      choiceTable = $("#choicestable");
+      choiceTableOtherPerson = $("#choicetableotherperson");
 
-    choiceContainer = $("#choicestable");
-    
-    htmlStr = "";
-    htmlStr += "<thead>";
-    htmlStr += "<tr><th>Показать</th><th>Цвет</th><th>Подпись</th></tr>";
-    htmlStr += "</thead>";
+      choiceTable.find("input").click(plotAccordingToChoicesCheck);
+      choiceTableOtherPerson.find("input").click(plotAccordingToChoicesCheck);
 
-    $.each(yearDatasets, function(key, val)
-    { 
-        if(key != "Легенда")
-        {
-            var r = 0;
-            var g = 0;
-            var b = 0;
-            if(key != "Дискретизация")
-            {
-                r = getRandomInt(0, 255);
-                g = getRandomInt(0, 255);
-                b = getRandomInt(0, 255);
-            }
-            else
-            {
-                r = 0;
-                g = 0;
-                b = 0;
-            }
-
-            val["Sinus"].color = "#" + rgbToHex(r, g, b);
-            monthDatasets[key]["Sinus"].color = val["Sinus"].color;
-
-            htmlStr += "<tr>";
-
-            htmlStr += 
-            "<td>" +
-                "<input type='checkbox' name='" + key + "' checked='checked' id='id" + key + "'></input>" +
-            "</td>" + 
-            "<td>" +
-                "<div style='width:14px; border:1px solid #ccc;padding:1px'>" + 
-                  "<div style='width:4px;height:0;border:5px solid rgb(" + 
-                  Math.floor(r).toString() + "," + 
-                  Math.floor(g).toString() + "," + 
-                  Math.floor(b).toString() +  
-                  ");overflow:hidden'></div>" +
-                "</div>" + 
-            "</td>" +
-            "<td>" +
-                key +
-            "</td>";
-
-            htmlStr += "</tr>";
-        }
-    });  
-
-    choiceContainer.append(htmlStr); 
-
-    choiceContainer.find("input").click(plotAccordingToChoices);
-
-    plotAccordingToChoices();
+      plotAccordingToChoicesCheck();
 
   });
 
@@ -610,19 +637,17 @@
 <div id="content">
 
     Вторая персона:<br/>
-    <select name="otherPersons" id="otherPersons" onchange="plotAccordingToChoices()">
+    <select name="otherPersons" id="otherPersons" onchange="plotAccordingToChoicesChangePerson()">
     </select>
     <br/>
 
-    <input id = "graphType1" type="radio" name="graphType" value=1 onClick="plotAccordingToChoices()" checked> Годовой график <br>
-    <input id = "graphType2" type="radio" name="graphType" value=2 onClick="plotAccordingToChoices()"> Месячный график <br>
+    <input id = "graphType1" type="radio" name="graphType" value=1 onClick="plotAccordingToChoicesGraphType()" checked> Годовой график <br>
+    <input id = "graphType2" type="radio" name="graphType" value=2 onClick="plotAccordingToChoicesGraphType()"> Месячный график <br>
 
     <div class="demo-container">
       <div id="placeholder" class="demo-placeholder" style="float:left; width:850px; height: 460px;"></div>
-      <p id="choices" style="float:right; width:280px;">
-        <table id="choicestable" class= "legendtable">
-        </table>
-      </p>
+      <div id="choicestablediv" style="float:right; width:280px;">
+      </div>
     </div>
 
 </div>
