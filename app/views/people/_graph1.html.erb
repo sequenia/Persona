@@ -1,9 +1,19 @@
 <script type="text/javascript">
   var CoefConvRubyToJSDate = 1000;
-  var SinusCalculateStep   = 1000000;
+
+  var SinusCalculateStep;
+  var SinusCalculateStepYear = 1000000;
+  var SinusCalculateStepMonth = 100000;
+
   var MaxDateStr           = '2064-01-01';
+  var MaxDateStrYear       = '2064-01-01';
+  var MaxDateStrMonth      = '2034-01-01';
+
   var yearPeriod = 1;
   var monthPeriod = 14;
+
+  var graphTypeYear = 1;
+  var graphTypeMonth = 2;
 
   var plot;
   var overview;
@@ -22,7 +32,9 @@
   var choiceTableOtherPerson;
   var otherPersons;
 
-  var maxDate = Number(new Date(MaxDateStr)) / 1000;
+  var maxDate;
+  var maxDateYear = Number(new Date(MaxDateStrYear)) / 1000;
+  var maxDateMonth = Number(new Date(MaxDateStrMonth)) / 1000;
 
   var birthYear;
   var birthYearOtherPerson;
@@ -144,7 +156,7 @@
   }
 
   // Создание хэша с графом линии жизни (Линия + точки)
-  function lifeInit(BirthDate, EndPoint, personType)
+  function lifeInit(BirthDate, EndPoint, personType, graphType)
   {
       var Graph  = {};
       var GraphPoints = [];
@@ -163,7 +175,14 @@
       {
           GraphPoints.push([BDate.valueOf(), (MultiplyStr[counter].charCodeAt(0) - "0".charCodeAt(0)) / 4 + 2.5]);
 
-          BDate = new Date(BDate.getFullYear() + 1, 0, 1);
+          if(graphType == graphTypeYear)
+          {
+              BDate = new Date(BDate.getFullYear() + 1, 0, 1);
+          }
+          else
+          {
+              BDate = new Date(BDate.getFullYear(), BDate.getMonth() + 1, 1);
+          }
           counter++;
           if(counter == len) counter = 0;
       }
@@ -227,8 +246,15 @@
   // Создание графика синуса
   function graphInit(BirthDate, MemoryDate1, MemoryDate2, EndPoint, period, personType)
   {
+      if(period == 1) 
+      {
+          sinusCalculateStep = SinusCalculateStepYear;
+      }
+      else
+      {
+          sinusCalculateStep = SinusCalculateStepMonth;
+      }
 
-      sinusCalculateStep = SinusCalculateStep / period;
       var Graph = {};
       var Zero = MemoryDate1;
       var T    = (MemoryDate2 - MemoryDate1) / period;
@@ -301,12 +327,12 @@
   }
 
   // Создать датасет для персоны с указанным периодом
-  function createDatasets(BirthDate, MaxDate, Dates, period, personType)
+  function createDatasets(BirthDate, MaxDate, Dates, period, personType, graphType)
   {
 
       var Datasets = {};
 
-      setLines(Datasets, lifeInit(BirthDate, MaxDate, personType), "Дискретизация");
+      setLines(Datasets, lifeInit(BirthDate, MaxDate, personType, graphType), "Дискретизация");
       setLines(Datasets, labelInit(personType), "Легенда");
 
       for(var i = 0; i < Dates.length - 1; i++)
@@ -343,8 +369,8 @@
               birthYearOtherPerson = new Date((new Date(birthDate * CoefConvRubyToJSDate)).getFullYear(), 0, 1);
               
 
-              yearDatasetsOtherPerson = createDatasets(birthDate, maxDate, dates, yearPeriod, 1);
-              monthDatasetsOtherPerson = createDatasets(birthDate, maxDate, dates, monthPeriod, 1);       
+              yearDatasetsOtherPerson = createDatasets(birthDate, maxDateYear, dates, yearPeriod, 1, graphTypeYear);
+              monthDatasetsOtherPerson = createDatasets(birthDate, maxDateMonth, dates, monthPeriod, 1, graphTypeMonth);       
       
               choiceTableStr += "<%= per.name %>";
               choiceTableStr += "<thead>";
@@ -435,6 +461,7 @@
   function choices()
   {
       var graphType = $('input[name=graphType]:checked').val();
+
       var otherPersonId = $('select[name=otherPersons]').val();
 
       if(otherPersonId == -1)
@@ -442,13 +469,15 @@
 
       datasetsOtherPerson = {};
 
-      if(graphType == 1)
+      if(graphType == graphTypeYear)
       {
           setDataSet(yearDatasets, yearDatasetsOtherPerson);
+          maxDate = maxDateYear;
       }
       else
       {
           setDataSet(monthDatasets, monthDatasetsOtherPerson);
+          maxDate = maxDateMonth;
       }
 
       data = [];
@@ -514,6 +543,11 @@
       };
 
       plot = $.plot("#placeholder", data, options);
+
+      if(graphType == graphTypeMonth)
+      {
+          plot.zoom({ center: { left: -1000, top: 1} });
+      }
   }
 
   function plotAccordingToChoicesCheck()
@@ -623,8 +657,8 @@
       birthYear = new Date((new Date(birthDate * CoefConvRubyToJSDate)).getFullYear(), 0, 1);
       
 
-      yearDatasets = createDatasets(birthDate, maxDate, dates, yearPeriod, 0);
-      monthDatasets = createDatasets(birthDate, maxDate, dates, monthPeriod, 0);
+      yearDatasets = createDatasets(birthDate, maxDateYear, dates, yearPeriod, 0, graphTypeYear);
+      monthDatasets = createDatasets(birthDate, maxDateMonth, dates, monthPeriod, 0, graphTypeMonth);
 
       choiceContainer = $("#choicestablediv");
        
