@@ -314,6 +314,11 @@
       return DateWithSign[1];
   }
 
+  function getDescription(DateWithSign)
+  {
+      return DateWithSign[2];
+  }
+
   function setLines(dataSets, Graph, label)
   {
       dataSets[label] = 
@@ -342,8 +347,28 @@
               if(getSign(Dates[i]) != getSign(Dates[j]))
               {
                   var Graph = graphInit(BirthDate, getDate(Dates[i]), getDate(Dates[j]), MaxDate, period, personType);
-                  setLines(Datasets, Graph, (new Date(getDate(Dates[i]) * CoefConvRubyToJSDate)).toLocaleDateString() + 
-                    ", " + (new Date(getDate(Dates[j]) * CoefConvRubyToJSDate)).toLocaleDateString());
+
+                  var labeli = "";
+                  var labelj = "";
+                  if(getDescription(Dates[i]) == null)
+                  {
+                      labeli = (new Date(getDate(Dates[i]) * CoefConvRubyToJSDate)).toLocaleDateString();
+                  }
+                  else
+                  {
+                      labeli = getDescription(Dates[i]);
+                  }
+
+                  if(getDescription(Dates[j]) == null)
+                  {
+                      labelj = (new Date(getDate(Dates[j]) * CoefConvRubyToJSDate)).toLocaleDateString();
+                  }
+                  else
+                  {
+                      labelj = getDescription(Dates[j]);
+                  }  
+
+                  setLines(Datasets, Graph, labeli + ", " + labelj);
               }
           }
       }
@@ -355,16 +380,16 @@
   function upgradePlotByOtherPerson(otherPersonId)
   {
 
-      var choiceTableStr = "<div id='choicestable'>" + choiceTable.html() + "</div>";
+      var choiceTableStr = "";
 
-      choiceContainer.empty();
+      choiceTableOtherPerson.empty();
 
-      choiceTableStr += "<br/><div id='choicetableotherperson'><table class= 'legendtable'>";
+      choiceTableStr += "<table class= 'legendtable'>";
 
       <% Person.all.each do |per| %>
           if(<%= per.id %> == otherPersonId)
           {
-              var dates = <%= per.get_dates_with_signs %>;
+              var dates = <%= raw per.get_dates_with_signs %>;
               var birthDate = <%= per.get_birth %>;
               birthYearOtherPerson = new Date((new Date(birthDate * CoefConvRubyToJSDate)).getFullYear(), 0, 1);
               
@@ -404,7 +429,7 @@
 
                       choiceTableStr += 
                       "<td>" +
-                          "<input type='checkbox' name='" + key + "' checked='checked' id='id" + key + "'></input>" +
+                          "<input type='checkbox' name='" + key + "' id='id" + key + "'></input>" +
                       "</td>" + 
                       "<td>" +
                           "<div style='width:14px; border:1px solid #ccc;padding:1px'>" + 
@@ -426,15 +451,12 @@
           }
       <% end %>
 
-      choiceTableStr += "</table></div>";
+      choiceTableStr += "</table>";
 
-      choiceContainer.append(choiceTableStr);
+      choiceTableOtherPerson.append(choiceTableStr);
 
-      choiceTable = $("#choicestable");
-
-      choiceTableOtherPerson = $("#choicetableotherperson");
-
-      choiceContainer.find("input").click(plotAccordingToChoicesCheck);
+      choiceTable.find("input").click(plotAccordingToChoicesCheck);
+      choiceTableOtherPerson.find("input").click(plotAccordingToChoicesCheck);;
   }
 
   function setDataSet(DSet, DSetOtherPerson)
@@ -570,7 +592,7 @@
   {
       var otherPersonId = $('select[name=otherPersons]').val();
 
-      upgradePlotByOtherPerson(otherPersonId);
+      //upgradePlotByOtherPerson(otherPersonId);
 
       choices();
   }
@@ -578,7 +600,7 @@
   function drawChoicesTable()
   {
       var htmlStr = "";
-      htmlStr = "<div id='choicestable'><table class= 'legendtable'>";
+      htmlStr = "<table class= 'legendtable'>";
       htmlStr += "<%= @person.name %>";
       htmlStr += "<thead>";
       htmlStr += "<tr><th>Показать</th><th>Цвет</th><th>Подпись</th></tr>";
@@ -611,7 +633,7 @@
 
               htmlStr += 
               "<td>" +
-                  "<input type='checkbox' name='" + key + "' checked='checked' id='id" + key + "'></input>" +
+                  "<input type='checkbox' name='" + key + "' id='id" + key + "'></input>" +
               "</td>" + 
               "<td>" +
                   "<div style='width:14px; border:1px solid #ccc;padding:1px'>" + 
@@ -630,9 +652,9 @@
           }
       });  
 
-      htmlStr += "</table></div>";
+      htmlStr += "</table>";
 
-      choiceContainer.append(htmlStr + "<div id = choicetableotherperson></div>");
+      choiceTable.append(htmlStr);
   }
 
 
@@ -652,7 +674,7 @@
 
       personSelecter.append(htmlStr);
 
-      var dates = <%= @person.get_dates_with_signs %>;
+      var dates = <%= raw @person.get_dates_with_signs %>;
       var birthDate = <%= @person.get_birth %>;
       birthYear = new Date((new Date(birthDate * CoefConvRubyToJSDate)).getFullYear(), 0, 1);
       
@@ -661,11 +683,10 @@
       monthDatasets = createDatasets(birthDate, maxDateMonth, dates, monthPeriod, 0, graphTypeMonth);
 
       choiceContainer = $("#choicestablediv");
+      choiceTable = $("#choicestable");
+      choiceTableOtherPerson = $("#choicestableotherperson");
        
       drawChoicesTable();
-
-      choiceTable = $("#choicestable");
-      choiceTableOtherPerson = $("#choicetableotherperson");
 
       choiceTable.find("input").click(plotAccordingToChoicesCheck);
       choiceTableOtherPerson.find("input").click(plotAccordingToChoicesCheck);
@@ -691,6 +712,9 @@
     <div class="demo-container">
       <div id="placeholder" class="demo-placeholder" style="float:left; width:850px; height: 460px;"></div>
       <div id="choicestablediv" style="float:right; width:280px;">
+        <div id='choicestable'></div>
+        <br/>
+        <div id='choicestableotherperson'></div>
       </div>
     </div>
 
