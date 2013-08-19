@@ -164,7 +164,7 @@
 
       var BDate  = new Date(BirthDate * CoefConvRubyToJSDate);
       var EndDate = new Date(EndPoint * CoefConvRubyToJSDate);
-      var Multiply = (BDate.getDate() * 100 + (BDate.getMonth() + 1)) * BDate.getFullYear();
+      var Multiply = ((BDate.getMonth() + 1) * 100 + BDate.getDate()) * BDate.getFullYear();
       var MultiplyStr = Multiply.toString();
       var counter = 0;
       var len = MultiplyStr.length;
