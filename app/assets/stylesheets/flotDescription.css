@@ -21,23 +21,10 @@
 
 #placeholder div.xAxis div.tickLabel
 {    
-	margin-top:5px;
-
-    transform: rotate(20deg);
-    -ms-transform:rotate(20deg); /* IE 9 */
-    -moz-transform:rotate(20deg); /* Firefox */
-    -webkit-transform:rotate(20deg); /* Safari and Chrome */
-    -o-transform:rotate(20deg); /* Opera */
+	text-align: center;
 }
 
 table.legendtable
-{
-	font-family: verdana,arial,sans-serif;
-	font-size:11px;
-	text-align: left;
-}
-
-.peopleselect
 {
 	font-family: verdana,arial,sans-serif;
 	font-size:11px;

@@ -340,6 +340,8 @@
       setLines(Datasets, lifeInit(BirthDate, MaxDate, personType, graphType), "Дискретизация");
       setLines(Datasets, labelInit(personType), "Легенда");
 
+      var graphCount = 1;
+
       for(var i = 0; i < Dates.length - 1; i++)
       {
           for(var j = i + 1; j < Dates.length; j++)
@@ -348,27 +350,11 @@
               {
                   var Graph = graphInit(BirthDate, getDate(Dates[i]), getDate(Dates[j]), MaxDate, period, personType);
 
-                  var labeli = "";
-                  var labelj = "";
-                  if(getDescription(Dates[i]) == null)
-                  {
-                      labeli = (new Date(getDate(Dates[i]) * CoefConvRubyToJSDate)).toLocaleDateString();
-                  }
-                  else
-                  {
-                      labeli = getDescription(Dates[i]);
-                  }
+                  var label = "График ";
 
-                  if(getDescription(Dates[j]) == null)
-                  {
-                      labelj = (new Date(getDate(Dates[j]) * CoefConvRubyToJSDate)).toLocaleDateString();
-                  }
-                  else
-                  {
-                      labelj = getDescription(Dates[j]);
-                  }  
+                  setLines(Datasets, Graph, label + graphCount.toString());
 
-                  setLines(Datasets, Graph, labeli + ", " + labelj);
+                  graphCount++;
               }
           }
       }
@@ -525,6 +511,39 @@
 
       });
 
+      var startDate =  Math.min(birthYear.valueOf(), birthYearOtherPerson.valueOf());
+      var endDate = maxDate * CoefConvRubyToJSDate;
+
+      var xticks = [];
+      if(graphType == graphTypeYear)
+      {
+          for(i = new Date(startDate); i < new Date(endDate); i = new Date(i.getFullYear() + 1, 0, 1))
+          {
+              if( ( i.valueOf() == (new Date(startDate)).valueOf() ) || ( i.getFullYear() % 10 == 0 ) )
+              {
+                  xticks.push([i.valueOf(), i.getFullYear().toString()]);
+              }
+              else
+              {
+                  xticks.push([i.valueOf(), (i.getYear() % 10).toString()]);
+              }
+          }
+      }
+      else
+      {
+          for(i = new Date(startDate); i < new Date(endDate); i = new Date(i.getFullYear(), i.getMonth() + 1, 1))
+          {
+              if(i.getMonth() == 0 || i.valueOf() == (new Date(startDate)).valueOf())
+              {
+                  xticks.push([i.valueOf(), i.getFullYear().toString()]);
+              }
+              else if(i.getMonth() % 2 == 0 && i.getMonth() != 2)
+              {
+                  xticks.push([i.valueOf(), (i.getMonth()).toString()]);
+              }
+          }
+      }
+
       options = 
       {
           lines: 
@@ -549,14 +568,8 @@
           },
           xaxis: 
           {
-              mode: "time",
-              timeformat: "%d/%m/%Y",
-              panRange: [Math.min(birthYear.valueOf(), birthYearOtherPerson.valueOf()), maxDate * CoefConvRubyToJSDate],
-              position: 'bottom'
-          },
-          zoom: 
-          {
-              interactive: true
+              panRange: [startDate, endDate],
+              ticks: xticks
           },
           pan: 
           {
@@ -568,8 +581,13 @@
 
       if(graphType == graphTypeMonth)
       {
-          plot.zoom({ center: { left: -1000, top: 1} });
+          plot.zoom({ center: { left: -1300, top: 1} });
       }
+      else
+      {
+          plot.zoom({ center: { left: -700, top: 1} });
+      }
+
   }
 
   function plotAccordingToChoicesCheck()
