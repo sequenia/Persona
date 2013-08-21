@@ -349,9 +349,12 @@
               {
                   var Graph = graphInit(BirthDate, getDate(Dates[i]), getDate(Dates[j]), MaxDate, period, personType);
 
-                  var label = "График ";
+                  var label = "График " + graphCount.toString() + " (";
+                  label += 
+                  (new Date(getDate(Dates[i]) * CoefConvRubyToJSDate)).toLocaleDateString() + ", " + 
+                  (new Date(getDate(Dates[j]) * CoefConvRubyToJSDate)).toLocaleDateString() + ")";
 
-                  setLines(Datasets, Graph, label + graphCount.toString());
+                  setLines(Datasets, Graph, label);
 
                   graphCount++;
               }
