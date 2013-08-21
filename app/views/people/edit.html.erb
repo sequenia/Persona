@@ -1,6 +1,7 @@
-<h1>Editing person</h1>
+<%= link_to 'На главную', people_path %> | 
+<%= link_to 'Показать', @person %>
+<br/>
+
+<h1>Редактирование персоны</h1>
 
 <%= render 'form' %>
-
-<%= link_to 'Показать', @person %> |
-<%= link_to 'Назад', people_path %>

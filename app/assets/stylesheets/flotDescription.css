@@ -1,7 +1,7 @@
 .demo-container 
 {
 	box-sizing: border-box;
-	width: 1180px;
+	width: 100%;
 	height: 480px;
 	padding: 0px 15px 15px 15px;
 	margin: 15px auto 30px auto;
@@ -21,23 +21,10 @@
 
 #placeholder div.xAxis div.tickLabel
 {    
-	margin-top:5px;
-
-    transform: rotate(20deg);
-    -ms-transform:rotate(20deg); /* IE 9 */
-    -moz-transform:rotate(20deg); /* Firefox */
-    -webkit-transform:rotate(20deg); /* Safari and Chrome */
-    -o-transform:rotate(20deg); /* Opera */
+	text-align: center;
 }
 
 table.legendtable
-{
-	font-family: verdana,arial,sans-serif;
-	font-size:11px;
-	text-align: left;
-}
-
-.peopleselect
 {
 	font-family: verdana,arial,sans-serif;
 	font-size:11px;
@@ -55,4 +42,32 @@ table.legendtable
 .legend table 
 {
 	border-spacing: 5px;
+}
+
+.yearLabel
+{
+	margin-left: -11px;
+}
+
+.monthLabel
+{
+	margin-left: -14px;
+}
+
+.monthLabel39
+{
+	font-size: 10px;
+	margin-left: -2px;
+}
+
+.monthLabelMore9
+{
+	font-size: 10px;
+	margin-left: -11px;
+}
+
+.monthLabelLess3
+{
+	font-size: 10px;
+	margin-left: 2px;
 }

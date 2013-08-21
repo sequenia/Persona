@@ -1,3 +1,7 @@
+<%= link_to 'На главную', people_path %> | 
+<%= link_to 'Редактировать', edit_person_path(@person) %>
+<br>
+
 <p id="notice"><%= notice %></p>
 
 <p>
@@ -6,12 +10,26 @@
   <%= @person.name %>
   </h3>
 </p>
+<p>
+  <h3>
+  <strong>Дата рождения:</strong>
+  <%= @person.birth %>
+  </h3>
+</p>
 
 
 <h2>Добавление события</h2>
 <div class="hero-unit">
 <%=form_for([@person, @person.stories.build]) do |f| %>
+Дата:
+<br>
 <%= f.date_field :date %>
+</br>
+Описание:
+<br>
+<%= f.text_field :description %>
+<br>
+Тип:
 <br>
 <%= f.select(:story_type, [["Позитивная", Story::POSITIVE], ["Негативная", Story::NEGATIVE]]) %>
 <br>
@@ -34,6 +52,7 @@
 <tr>
 	<th>Дата</th>
 	<th>Значение</th>
+	<th>Описание</th>
 	<th>Действие</th>
 </tr>	
 <tbody>
@@ -48,8 +67,3 @@
 </tbody>
 </table>
 </div>
-
-<br>
-<br>
-<%= link_to 'Редактировать', edit_person_path(@person) %> |
-<%= link_to 'Назад', people_path %>

@@ -10,6 +10,10 @@
 # Ignore the default SQLite database.
 /db/*.sqlite3
 /db/*.sqlite3-journal
+<<<<<<< HEAD
+=======
+
+>>>>>>> d31c8c9bb4224636de5c52f43b20f23bd7705c6b
 # Ignore all logfiles and tempfiles.
 /log/*.log
 /tmp

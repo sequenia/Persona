@@ -27,7 +27,6 @@
   var yearDatasetsOtherPerson = {};
   var monthDatasetsOtherPerson = {};
 
-  var choiceContainer;
   var choiceTable;
   var choiceTableOtherPerson;
   var otherPersons;
@@ -177,11 +176,11 @@
 
           if(graphType == graphTypeYear)
           {
-              BDate = new Date(BDate.getFullYear() + 1, 0, 1);
+              BDate.setFullYear(BDate.getFullYear() + 1);
           }
           else
           {
-              BDate = new Date(BDate.getFullYear(), BDate.getMonth() + 1, 1);
+              BDate.setMonth(BDate.getMonth() + 1);
           }
           counter++;
           if(counter == len) counter = 0;
@@ -314,6 +313,11 @@
       return DateWithSign[1];
   }
 
+  function getDescription(DateWithSign)
+  {
+      return DateWithSign[2];
+  }
+
   function setLines(dataSets, Graph, label)
   {
       dataSets[label] = 
@@ -335,6 +339,8 @@
       setLines(Datasets, lifeInit(BirthDate, MaxDate, personType, graphType), "Дискретизация");
       setLines(Datasets, labelInit(personType), "Легенда");
 
+      var graphCount = 1;
+
       for(var i = 0; i < Dates.length - 1; i++)
       {
           for(var j = i + 1; j < Dates.length; j++)
@@ -342,8 +348,12 @@
               if(getSign(Dates[i]) != getSign(Dates[j]))
               {
                   var Graph = graphInit(BirthDate, getDate(Dates[i]), getDate(Dates[j]), MaxDate, period, personType);
-                  setLines(Datasets, Graph, (new Date(getDate(Dates[i]) * CoefConvRubyToJSDate)).toLocaleDateString() + 
-                    ", " + (new Date(getDate(Dates[j]) * CoefConvRubyToJSDate)).toLocaleDateString());
+
+                  var label = "График ";
+
+                  setLines(Datasets, Graph, label + graphCount.toString());
+
+                  graphCount++;
               }
           }
       }
@@ -355,16 +365,16 @@
   function upgradePlotByOtherPerson(otherPersonId)
   {
 
-      var choiceTableStr = "<div id='choicestable'>" + choiceTable.html() + "</div>";
+      var choiceTableStr = "";
 
-      choiceContainer.empty();
+      choiceTableOtherPerson.empty();
 
-      choiceTableStr += "<br/><div id='choicetableotherperson'><table class= 'legendtable'>";
+      choiceTableStr += "<table class= 'legendtable'>";
 
       <% Person.all.each do |per| %>
           if(<%= per.id %> == otherPersonId)
           {
-              var dates = <%= per.get_dates_with_signs %>;
+              var dates = <%= raw per.get_dates_with_signs %>;
               var birthDate = <%= per.get_birth %>;
               birthYearOtherPerson = new Date((new Date(birthDate * CoefConvRubyToJSDate)).getFullYear(), 0, 1);
               
@@ -404,7 +414,7 @@
 
                       choiceTableStr += 
                       "<td>" +
-                          "<input type='checkbox' name='" + key + "' checked='checked' id='id" + key + "'></input>" +
+                          "<input type='checkbox' name='" + key + "' id='id" + key + "'></input>" +
                       "</td>" + 
                       "<td>" +
                           "<div style='width:14px; border:1px solid #ccc;padding:1px'>" + 
@@ -426,15 +436,12 @@
           }
       <% end %>
 
-      choiceTableStr += "</table></div>";
+      choiceTableStr += "</table>";
 
-      choiceContainer.append(choiceTableStr);
+      choiceTableOtherPerson.append(choiceTableStr);
 
-      choiceTable = $("#choicestable");
-
-      choiceTableOtherPerson = $("#choicetableotherperson");
-
-      choiceContainer.find("input").click(plotAccordingToChoicesCheck);
+      choiceTable.find("input").click(plotAccordingToChoicesCheck);
+      choiceTableOtherPerson.find("input").click(plotAccordingToChoicesCheck);;
   }
 
   function setDataSet(DSet, DSetOtherPerson)
@@ -503,6 +510,69 @@
 
       });
 
+      var startDate =  Math.min(birthYear.valueOf(), birthYearOtherPerson.valueOf());
+      var endDate = maxDate * CoefConvRubyToJSDate;
+      var startDateDate = new Date(startDate);
+      var labelStr = "";
+
+      var xticks = [];
+      if(graphType == graphTypeYear)
+      {
+          for(i = new Date(startDate); i < new Date(endDate); i.setFullYear(i.getFullYear() + 1))
+          {
+              if( ( i.valueOf() == (new Date(startDate)).valueOf() ) || ( i.getFullYear() % 10 == 0 ) )
+              {
+                  xticks.push([i.valueOf(), "<b class='yearLabel'>" + i.getFullYear().toString() + "</b>"]);
+              }
+              else
+              {
+                  if(startDateDate.getFullYear() < 1960 &&
+                     (i.getFullYear() % 10 == 1 || i.getFullYear() % 10 == 9 || i.getFullYear() == startDateDate.getFullYear() + 1))
+                  {
+                      labelStr = "";
+                  }
+                  else
+                  {
+                      labelStr = (i.getYear() % 10).toString();
+                  }
+                  xticks.push([i.valueOf(), labelStr]);
+              }
+          }
+      }
+      else
+      {
+          for(i = new Date(startDate); i < new Date(endDate); i.setMonth(i.getMonth() + 1))
+          {
+              if(i.getMonth() == 0 || i.valueOf() == (new Date(startDate)).valueOf())
+              {
+                  xticks.push([i.valueOf(), "<b class='monthLabel'>" + i.getFullYear().toString() + "</b>"]);
+              }
+              else if(i.getMonth() % 2 == 0)
+              {
+                  labelStr = i.getMonth().toString();
+                  if(i.getMonth() <= 9 && i.getMonth() >= 3)
+                  {
+                      xticks.push([i.valueOf(), "<text class='monthLabel39'>" + labelStr + "</text>"]);
+                  }
+                  else
+                  {
+                      if(startDateDate.getFullYear() < 1985)
+                      {
+                          labelStr = "";
+                      }
+                      if(i.getMonth() > 9 )
+                      {
+                          xticks.push([i.valueOf(), "<text class='monthLabelMore9'>" + labelStr + "</text>"]);
+                      }
+                      else 
+                      {
+                          xticks.push([i.valueOf(), "<text class='monthLabelLess3'>" + labelStr + "</text>"]);
+                      }
+                  }
+              }
+          }
+      }
+
       options = 
       {
           lines: 
@@ -527,14 +597,8 @@
           },
           xaxis: 
           {
-              mode: "time",
-              timeformat: "%d/%m/%Y",
-              panRange: [Math.min(birthYear.valueOf(), birthYearOtherPerson.valueOf()), maxDate * CoefConvRubyToJSDate],
-              position: 'bottom'
-          },
-          zoom: 
-          {
-              interactive: true
+              panRange: [startDate, endDate],
+              ticks: xticks
           },
           pan: 
           {
@@ -546,8 +610,13 @@
 
       if(graphType == graphTypeMonth)
       {
-          plot.zoom({ center: { left: -1000, top: 1} });
+          plot.zoom({ center: { left: -1300, top: 1} });
       }
+      else
+      {
+          plot.zoom({ center: { left: -700, top: 1} });
+      }
+
   }
 
   function plotAccordingToChoicesCheck()
@@ -570,7 +639,7 @@
   {
       var otherPersonId = $('select[name=otherPersons]').val();
 
-      upgradePlotByOtherPerson(otherPersonId);
+      //upgradePlotByOtherPerson(otherPersonId);
 
       choices();
   }
@@ -578,7 +647,7 @@
   function drawChoicesTable()
   {
       var htmlStr = "";
-      htmlStr = "<div id='choicestable'><table class= 'legendtable'>";
+      htmlStr = "<table class= 'legendtable'>";
       htmlStr += "<%= @person.name %>";
       htmlStr += "<thead>";
       htmlStr += "<tr><th>Показать</th><th>Цвет</th><th>Подпись</th></tr>";
@@ -611,7 +680,7 @@
 
               htmlStr += 
               "<td>" +
-                  "<input type='checkbox' name='" + key + "' checked='checked' id='id" + key + "'></input>" +
+                  "<input type='checkbox' name='" + key + "' id='id" + key + "'></input>" +
               "</td>" + 
               "<td>" +
                   "<div style='width:14px; border:1px solid #ccc;padding:1px'>" + 
@@ -630,9 +699,9 @@
           }
       });  
 
-      htmlStr += "</table></div>";
+      htmlStr += "</table>";
 
-      choiceContainer.append(htmlStr + "<div id = choicetableotherperson></div>");
+      choiceTable.append(htmlStr);
   }
 
 
@@ -652,20 +721,19 @@
 
       personSelecter.append(htmlStr);
 
-      var dates = <%= @person.get_dates_with_signs %>;
+      var dates = <%= raw @person.get_dates_with_signs %>;
       var birthDate = <%= @person.get_birth %>;
+
       birthYear = new Date((new Date(birthDate * CoefConvRubyToJSDate)).getFullYear(), 0, 1);
       
 
       yearDatasets = createDatasets(birthDate, maxDateYear, dates, yearPeriod, 0, graphTypeYear);
       monthDatasets = createDatasets(birthDate, maxDateMonth, dates, monthPeriod, 0, graphTypeMonth);
 
-      choiceContainer = $("#choicestablediv");
+      choiceTable = $("#choicestable");
+      choiceTableOtherPerson = $("#choicestableotherperson");
        
       drawChoicesTable();
-
-      choiceTable = $("#choicestable");
-      choiceTableOtherPerson = $("#choicetableotherperson");
 
       choiceTable.find("input").click(plotAccordingToChoicesCheck);
       choiceTableOtherPerson.find("input").click(plotAccordingToChoicesCheck);
@@ -680,18 +748,28 @@
 
 <div id="content">
 
-    Вторая персона:<br/>
-    <select name="otherPersons" id="otherPersons" onchange="plotAccordingToChoicesChangePerson()">
-    </select>
-    <br/>
+    <table id="navigationTable" style="border:0px;">
+        <tr>
+            <td style="padding:10px; vertical-align: top;">
+                Вторая персона:<br/>
+                <select name="otherPersons" id="otherPersons" onchange="plotAccordingToChoicesChangePerson()">
+                </select>
+                <br/>
 
-    <input id = "graphType1" type="radio" name="graphType" value=1 onClick="plotAccordingToChoicesGraphType()" checked> Годовой график <br>
-    <input id = "graphType2" type="radio" name="graphType" value=2 onClick="plotAccordingToChoicesGraphType()"> Месячный график <br>
+                <input id = "graphType1" type="radio" name="graphType" value=1 onClick="plotAccordingToChoicesGraphType()" checked> Годовой график <br>
+                <input id = "graphType2" type="radio" name="graphType" value=2 onClick="plotAccordingToChoicesGraphType()"> Месячный график
+            </td>
+            <td style="padding:10px; vertical-align: top;">
+                <div id='choicestable'></div>
+            </td>
+            <td style="padding:10px; vertical-align: top;">
+                <div id='choicestableotherperson'></div>
+            </td>
+        </tr>
+    </table>
 
     <div class="demo-container">
-      <div id="placeholder" class="demo-placeholder" style="float:left; width:850px; height: 460px;"></div>
-      <div id="choicestablediv" style="float:right; width:280px;">
-      </div>
+      <div id="placeholder" class="demo-placeholder" style="float:left; height: 460px;"></div>
     </div>
 
 </div>
