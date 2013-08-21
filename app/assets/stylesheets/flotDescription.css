@@ -43,3 +43,31 @@ table.legendtable
 {
 	border-spacing: 5px;
 }
+
+.yearLabel
+{
+	margin-left: -11px;
+}
+
+.monthLabel
+{
+	margin-left: -14px;
+}
+
+.monthLabel39
+{
+	font-size: 10px;
+	margin-left: -2px;
+}
+
+.monthLabelMore9
+{
+	font-size: 10px;
+	margin-left: -11px;
+}
+
+.monthLabelLess3
+{
+	font-size: 10px;
+	margin-left: 2px;
+}

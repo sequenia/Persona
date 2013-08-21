@@ -177,11 +177,11 @@
 
           if(graphType == graphTypeYear)
           {
-              BDate = new Date(BDate.getFullYear() + 1, 0, 1);
+              BDate.setFullYear(BDate.getFullYear() + 1);
           }
           else
           {
-              BDate = new Date(BDate.getFullYear(), BDate.getMonth() + 1, 1);
+              BDate.setMonth(BDate.getMonth() + 1);
           }
           counter++;
           if(counter == len) counter = 0;
@@ -513,38 +513,63 @@
 
       var startDate =  Math.min(birthYear.valueOf(), birthYearOtherPerson.valueOf());
       var endDate = maxDate * CoefConvRubyToJSDate;
+      var startDateDate = new Date(startDate);
+      var labelStr = "";
 
       var xticks = [];
       if(graphType == graphTypeYear)
       {
-          for(i = new Date(startDate); i < new Date(endDate); i = new Date(i.getFullYear() + 1, 0, 1))
+          for(i = new Date(startDate); i < new Date(endDate); i.setFullYear(i.getFullYear() + 1))
           {
               if( ( i.valueOf() == (new Date(startDate)).valueOf() ) || ( i.getFullYear() % 10 == 0 ) )
               {
-                  xticks.push([i.valueOf(), "<b style='margin-left: -11px;'>" + i.getFullYear().toString() + "</b>"]);
+                  xticks.push([i.valueOf(), "<b class='yearLabel'>" + i.getFullYear().toString() + "</b>"]);
               }
               else
               {
-                  xticks.push([i.valueOf(), (i.getYear() % 10).toString()]);
+                  if(startDateDate.getFullYear() < 1960 &&
+                     (i.getFullYear() % 10 == 1 || i.getFullYear() % 10 == 9 || i.getFullYear() == startDateDate.getFullYear() + 1))
+                  {
+                      labelStr = "";
+                  }
+                  else
+                  {
+                      labelStr = (i.getYear() % 10).toString();
+                  }
+                  xticks.push([i.valueOf(), labelStr]);
               }
           }
       }
       else
       {
-          for(i = new Date(startDate); i < new Date(endDate); i = new Date(i.getFullYear(), i.getMonth() + 1, 1))
+          for(i = new Date(startDate); i < new Date(endDate); i.setMonth(i.getMonth() + 1))
           {
               if(i.getMonth() == 0 || i.valueOf() == (new Date(startDate)).valueOf())
               {
-                  xticks.push([i.valueOf(), "<b style='margin-left: -14px;'>" + i.getFullYear().toString() + "</b>"]);
+                  xticks.push([i.valueOf(), "<b class='monthLabel'>" + i.getFullYear().toString() + "</b>"]);
               }
               else if(i.getMonth() % 2 == 0)
               {
+                  labelStr = i.getMonth().toString();
                   if(i.getMonth() <= 9 && i.getMonth() >= 3)
-                      xticks.push([i.valueOf(), "<text style='font-size: 10px; margin-left: -2px;'>" + i.getMonth().toString() + "</text>"]);
-                  else if(i.getMonth() > 9 )
-                      xticks.push([i.valueOf(), "<text style='font-size: 10px; margin-left: -11px;'>" + i.getMonth().toString() + "</text>"]);
-                  else 
-                      xticks.push([i.valueOf(), "<text style='font-size: 10px; margin-left: 2px;'>" + i.getMonth().toString() + "</text>"]);
+                  {
+                      xticks.push([i.valueOf(), "<text class='monthLabel39'>" + labelStr + "</text>"]);
+                  }
+                  else
+                  {
+                      if(startDateDate.getFullYear() < 1985)
+                      {
+                          labelStr = "";
+                      }
+                      if(i.getMonth() > 9 )
+                      {
+                          xticks.push([i.valueOf(), "<text class='monthLabelMore9'>" + labelStr + "</text>"]);
+                      }
+                      else 
+                      {
+                          xticks.push([i.valueOf(), "<text class='monthLabelLess3'>" + labelStr + "</text>"]);
+                      }
+                  }
               }
           }
       }
@@ -699,6 +724,7 @@
 
       var dates = <%= raw @person.get_dates_with_signs %>;
       var birthDate = <%= @person.get_birth %>;
+
       birthYear = new Date((new Date(birthDate * CoefConvRubyToJSDate)).getFullYear(), 0, 1);
       
 
