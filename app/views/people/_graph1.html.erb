@@ -27,7 +27,6 @@
   var yearDatasetsOtherPerson = {};
   var monthDatasetsOtherPerson = {};
 
-  var choiceContainer;
   var choiceTable;
   var choiceTableOtherPerson;
   var otherPersons;
@@ -731,7 +730,6 @@
       yearDatasets = createDatasets(birthDate, maxDateYear, dates, yearPeriod, 0, graphTypeYear);
       monthDatasets = createDatasets(birthDate, maxDateMonth, dates, monthPeriod, 0, graphTypeMonth);
 
-      choiceContainer = $("#choicestablediv");
       choiceTable = $("#choicestable");
       choiceTableOtherPerson = $("#choicestableotherperson");
        
@@ -750,21 +748,28 @@
 
 <div id="content">
 
-    Вторая персона:<br/>
-    <select name="otherPersons" id="otherPersons" onchange="plotAccordingToChoicesChangePerson()">
-    </select>
-    <br/>
+    <table id="navigationTable" style="border:0px;">
+        <tr>
+            <td style="padding:10px; vertical-align: top;">
+                Вторая персона:<br/>
+                <select name="otherPersons" id="otherPersons" onchange="plotAccordingToChoicesChangePerson()">
+                </select>
+                <br/>
 
-    <input id = "graphType1" type="radio" name="graphType" value=1 onClick="plotAccordingToChoicesGraphType()" checked> Годовой график <br>
-    <input id = "graphType2" type="radio" name="graphType" value=2 onClick="plotAccordingToChoicesGraphType()"> Месячный график <br>
+                <input id = "graphType1" type="radio" name="graphType" value=1 onClick="plotAccordingToChoicesGraphType()" checked> Годовой график <br>
+                <input id = "graphType2" type="radio" name="graphType" value=2 onClick="plotAccordingToChoicesGraphType()"> Месячный график
+            </td>
+            <td style="padding:10px; vertical-align: top;">
+                <div id='choicestable'></div>
+            </td>
+            <td style="padding:10px; vertical-align: top;">
+                <div id='choicestableotherperson'></div>
+            </td>
+        </tr>
+    </table>
 
     <div class="demo-container">
-      <div id="placeholder" class="demo-placeholder" style="float:left; width:850px; height: 460px;"></div>
-      <div id="choicestablediv" style="float:right; width:280px;">
-        <div id='choicestable'></div>
-        <br/>
-        <div id='choicestableotherperson'></div>
-      </div>
+      <div id="placeholder" class="demo-placeholder" style="float:left; height: 460px;"></div>
     </div>
 
 </div>
