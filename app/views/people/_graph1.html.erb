@@ -556,7 +556,7 @@
                   }
                   else
                   {
-                      if(startDateDate.getFullYear() < 1985)
+                      if(startDateDate.getFullYear() < 1993)
                       {
                           labelStr = "";
                       }
@@ -603,6 +603,10 @@
           pan: 
           {
               interactive: true
+          },
+          zoom: 
+          {
+              interactive: true
           }
       };
 
@@ -610,7 +614,7 @@
 
       if(graphType == graphTypeMonth)
       {
-          plot.zoom({ center: { left: -1300, top: 1} });
+          plot.zoom({ center: { left: -1700, top: 1} });
       }
       else
       {
