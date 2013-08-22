@@ -275,8 +275,8 @@
       if(personType == 0)
       {
           Graph["CtrlPoints"] = pointsToLife("Точки, определившие период синусоиды", Points, greenColor);
-          Graph["Minus"] = pointsToLife("Минусы", Points, redColor);
-          Graph["Plus"] = pointsToLife("Плюсы", Points, blueColor);
+          Graph["Minus"] = pointsToLife("Минусы", Points, blueColor);
+          Graph["Plus"] = pointsToLife("Плюсы", Points, redColor);
           Graph["Zero"] = pointsToLife("Нули", Points, grayColor);
       }
       else 
@@ -361,12 +361,12 @@
       }
 
       Graph["CtrlPoints"] = pointsToGraph(OtherPoints["CtrlPoints"], greenColor, "circle");
-      Graph["Minus"] = pointsToGraph(OtherPoints["MinusPoints"], redColor, "circle");
-      Graph["Plus"] = pointsToGraph(OtherPoints["PlusPoints"], blueColor, "circle");
+      Graph["Minus"] = pointsToGraph(OtherPoints["MinusPoints"], blueColor, "circle");
+      Graph["Plus"] = pointsToGraph(OtherPoints["PlusPoints"], redColor, "circle");
       Graph["Zero"] = pointsToGraph(OtherPoints["ZeroPoints"], grayColor, "circle");
 
-      Graph["MinusLabel"] = pointsToGraph(PointsLabels["MinusPoints"], redColor, "minus");
-      Graph["PlusLabel"] = pointsToGraph(PointsLabels["PlusPoints"], blueColor, "plus");
+      Graph["MinusLabel"] = pointsToGraph(PointsLabels["MinusPoints"], blueColor, "minus");
+      Graph["PlusLabel"] = pointsToGraph(PointsLabels["PlusPoints"], redColor, "plus");
       Graph["ZeroLabel"] = pointsToGraph(PointsLabels["ZeroPoints"], grayColor, "circle");
 
       return Graph;
