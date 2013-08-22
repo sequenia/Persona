@@ -10,7 +10,7 @@
   var MaxDateStrMonth      = '2034-01-01';
 
   var yearPeriod = 1;
-  var monthPeriod = 14;
+  var monthPeriod = 12;
 
   var graphTypeYear = 1;
   var graphTypeMonth = 2;
@@ -19,6 +19,7 @@
   var overview;
   var options;
   var data;
+  var xticksPoints = [];
   
   var datasets = {};
   var datasetsOtherPerson = {};
@@ -37,6 +38,35 @@
 
   var birthYear;
   var birthYearOtherPerson;
+
+  function yearDifference(Date1, Date2)
+  {
+      var date1Year = Date1.getFullYear();
+      var date2Year = Date2.getFullYear();
+      var date1Month = Date1.getMonth();
+      var date2Month = Date2.getMonth();
+      var date1Day = Date1.getDate();
+      var date2Day = Date2.getDate();
+
+      var difference = date2Year - date1Year;
+
+      if(date2Month < date1Month)
+      {
+          difference--;
+      }
+      else
+      {
+          if(date2Month == date1Month)
+          {
+              if(date2Day < date1Day)
+              {
+                  difference--;
+              }
+          }
+      }
+
+      return difference;
+  }
 
   function rgbToHex(R,G,B) {return toHex(R)+toHex(G)+toHex(B)}
 
@@ -71,30 +101,37 @@
   }
 
   // Генерация точек для графика (минусы, плюсы и тд)
-  function genOtherPoints(BirthDate, MemoryDate1, MemoryDate2, EndPoint, Zero, T1, T2)
+  function genOtherPoints(BirthDate, MemoryDate1, MemoryDate2, EndPoint, Zero, T1, T2, dy)
   {
 
       var CtrlPoints  = [];
       var MinusPoints = [];
       var PlusPoints  = []; 
       var ZeroPoints  = [];
+
       var counter = 0;
       var IsPositive = false;
 
-      CtrlPoints.push([MemoryDate1 * CoefConvRubyToJSDate, 0]);
-      CtrlPoints.push([MemoryDate2 * CoefConvRubyToJSDate, 0]);
+      CtrlPoints.push([MemoryDate1 * CoefConvRubyToJSDate, dy]);
+      CtrlPoints.push([MemoryDate2 * CoefConvRubyToJSDate, dy]);
 
       for(var i = BirthDate; i < Zero; i += T2 / 2)
       {
           if(counter % 2 == 0)
           {
-              if(IsPositive) PlusPoints.push([i * CoefConvRubyToJSDate, 0]);
-              else MinusPoints.push([i * CoefConvRubyToJSDate, 0]);
+              if(IsPositive)
+              {
+                  PlusPoints.push([i * CoefConvRubyToJSDate, dy]);
+              }
+              else 
+              {
+                  MinusPoints.push([i * CoefConvRubyToJSDate, dy]);
+              }
               IsPositive = !IsPositive;
           }
           else
           {
-              ZeroPoints.push([i * CoefConvRubyToJSDate,   0]);
+              ZeroPoints.push([i * CoefConvRubyToJSDate,   dy]);
           }
           counter++;
       }
@@ -103,13 +140,19 @@
       {
           if(counter % 2 == 0)
           {
-              if(IsPositive) PlusPoints.push([i * CoefConvRubyToJSDate, 0]);
-              else MinusPoints.push([i * CoefConvRubyToJSDate, 0]);
+              if(IsPositive)
+              {
+                  PlusPoints.push([i * CoefConvRubyToJSDate, dy]);
+              }
+              else
+              {
+                  MinusPoints.push([i * CoefConvRubyToJSDate, dy]);
+              }
               IsPositive = !IsPositive;
           }
           else
           {
-              ZeroPoints.push([i * CoefConvRubyToJSDate,   0]);
+              ZeroPoints.push([i * CoefConvRubyToJSDate,   dy]);
           }
           counter++;
       }
@@ -131,12 +174,13 @@
       return {
         label: Label,
         data: Data,
-        color: Color
+        color: Color,
+        xaxis: 1
       };
   }
 
   // Генерация хэша с точками для синусов в необходимом для плота виде
-  function pointsToGraph(Data, Color)
+  function pointsToGraph(Data, Color, Symbol)
   {
       return { 
           data: Data,
@@ -148,9 +192,10 @@
             lineWidth: 2, // in pixels
             fill: false,
             fillColor: Color,
-            symbol: "circle" // or callback
+            symbol: Symbol // or callback
           },
-          color: Color
+          color: Color,
+          xaxis: 1
       };
   }
 
@@ -167,8 +212,6 @@
       var MultiplyStr = Multiply.toString();
       var counter = 0;
       var len = MultiplyStr.length;
-
-      BDate = new Date(BDate.getFullYear(), 0, 1);
 
       while(BDate < EndDate)
       {
@@ -193,7 +236,8 @@
             data: GraphPoints,
             lines: { show: false },
             points: { show: true },
-            dashes: { show: true, dashLength: 5, lineWidth: 1 }
+            dashes: { show: true, dashLength: 5, lineWidth: 1 },
+            xaxis: 1
         };
       }
       else
@@ -203,14 +247,19 @@
             data: GraphPoints,
             lines: { show: true },
             points: { show: true },
-            dashes: { show: false }
+            dashes: { show: false },
+            xaxis: 1
         };
       }
 
-      Graph["CtrlPoints"] = {};
-      Graph["Minus"] = {};
-      Graph["Plus"] = {};
-      Graph["Zero"] = {};
+      Graph["CtrlPoints"] = {xaxis: 1};
+      Graph["Minus"] = {xaxis: 1};
+      Graph["Plus"] = {xaxis: 1};
+      Graph["Zero"] = {xaxis: 1};
+
+      Graph["MinusLabel"] = {xaxis: 1};
+      Graph["PlusLabel"] = {xaxis: 1};
+      Graph["ZeroLabel"] = {xaxis: 1};
 
       return Graph;
 
@@ -221,7 +270,7 @@
       var Graph  = {};
       var Points = [];
 
-      Graph["Sinus"] = {};
+      Graph["Sinus"] = {xaxis: 1};
 
       if(personType == 0)
       {
@@ -232,11 +281,15 @@
       }
       else 
       {
-          Graph["CtrlPoints"] = {};
-          Graph["Minus"] = {};
-          Graph["Plus"] = {};
-          Graph["Zero"] = {};
+          Graph["CtrlPoints"] = {xaxis: 1};
+          Graph["Minus"] = {xaxis: 1};
+          Graph["Plus"] = {xaxis: 1};
+          Graph["Zero"] = {xaxis: 1};
       }
+
+      Graph["MinusLabel"] = {xaxis: 1};
+      Graph["PlusLabel"] = {xaxis: 1};
+      Graph["ZeroLabel"] = {xaxis: 1};
 
       return Graph;
 
@@ -245,6 +298,16 @@
   // Создание графика синуса
   function graphInit(BirthDate, MemoryDate1, MemoryDate2, EndPoint, period, personType)
   {
+      var difference = yearDifference(new Date(MemoryDate1 * CoefConvRubyToJSDate), new Date(MemoryDate2 * CoefConvRubyToJSDate));
+      var differenceCount = 1;
+      var currentDifference = 12;
+
+      while(currentDifference < difference)
+      {
+          differenceCount *= 2;
+          currentDifference *= 2;
+      }
+
       if(period == 1) 
       {
           sinusCalculateStep = SinusCalculateStepYear;
@@ -256,7 +319,7 @@
 
       var Graph = {};
       var Zero = MemoryDate1;
-      var T    = (MemoryDate2 - MemoryDate1) / period;
+      var T    = (MemoryDate2 - MemoryDate1) / (differenceCount * period);
       var XCoeff      = 2 * Math.PI / T;
       var GraphPoints = [];
 
@@ -271,7 +334,8 @@
           genPointsToSinus(Zero, EndPoint, sinusCalculateStep, XCoeff, Math.PI, Zero)
         );
 
-      var OtherPoints = genOtherPoints(BirthDate, MemoryDate1, MemoryDate2, EndPoint, Zero, T, (Zero - BirthDate) / period);
+      var OtherPoints = genOtherPoints(BirthDate, MemoryDate1, MemoryDate2, EndPoint, Zero, T, (Zero - BirthDate) / period, 0);
+      var PointsLabels = genOtherPoints(BirthDate, MemoryDate1, MemoryDate2, EndPoint, Zero, T, (Zero - BirthDate) / period, 1.2);
 
       if(personType == 1)
       {
@@ -280,7 +344,8 @@
             data: GraphPoints,
             lines: { show: false },
             points: { show: false },
-            dashes: { show: true, dashLength: 5, lineWidth: 1 }
+            dashes: { show: true, dashLength: 5, lineWidth: 1 },
+            xaxis: 1
         };
       }
       else
@@ -290,14 +355,19 @@
             data: GraphPoints,
             lines: { show: true },
             points: { show: false },
-            dashes: { show: false }
+            dashes: { show: false },
+            xaxis: 1
         };
       }
 
-      Graph["CtrlPoints"] = pointsToGraph(OtherPoints["CtrlPoints"], greenColor);
-      Graph["Minus"] = pointsToGraph(OtherPoints["MinusPoints"], redColor);
-      Graph["Plus"] = pointsToGraph(OtherPoints["PlusPoints"], blueColor);
-      Graph["Zero"] = pointsToGraph(OtherPoints["ZeroPoints"], grayColor);
+      Graph["CtrlPoints"] = pointsToGraph(OtherPoints["CtrlPoints"], greenColor, "circle");
+      Graph["Minus"] = pointsToGraph(OtherPoints["MinusPoints"], redColor, "circle");
+      Graph["Plus"] = pointsToGraph(OtherPoints["PlusPoints"], blueColor, "circle");
+      Graph["Zero"] = pointsToGraph(OtherPoints["ZeroPoints"], grayColor, "circle");
+
+      Graph["MinusLabel"] = pointsToGraph(PointsLabels["MinusPoints"], redColor, "minus");
+      Graph["PlusLabel"] = pointsToGraph(PointsLabels["PlusPoints"], blueColor, "plus");
+      Graph["ZeroLabel"] = pointsToGraph(PointsLabels["ZeroPoints"], grayColor, "circle");
 
       return Graph;
 
@@ -326,7 +396,11 @@
           "Minus" : Graph["Minus"],
           "Zero"  : Graph["Zero"],
           "Plus"  : Graph["Plus"],
-          "CtrlPoints" : Graph["CtrlPoints"]
+          "CtrlPoints" : Graph["CtrlPoints"],
+
+          "MinusLabel" : Graph["MinusLabel"],
+          "PlusLabel"  : Graph["PlusLabel"],
+          "ZeroLabel"  : Graph["ZeroLabel"]
       }
   }
 
@@ -444,7 +518,7 @@
       choiceTableOtherPerson.append(choiceTableStr);
 
       choiceTable.find("input").click(plotAccordingToChoicesCheck);
-      choiceTableOtherPerson.find("input").click(plotAccordingToChoicesCheck);;
+      choiceTableOtherPerson.find("input").click(plotAccordingToChoicesCheck);
   }
 
   function setDataSet(DSet, DSetOtherPerson)
@@ -466,6 +540,10 @@
       data.push(DSets[Key]["Plus"]);
       data.push(DSets[Key]["Zero"]);
       data.push(DSets[Key]["CtrlPoints"]);
+
+      data.push(DSets[Key]["MinusLabel"]);
+      data.push(DSets[Key]["PlusLabel"]);
+      data.push(DSets[Key]["ZeroLabel"]);
   }
 
   function choices()
@@ -491,6 +569,7 @@
       }
 
       data = [];
+      xticksPoints = [];
 
       choiceTable.find("input:checked").each(function () 
       {
@@ -598,11 +677,14 @@
                   [4.75, "9"]
               ]
           },
-          xaxis: 
-          {
-              panRange: [startDate, endDate],
-              ticks: xticks
-          },
+          xaxes: 
+          [
+              {
+                  panRange: [startDate, endDate],
+                  ticks: xticks,
+                  position: 'bottom'
+              }
+          ],
           pan: 
           {
               interactive: true
