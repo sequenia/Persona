@@ -404,6 +404,19 @@
       }
   }
 
+  function genLabelStr(Date1, Date2)
+  {
+      var sign1 = getSign(Date1);
+      var sign2 = getSign(Date2);
+      var sign1Str = " - ";
+      var sign2Str = " - ";
+
+      if(sign1 == 1) sign1Str = "+";
+      if(sign2 == 1) sign2Str = "+";
+
+      return ("\"" + sign1Str + " " + sign2Str + "\" График ");
+  }
+
   // Создать датасет для персоны с указанным периодом
   function createDatasets(BirthDate, MaxDate, Dates, period, personType, graphType)
   {
@@ -419,11 +432,9 @@
       {
           for(var j = i + 1; j < Dates.length; j++)
           {
-              if(getSign(Dates[i]) != getSign(Dates[j]))
-              {
                   var Graph = graphInit(BirthDate, getDate(Dates[i]), getDate(Dates[j]), MaxDate, period, personType);
 
-                  var label = "График " + graphCount.toString() + " (";
+                  var label = genLabelStr(Dates[i], Dates[j]) + graphCount.toString() + " (";
                   label += 
                   (new Date(getDate(Dates[i]) * CoefConvRubyToJSDate)).toLocaleDateString() + ", " + 
                   (new Date(getDate(Dates[j]) * CoefConvRubyToJSDate)).toLocaleDateString() + ")";
@@ -431,7 +442,6 @@
                   setLines(Datasets, Graph, label);
 
                   graphCount++;
-              }
           }
       }
 
