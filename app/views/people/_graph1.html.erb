@@ -428,22 +428,31 @@
 
       var graphCount = 1;
 
-      for(var i = 0; i < Dates.length - 1; i++)
+      function genAllLabels(isDifferent)
       {
-          for(var j = i + 1; j < Dates.length; j++)
+          for(var i = 0; i < Dates.length - 1; i++)
           {
-                  var Graph = graphInit(BirthDate, getDate(Dates[i]), getDate(Dates[j]), MaxDate, period, personType);
+              for(var j = i + 1; j < Dates.length; j++)
+              {
+                  if( ( getSign(Dates[i]) != getSign(Dates[j]) ) == isDifferent )
+                  {
+                      var Graph = graphInit(BirthDate, getDate(Dates[i]), getDate(Dates[j]), MaxDate, period, personType);
 
-                  var label = genLabelStr(Dates[i], Dates[j]) + graphCount.toString() + " (";
-                  label += 
-                  (new Date(getDate(Dates[i]) * CoefConvRubyToJSDate)).toLocaleDateString() + ", " + 
-                  (new Date(getDate(Dates[j]) * CoefConvRubyToJSDate)).toLocaleDateString() + ")";
+                      var label = genLabelStr(Dates[i], Dates[j]) + graphCount.toString() + " (";
+                      label += 
+                      (new Date(getDate(Dates[i]) * CoefConvRubyToJSDate)).toLocaleDateString() + ", " + 
+                      (new Date(getDate(Dates[j]) * CoefConvRubyToJSDate)).toLocaleDateString() + ")";
 
-                  setLines(Datasets, Graph, label);
+                      setLines(Datasets, Graph, label);
 
-                  graphCount++;
+                      graphCount++;
+                  }
+              }
           }
       }
+
+      genAllLabels(true);
+      genAllLabels(false);
 
       return Datasets;
   }
