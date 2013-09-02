@@ -4,66 +4,84 @@
 
 <p id="notice"><%= notice %></p>
 
-<p>
-  <h3>
-  <strong>Имя:</strong>
-  <%= @person.name %>
-  </h3>
-</p>
-<p>
-  <h3>
-  <strong>Дата рождения:</strong>
-  <%= @person.birth.strftime("%d.%m.%Y") %>
-  </h3>
-</p>
+<div class="hero-unit" style="padding-top: 10px; padding-bottom: 0px;">
 
+    <table id="navigationTable" class="table table-bordered table-condensed" style="width: 100%;">
 
-<h2>Добавление события</h2>
-<div class="hero-unit">
-<%=form_for([@person, @person.stories.build]) do |f| %>
-Дата:
-<br>
-<%= f.date_field :date %>
-</br>
-Описание:
-<br>
-<%= f.text_field :description %>
-<br>
-Тип:
-<br>
-<%= f.select(:story_type, [["Позитивная", Story::POSITIVE], ["Негативная", Story::NEGATIVE]]) %>
-<br>
-<%= f.submit :class => "btn btn-primary", :value => "Создать событие" %> 
-<% end %>
-<br>
-</div>
+        <tr>
+            <td style="text-align: center; font-size:20px; padding:10px; vertical-align: top; width: 50%;">
+                <b>Имя: <%= @person.name %></b>
+            </td>
+            <td style="text-align: center; font-size:20px; padding:10px; vertical-align: top; width: 50%;">
+                <b>Вторая персона:</b>
+                <select name="otherPersons" id="otherPersons" onchange="plotAccordingToChoicesChangePerson()">
+                </select>
+            </td>
+        </tr>
+
+        <tr>
+            <td style="text-align: center; font-size:14px; padding:10px; vertical-align: top; width: 50%;">
+                <b>Дата рождения: <%= @person.birth.strftime("%d.%m.%Y") %></b>
+            </td>
+            <td style="text-align: center; font-size:14px; padding:10px; vertical-align: top; width: 50%;">
+                <div id="secondBirth" align="center"></div>
+            </td>
+        </tr>
+
+        <tr>
+            <td style="text-align: center; left; font-size:12px; padding:10px; vertical-align: top;">
+
+                <table class="table table-bordered table-condensed">
+                <tr>
+                  <th>Дата</th>
+                  <th>Значение</th>
+                  <th>Описание</th>
+                  <th>Действие</th>
+                </tr> 
+                <tbody>
+                <% for i in 0..@person.get_dates_count - 1 %>
+                <tr>
+                <%= render @person.stories[i] %>
+                </tr>
+                <%end%>
+                <tr>
+                    <%=form_for([@person, @person.stories.build]) do |f| %>
+                    <td>
+                        <%= f.date_field :date, :class=>"input-medium" %>
+                    </td>
+                    <td>
+                        <%= f.select(:story_type, [["Позитивная", Story::POSITIVE], ["Негативная", Story::NEGATIVE]], {}, {:class=>"input-medium"}) %>
+                    </td>
+                    <td>
+                        <%= f.text_field :description, :class=>"input-small" %>
+                    </td>
+                    <td>
+                        <%= f.submit :class => "btn btn-primary", :value => "Создать" %>
+                    </td>
+                    <% end %>
+                </tr>
+                </tbody>
+                </table>
+                
+            </td>
+            <td style="padding:10px; font-size:12px; vertical-align: top;">
+                <div id="secondDates" align="center"></div>
+            </td>
+        </tr>
+
+        <tr>
+            <td style="padding:10px; font-size:12px; vertical-align: top; text-align: center; width: 50%;">
+                <div id='choicestable' align="center"></div>
+            </td>
+            <td style="padding:10px; font-size:12px; vertical-align: top; text-align: center; width: 50%;">
+                <div id='choicestableotherperson' align="center"></div>
+            </td>
+        </tr>
+
+    </table>
 
 <% if @person.valide_dates_for_graph  %>
-<h2>График</h2>
-<div class="hero-unit">
 <%= render "graph1"%>
 <% end %>
 <br>
-</div>
-<h2>События</h2>
-<div class="hero-unit h1">
-<table class="table">
-	
-<tr>
-	<th>Дата</th>
-	<th>Значение</th>
-	<th>Описание</th>
-	<th>Действие</th>
-</tr>	
-<tbody>
-<% for i in 0..@person.get_dates_count - 1 %>
-<% if i % 3 == 0 %> <br>
-<% end %>
-<tr>
-<%= render @person.stories[i] %>
-<% i+=1 %>
-</tr>
-<%end%>
-</tbody>
-</table>
 </div>

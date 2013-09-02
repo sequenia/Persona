@@ -464,8 +464,8 @@
       var choiceTableStr = "";
 
       choiceTableOtherPerson.empty();
-
-      choiceTableStr += "<table class= 'legendtable'>";
+      $("#secondBirth").empty();
+      $("#secondDates").empty();
 
       <% Person.all.each do |per| %>
           if(<%= per.id %> == otherPersonId)
@@ -478,7 +478,29 @@
               yearDatasetsOtherPerson = createDatasets(birthDate, maxDateYear, dates, yearPeriod, 1, graphTypeYear);
               monthDatasetsOtherPerson = createDatasets(birthDate, maxDateMonth, dates, monthPeriod, 1, graphTypeMonth);       
       
-              choiceTableStr += "<%= per.name %>";
+              $("#secondBirth").append("<b>Дата рождения: <%= per.birth.strftime('%d.%m.%Y') %></b>");
+
+              var strDates = "";
+              strDates += "<table class='table table-bordered table-condensed'>" +
+                "<tr>" +
+                  "<th>Дата</th>" +
+                  "<th>Значение</th>" +
+                  "<th>Описание</th>" +
+                "</tr>" + 
+                "<tbody>" +
+                "<% for i in 0..per.get_dates_count - 1 %>" +
+                "<tr>" +
+                  "<th><%= per.stories[i].date%></th>" +
+                  "<th><%= per.stories[i].getStoryType%></th>" +
+                  "<th><%= per.stories[i].description%></th>" +
+                "</tr>" +
+                "<%end%>" +
+                "</tbody>" +
+                "</table>";
+
+              $("#secondDates").append(strDates);
+
+              choiceTableStr += "<table class='legendtable'>";
               choiceTableStr += "<thead>";
               choiceTableStr += "<tr><th>Показать</th><th>Цвет</th><th>Подпись</th></tr>";
               choiceTableStr += "</thead>";
@@ -684,10 +706,10 @@
           yaxis:
           {
               show: true,
-              panRange: [-1.5, 7],
+              panRange: [-1.5, 5.5],
               zoomRange: [1, 1],
               min: -1.5,
-              max: 7,
+              max: 5.5,
               ticks: 
               [
                   [ 0, "" ], [ -1, ""], [1, ""], [2.5, "0"], 
@@ -711,6 +733,10 @@
           zoom: 
           {
               interactive: true
+          },
+          legend: 
+          {
+              backgroundOpacity: 0.6 // set to 0 to avoid background
           }
       };
 
@@ -755,8 +781,7 @@
   function drawChoicesTable()
   {
       var htmlStr = "";
-      htmlStr = "<table class= 'legendtable'>";
-      htmlStr += "<%= @person.name %>";
+      htmlStr += "<table class='legendtable'>";
       htmlStr += "<thead>";
       htmlStr += "<tr><th>Показать</th><th>Цвет</th><th>Подпись</th></tr>";
       htmlStr += "</thead>";
@@ -856,28 +881,11 @@
 
 <div id="content">
 
-    <table id="navigationTable" style="border:0px;">
-        <tr>
-            <td style="padding:10px; vertical-align: top;">
-                Вторая персона:<br/>
-                <select name="otherPersons" id="otherPersons" onchange="plotAccordingToChoicesChangePerson()">
-                </select>
-                <br/>
-
-                <input id = "graphType1" type="radio" name="graphType" value=1 onClick="plotAccordingToChoicesGraphType()" checked> Годовой график <br>
-                <input id = "graphType2" type="radio" name="graphType" value=2 onClick="plotAccordingToChoicesGraphType()"> Месячный график
-            </td>
-            <td style="padding:10px; vertical-align: top;">
-                <div id='choicestable'></div>
-            </td>
-            <td style="padding:10px; vertical-align: top;">
-                <div id='choicestableotherperson'></div>
-            </td>
-        </tr>
-    </table>
-
     <div class="demo-container">
-      <div id="placeholder" class="demo-placeholder" style="float:left; height: 460px;"></div>
+      <div id="placeholder" class="demo-placeholder" style="float:left; height: 420px;"></div>
     </div>
+
+    <input id = "graphType1" type="radio" name="graphType" value=1 onClick="plotAccordingToChoicesGraphType()" checked> Годовой график <br>
+    <input id = "graphType2" type="radio" name="graphType" value=2 onClick="plotAccordingToChoicesGraphType()"> Месячный график
 
 </div>
