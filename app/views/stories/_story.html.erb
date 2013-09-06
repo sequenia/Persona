@@ -1,4 +1,4 @@
 <th><%= story.date%></th> 
 <th><%= story.getStoryType%></th>
 <th><%= story.description%></th>
-<th><%= link_to 'Удалить', [story.person, story], method: :delete, data: {confirm:'Вы уверены? '} %></th>
+<td><%= link_to 'Удалить', [story.person, story], method: :delete, data: {confirm:'Вы уверены? '}, :class => "btn btn-primary btn-link btn-small" %></td>

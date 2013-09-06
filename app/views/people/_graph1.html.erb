@@ -490,7 +490,7 @@
                 "<tbody>" +
                 "<% for i in 0..per.get_dates_count - 1 %>" +
                 "<tr>" +
-                  "<th><%= per.stories[i].date%></th>" +
+                  "<th><%= per.stories[i].date.strftime('%d.%m.%Y') %></th>" +
                   "<th><%= per.stories[i].getStoryType%></th>" +
                   "<th><%= per.stories[i].description%></th>" +
                 "</tr>" +

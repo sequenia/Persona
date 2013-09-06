@@ -41,7 +41,7 @@
                 <tbody>
                 <% for i in 0..@person.get_dates_count - 1 %>
                 <tr>
-                <%= render @person.stories[i] %>
+                    <%= render @person.stories[i] %>
                 </tr>
                 <%end%>
                 <tr>
@@ -56,7 +56,7 @@
                         <%= f.text_field :description, :class=>"input-small" %>
                     </td>
                     <td>
-                        <%= f.submit :class => "btn btn-primary", :value => "Создать" %>
+                        <%= f.submit :class => "btn btn-primary btn-link btn-small", :value => "Создать" %>
                     </td>
                     <% end %>
                 </tr>
