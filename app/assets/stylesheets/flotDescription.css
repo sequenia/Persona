@@ -71,3 +71,13 @@ table.legendtable
 	font-size: 10px;
 	margin-left: 2px;
 }
+
+.divHidden
+{
+    display: none; 
+}
+
+.divBlock
+{
+	display: block;
+}

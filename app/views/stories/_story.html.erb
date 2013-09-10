@@ -1,4 +1,59 @@
-<th><%= story.date%></th> 
-<th><%= story.getStoryType%></th>
-<th><%= story.description%></th>
-<td><%= link_to 'Удалить', [story.person, story], method: :delete, data: {confirm:'Вы уверены? '}, :class => "btn btn-primary btn-link btn-small" %></td>
+<%= form_for([story.person, story]) do |f| %>
+
+<th>
+	<div id = "dateShow<%= story.date.strftime('%d.%m.%Y') %>" style="display: block;" >
+	<%= story.date.strftime('%d.%m.%Y') %>
+	</div>
+	<div id = "date<%= story.date.strftime('%d.%m.%Y') %>" style="display: none;" >
+    <%= f.date_field :date, :class=>"input-medium" %>
+	</div>
+</th> 
+<th>
+	<div id = "typeShow<%= story.date.strftime('%d.%m.%Y') %>" style="display: block;" >
+	<%= story.getStoryType%>
+	</div>
+	<div id = "type<%= story.date.strftime('%d.%m.%Y') %>" style="display: none;" >
+    <%= f.select(:story_type, [["Позитивная", Story::POSITIVE], ["Негативная", Story::NEGATIVE]], {}, {:class=>"input-medium"}) %>
+	</div>
+</th>
+<th>
+	<div id = "descShow<%= story.date.strftime('%d.%m.%Y') %>" style="display: block;" >
+	<%= story.description%> 
+	</div>
+	<div id = "desc<%= story.date.strftime('%d.%m.%Y') %>" style="display: none;" >
+	<%= f.text_field :description, :class=>"input-small" %>
+	</div>
+</th>
+<td>
+    <table>
+        <tr>
+        <td>
+	        <p id = "edit<%= story.date.strftime('%d.%m.%Y') %>" class="btn btn-primary btn-link btn-small" onclick="showDiv('<%= story.date.strftime('%d.%m.%Y') %>');">
+	        	 Редактировать
+	        </p>
+	        <div id = "save<%= story.date.strftime('%d.%m.%Y') %>" style="display: none;" >
+	        <%= f.submit :class => "btn btn-primary btn-link btn-small", :value => "Сохранить" %>
+	    	</div>
+        </td>
+        <% end %>
+        <td>
+        	<%= link_to 'Удалить', [story.person, story], method: :delete, data: {confirm:'Вы уверены? '}, :class => "btn btn-primary btn-link btn-small" %>
+        </td>
+        </tr>
+    </table>
+</td>
+
+<script type="text/javascript">
+function showDiv(elemId)
+{
+	document.getElementById("date" + elemId).style.display = 'block';
+	document.getElementById("type" + elemId).style.display = 'block';
+	document.getElementById("save" + elemId).style.display = 'block';
+	document.getElementById("desc" + elemId).style.display = 'block';
+	document.getElementById("edit" + elemId).style.display = 'none';
+
+	document.getElementById("dateShow" + elemId).style.display = 'none';
+	document.getElementById("typeShow" + elemId).style.display = 'none';
+	document.getElementById("descShow" + elemId).style.display = 'none';
+}
+</script>

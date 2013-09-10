@@ -1,7 +1,7 @@
 # coding: utf-8
 class Story < ActiveRecord::Base
 	belongs_to :person
-    validates :date, :presence => true 
+
     POSITIVE = 1
     NEGATIVE = 0
     ALL_TYPES = [POSITIVE, NEGATIVE]

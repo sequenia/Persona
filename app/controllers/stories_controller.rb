@@ -1,4 +1,5 @@
 class StoriesController < ApplicationController
+
 	def create
 		@person = Person.find(params[:person_id])
 		@story = @person.stories.create(params[:story].permit(:date, :story_type, :description))
@@ -15,7 +16,7 @@ class StoriesController < ApplicationController
 		@person = Person.find(params[:person_id])
 		@story = Story.where(id: params[:id]).first
 		@story.update(story_params)
-		redirect_to person_path(@person)
+		redirect_to people_path
 	end
 
 	private

@@ -3,11 +3,20 @@ class Person < ActiveRecord::Base
 	
 	has_many :stories, dependent: :destroy
 
+	validates :name, presence: true
+	validates :birth, presence: true
+
+	after_create :build_default_stories
+
 	def get_dates_with_signs
 		date_arr = []
 		i = 0
 		while i < stories.count() do
-			date_arr << [stories[i].date.to_datetime.to_i, stories[i].story_type, stories[i].description]
+			if stories[i].date != nil
+				date_arr << [stories[i].date.to_datetime.to_i, stories[i].story_type, stories[i].description]
+			else
+				date_arr << [0, stories[i].story_type, stories[i].description]
+			end
 			i += 1
 		end
 		date_arr.sort! { |x, y| x[0] <=> y[0]}
@@ -71,5 +80,22 @@ class Person < ActiveRecord::Base
 		return person_arr.to_json
 		
 	end
+
+	private
+		def build_default_stories
+		  # build default profile instance. Will use default params.
+		  # The foreign key to the owning User model is set automatically
+		  self.stories.create(:description => 'Любовь', :story_type => 1)
+		  self.stories.create(:description => 'Выигрыш', :story_type => 1)
+		  self.stories.create(:description => 'Рождение детей', :story_type => 1)
+		  self.stories.create(:description => 'Свадьба', :story_type => 1)
+
+		  self.stories.create(:description => 'Расставание', :story_type => 0)
+		  self.stories.create(:description => 'Предательство', :story_type => 0)
+		  self.stories.create(:description => 'Финансовые потери', :story_type => 0)
+		  self.stories.create(:description => 'Смерть близкого', :story_type => 0)
+		  self.stories.create(:description => 'Болезнь, травма, авария', :story_type => 0)
+		  true 
+		end
 
 end
