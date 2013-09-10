@@ -447,28 +447,40 @@
       return Datasets;
   }
 
+  function showDiv(elemId)
+  {
+    document.getElementById(elemId + "EditBirth").style.display = 'block';
+    document.getElementById(elemId + "SaveButton").style.display = 'block';
+
+    document.getElementById(elemId + "EditButton").style.display = 'none';
+    document.getElementById(elemId + "ShowBirth").style.display = 'none';
+  }
+
   // Забивает в датасеты второго человека и делает для него чекбоксы
   function upgradePlotByOtherPerson(otherPersonId, personType)
   {
       if(personType == 1)
-          $.cookie("secondPers", $('select[name=otherPersons]').val());
+          $.cookie("secondPersin", $('select[name=otherPersons]').val());
       else
-          $.cookie("firstPers", $('select[name=firstPersons]').val());
+          $.cookie("firstPersin", $('select[name=firstPersons]').val());
 
       var choiceTableStr = "";
 
       var localChoiceTable;
       var localBirth;
       var localDates;
+      var localName;
 
       if(personType == 0)
       {
+          localName = $('#firstNameEdit');
           localBirth = $("#firstBirth");
           localDates = $("#firstDates");
           localChoiceTable = choiceTable;
       }
       else
       {
+          localName = $('#secondNameEdit');
           localBirth = $("#secondBirth");
           localDates = $("#secondDates");
           localChoiceTable = choiceTableOtherPerson;
@@ -477,28 +489,65 @@
       localChoiceTable.empty();
       localBirth.empty();
       localDates.empty();
+      localName.empty();
 
       <% Person.all.each do |per| %>
           if(<%= per.id %> == otherPersonId)
           {
               var dates = <%= raw per.get_dates_with_signs %>;
               var birthDate = <%= per.get_birth %>;
+              var personInfo = "";
+              var personName = "";
+
+              personName = '<%= link_to "Редактировать", edit_person_path(per), :class => "btn btn-primary btn-link btn-small" %> ' + 
+        '<%= link_to 'Удалить', per, method: :delete, data: { confirm: 'Вы уверены?' }, :class => "btn btn-primary btn-link btn-small" %>';
+
+              localName.append(personName);
 
               if(personType == 0)
               {
                   birthYear = new Date((new Date(birthDate * CoefConvRubyToJSDate)).getFullYear(), 0, 1);
                   yearDatasets = createDatasets(birthDate, maxDateYear, dates, yearPeriod, 0, graphTypeYear);
                   monthDatasets = createDatasets(birthDate, maxDateMonth, dates, monthPeriod, 0, graphTypeMonth);
+
+                  personInfo = '<%= form_for per do |f| %>' +
+                    '<div id = "firstShowBirth" style="display: block;" >' + 
+                      '<b>Дата рождения: <%= per.birth.strftime("%d.%m.%Y") %></b>' + 
+                    "</div>" + 
+                    '<div id = "firstEditBirth" style="display: none;" >' +
+                      '<b>Дата рождения: <%= f.date_field :birth, :class=>"input-medium" %></b>' +
+                    '</div>' +
+                    '<div id = "firstEditButton" class="btn btn-primary btn-link btn-small" onclick="showDiv(' + "'first'" +');">' + 
+                       'Редактировать' + 
+                    '</div>' +
+                    '<div id = "firstSaveButton" style="display: none;" >' + 
+                      '<%= f.submit :class => "btn btn-primary btn-link btn-small", :value => "Сохранить" %>' +
+                    '</div>' +  
+                    '<%end%>';
               }
               else
               {
                   birthYearOtherPerson = new Date((new Date(birthDate * CoefConvRubyToJSDate)).getFullYear(), 0, 1);
                   yearDatasetsOtherPerson = createDatasets(birthDate, maxDateYear, dates, yearPeriod, 1, graphTypeYear);
                   monthDatasetsOtherPerson = createDatasets(birthDate, maxDateMonth, dates, monthPeriod, 1, graphTypeMonth);
+
+                  personInfo = '<%= form_for per do |f| %>' +
+                    '<div id = "secondShowBirth" style="display: block;" >' + 
+                      '<b>Дата рождения: <%= per.birth.strftime("%d.%m.%Y") %></b>' + 
+                    "</div>" + 
+                    '<div id = "secondEditBirth" style="display: none;" >' +
+                      '<b>Дата рождения: <%= f.date_field :birth, :class=>"input-medium" %></b>' +
+                    '</div>' +
+                    '<div id = "secondEditButton" class="btn btn-primary btn-link btn-small" onclick="showDiv(' + "'second'" +');">' + 
+                       'Редактировать' + 
+                    '</div>' + 
+                    '<div id = "secondSaveButton" style="display: none;" >' + 
+                      '<%= f.submit :class => "btn btn-primary btn-link btn-small", :value => "Сохранить" %>' +
+                    '</div>' + 
+                    '<%end%>';
               }
-                     
-      
-              localBirth.append("<b>Дата рождения: <%= per.birth.strftime('%d.%m.%Y') %></b>");
+
+              localBirth.append(personInfo);
 
               var strDates = "";
               strDates += "<b>Позитивные:<b><br/>" + 
@@ -920,8 +969,8 @@
 
       otherPersons = []; 
 
-      var prevFirst = $.cookie("firstPers");
-      var prevSecond = $.cookie("secondPers");
+      var prevFirst = $.cookie("firstPersin");
+      var prevSecond = $.cookie("secondPersin");
 
       //alert(prevFirst);
       //alert(prevSecond);

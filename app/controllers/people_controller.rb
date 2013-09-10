@@ -42,11 +42,9 @@ class PeopleController < ApplicationController
   def update
     respond_to do |format|
       if @person.update(person_params)
-        format.html { redirect_to @person, notice: 'Person was successfully updated.' }
-        format.json { head :no_content }
+        format.html { redirect_to people_path, notice: 'Person was successfully updated.' }
       else
-        format.html { render action: 'edit' }
-        format.json { render json: @person.errors, status: :unprocessable_entity }
+        format.html { redirect_to people_path, notice: 'Error.' }
       end
     end
   end
