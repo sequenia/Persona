@@ -1,14 +1,19 @@
 <p id="notice"><%= notice %></p>
 
-<%= form_for(Person.new) do |f| %>
+<div id = "newPerson" class="btn btn-primary btn-link btn-small" onclick="showNew();">
+   Создание новой персоны
+</div>
+<div id = "newPersonForm" style="display: none;">
+    <%= form_for(Person.new) do |f| %>
 
-<div class="hero-unit" style="font-size:14px; padding-top: 10px; padding-bottom: 10px;">
-    <b style="font-size:20px;">Новая персона:</b><br/>
-    <b>Имя:</b><br>
-    <%= f.text_field :name %><br>
-    <b>Дата рождения:</b><br>
-    <%= f.date_field :birth %><br>
-    <%= f.submit :class => "btn btn-primary", :value => "Создать" %> 
+    <div class="hero-unit" style="font-size:14px; padding-top: 10px; padding-bottom: 10px;">
+        <b style="font-size:20px;">Новая персона:</b><br/>
+        <b>Имя:</b><br>
+        <%= f.text_field :name %><br>
+        <b>Дата рождения:</b><br>
+        <%= f.date_field :birth %><br>
+        <%= f.submit :class => "btn btn-primary", :value => "Создать" %> 
+    </div>
 </div>
 
 
@@ -67,3 +72,14 @@
 <%= render "graph2"%>
 <br>
 </div>
+
+<script type="text/javascript">
+
+function showNew()
+  {
+    var elem = document.getElementById("newPersonForm");
+    if(elem.style.display == 'block') elem.style.display = 'none';
+    else elem.style.display = 'block';
+  }
+
+</script>
