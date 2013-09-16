@@ -1,44 +1,39 @@
 <script type="text/javascript">
-  var CoefConvRubyToJSDate = 1000;
+  var CoefConvRubyToJSDate = 1000;         // Коэффициент перевода даты из руби формата в js формат
 
-  var SinusCalculateStep;
-  var SinusCalculateStepYear = 1000000;
-  var SinusCalculateStepMonth = 100000;
+  var SinusCalculateStepYear = 1000000;    // Шаг вычисления синуса для годового графика
+  var SinusCalculateStepMonth = 100000;    // Шаг вычисления синуса для месечного графика
 
-  var MaxDateStr           = '2064-01-01';
-  var MaxDateStrYear       = '2064-01-01';
-  var MaxDateStrMonth      = '2034-01-01';
+  var MaxDateStr           = '2064-01-01'; // Максимальная дата
+  var MaxDateStrYear       = '2064-01-01'; // Максимальная дата для годового графика
+  var MaxDateStrMonth      = '2034-01-01'; // Максимальная дата для месячного графика
 
-  var yearPeriod = 1;
-  var monthPeriod = 12;
+  var yearPeriod = 1;                      // Количество периодов синусоиды между двумя датами для годового графика
+  var monthPeriod = 12;                    // Количество периодов синусоиды между двумя датами для месячного графика
 
-  var graphTypeYear = 1;
-  var graphTypeMonth = 2;
+  var graphTypeYear = 1;                   // Идентификатор годового типа
+  var graphTypeMonth = 2;                  // Идентификатор месячного типа
 
-  var plot;
-  var overview;
-  var options;
-  var data;
-  var xticksPoints = [];
+  var data;                                // Данные для отрисовки. Глобальные, потому что заполняются везде
   
-  var datasets = {};
-  var datasetsOtherPerson = {};
-  var yearDatasets = {};
-  var monthDatasets = {};
+  var datasets = {};                       // Хэш с данными для отрисовки. Отсюда нужные данные будут перегоняться в data
+  var datasetsOtherPerson = {};            // То же самое для второго человека
+  var yearDatasets = {};                   // Годовые данные
+  var monthDatasets = {};                  // Месячные данные
   var yearDatasetsOtherPerson = {};
   var monthDatasetsOtherPerson = {};
 
-  var choiceTable;
-  var choiceTableOtherPerson;
-  var otherPersons;
+  var choiceTable;                         // DOM элемент для таблички выбора графиков первой персоны
+  var choiceTableOtherPerson;              // DOM элемент для таблички выбора графиков второй персоны
+  var otherPersons;                        // Список всех персон из базы данных
 
-  var maxDate;
-  var maxDateYear = Number(new Date(MaxDateStrYear)) / 1000;
-  var maxDateMonth = Number(new Date(MaxDateStrMonth)) / 1000;
+  var maxDateYear = Number(new Date(MaxDateStrYear)) / 1000;    // Максимальная дата для расчета годовых графиков
+  var maxDateMonth = Number(new Date(MaxDateStrMonth)) / 1000;  // Максимальная дата для расчета месячных графиков
 
-  var birthYear;
-  var birthYearOtherPerson;
+  var birthYear;                           // Год рождения первой персоны
+  var birthYearOtherPerson;                // Год рождения второй персоны
 
+  // Получить разницу между датами в годах
   function yearDifference(Date1, Date2)
   {
       var date1Year = Date1.getFullYear();
@@ -68,6 +63,7 @@
       return difference;
   }
 
+  // Получить 16й код цвета по RBG
   function rgbToHex(R,G,B) {return toHex(R)+toHex(G)+toHex(B)}
 
   function toHex(n) 
@@ -84,12 +80,13 @@
   var blueColor  = "#" + rgbToHex(0, 0, 150);
   var grayColor  = "#" + rgbToHex(150, 150, 150);
 
+  // Получить рандомное целое от min до max
   function getRandomInt(min, max)
   {
       return Math.floor(Math.random() * (max - min + 1)) + min;
   }
 
-  // Генерация точек для синуса
+  // Генерация массива с точками для синуса
   function genPointsToSinus(LeftEndPoint, RightEndPoint, Step, XCoeff, Offset, CoordZero)
   {
       var Points = [];
@@ -100,7 +97,7 @@
       return Points;
   }
 
-  // Генерация точек для графика (минусы, плюсы и тд)
+  // Генерация массива с точками (Минусы, Плюсы, Нули, Определившие период)
   function genOtherPoints(BirthDate, MemoryDate1, MemoryDate2, EndPoint, Zero, T1, T2, dy)
   {
 
@@ -168,7 +165,7 @@
       return AllPoints;
   }
 
-  // Генерация хэша с точками в необходимом для плота виде
+  // Генерация хэша с точками для дискретизации в необходимом для PLOT виде
   function pointsToLife(Label, Data, Color)
   {
       return {
@@ -199,7 +196,7 @@
       };
   }
 
-  // Создание хэша с графом линии жизни (Линия + точки)
+  // Создание хэша с данными о дискретизации, откуда они будут забиваться в хэш, принимаемый плотом
   function lifeInit(BirthDate, EndPoint, personType, graphType)
   {
       var Graph  = {};
@@ -265,6 +262,7 @@
 
   }
 
+  // Создание легенды
   function labelInit(personType)
   {
       var Graph  = {};
@@ -285,12 +283,75 @@
 
   }
 
-  // Создание графика синуса
+  // Создание линии для котрольного события
+  function controlPointInit(personType, startDate, endDate)
+  {
+
+      var Graph  = {};
+      var PointData = [];
+      var controlDate;
+
+      var DatePicker;
+      if( personType == 0 )
+      {
+          DatePicker = document.getElementById("firstCustomDate").getElementsByClassName('input-medium')[0];
+      }
+      else
+      {
+          DatePicker = document.getElementById("secondCustomDate").getElementsByClassName('input-medium')[0];
+      }
+
+      if(DatePicker)
+      {
+          controlDate = (new Date(DatePicker.value)).valueOf();
+          PointData.push([controlDate, -1.5]);
+          PointData.push([controlDate, 5.5]);
+      }
+
+      var dashedOptions;
+      var lineOptions;
+      if(personType == 1)
+      {
+          dashesOptions = { show: true, dashLength: 5, lineWidth: 1 };
+          lineOptions = false;
+      }
+      else
+      {
+          dashesOptions = { show: false };
+          lineOptions = true;
+      }
+
+      Graph["Sinus"] = { 
+          data: PointData,
+          lines: { show: lineOptions },
+          dashes: dashesOptions,
+          points: 
+          { 
+            show: false
+          },
+          color: grayColor,
+          xaxis: 1
+      };
+
+      Graph["CtrlPoints"] = {xaxis: 1};
+      Graph["Minus"] = {xaxis: 1};
+      Graph["Plus"] = {xaxis: 1};
+      Graph["Zero"] = {xaxis: 1};
+
+      Graph["MinusLabel"] = {xaxis: 1};
+      Graph["PlusLabel"] = {xaxis: 1};
+      Graph["ZeroLabel"] = {xaxis: 1};
+
+      return Graph;
+  }
+
+  // Создание хэша с данными о дискретизации, откуда они будут загоняться в хэш, принимаемый флотом
   function graphInit(BirthDate, MemoryDate1, MemoryDate2, EndPoint, period, personType)
   {
       var difference = yearDifference(new Date(MemoryDate1 * CoefConvRubyToJSDate), new Date(MemoryDate2 * CoefConvRubyToJSDate));
       var differenceCount = 1;
       var currentDifference = 12;
+      var SinusCalculateStep;
 
       while(currentDifference < difference)
       {
@@ -407,7 +468,7 @@
       return ("\"" + sign1Str + " " + sign2Str + "\" График ");
   }
 
-  // Создать датасет для персоны с указанным периодом
+  // Создать датасет для персоны с указанным периодом ( Массив с данными для флота )
   function createDatasets(BirthDate, MaxDate, Dates, period, personType, graphType)
   {
 
@@ -470,12 +531,14 @@
       var localBirth;
       var localDates;
       var localName;
+      var localCustomDate;
 
       if(personType == 0)
       {
           localName = $('#firstNameEdit');
           localBirth = $("#firstBirth");
           localDates = $("#firstDates");
+          localCustomDate = $('#firstCustomDate');
           localChoiceTable = choiceTable;
       }
       else
@@ -483,6 +546,7 @@
           localName = $('#secondNameEdit');
           localBirth = $("#secondBirth");
           localDates = $("#secondDates");
+          localCustomDate = $('#secondCustomDate');
           localChoiceTable = choiceTableOtherPerson;
       }  
 
@@ -490,6 +554,7 @@
       localBirth.empty();
       localDates.empty();
       localName.empty();
+      localCustomDate.empty();
 
       <% Person.all.each do |per| %>
           if(<%= per.id %> == otherPersonId)
@@ -498,11 +563,18 @@
               var birthDate = <%= per.get_birth %>;
               var personInfo = "";
               var personName = "";
+              var customDate = "";
 
               personName = '<%= link_to "Редактировать", edit_person_path(per), :class => "btn btn-primary btn-link btn-small" %> ' + 
         '<%= link_to 'Удалить', per, method: :delete, data: { confirm: 'Вы уверены?' }, :class => "btn btn-primary btn-link btn-small" %>';
 
               localName.append(personName);
+
+              customDate = '<%= form_for Story.new do |f| %>' +
+              '<b>Проверочное событие: </b> <%= f.date_field :date, :class=>'input-medium', :onchange => "choices();" %>' +
+              '<% end %>';
+
+              localCustomDate.append(customDate);
 
               if(personType == 0)
               {
@@ -615,7 +687,7 @@
 
               choiceTableStr += "<table class='legendtable'>";
               choiceTableStr += "<thead>";
-              choiceTableStr += "<tr><th>Показать</th><th>Цвет</th><th>Подпись</th></tr>";
+              choiceTableStr += "<tr><th>Показать</th><th>Цвет</th><th>Подпись</th><th>Ссылка</th></tr>";
               choiceTableStr += "</thead>";
 
               if(personType == 0)
@@ -660,6 +732,9 @@
                         "</td>" +
                         "<td>" +
                             key +
+                        "</td>" + 
+                        "<td>" +
+                            "<a href = '#'> Ссылка </a>" +
                         "</td>";
 
                         choiceTableStr += "</tr>";
@@ -709,6 +784,9 @@
                         "</td>" +
                         "<td>" +
                             key +
+                        "</td>" +
+                        "<td>" +
+                            "<a href = '#'> Ссылка </a>" +
                         "</td>";
 
                         choiceTableStr += "</tr>";
@@ -757,6 +835,7 @@
 
   function choices()
   {
+      var maxDate;
       var graphType = $('input[name=graphType]:checked').val();
 
       var otherPersonId = $('select[name=otherPersons]').val();
@@ -783,7 +862,6 @@
       }
 
       data = [];
-      xticksPoints = [];
 
       choiceTable.find("input:checked").each(function () 
       {
@@ -818,6 +896,11 @@
       var endDate = maxDate * CoefConvRubyToJSDate;
       var startDateDate = new Date(startDate);
       var labelStr = "";
+
+
+      // Запихать проверочное событие
+      data.push(controlPointInit(0, startDate, endDate)["Sinus"]);
+      data.push(controlPointInit(1, startDate, endDate)["Sinus"]);
 
       var xticks = [];
       if(graphType == graphTypeYear)
@@ -877,6 +960,8 @@
           }
       }
 
+      var options;
+
       options = 
       {
           lines: 
@@ -921,6 +1006,7 @@
           }
       };
 
+      var plot;
       plot = $.plot("#placeholder", data, options);
 
       if(graphType == graphTypeMonth)
