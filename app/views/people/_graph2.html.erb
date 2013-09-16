@@ -1,18 +1,36 @@
 <script type="text/javascript">
+
+  // Основаная концепция:
+  // При каком-либо изменении на странице вызывается одна из трех функций:
+  // accordingToChoicesCheck, accordingToChoicesChangePerson, accordingToChoicesGraphType.
+  // В каждой из них вызывается фукнция сhoice(), которая из полного набора данных выбирает для отрисовки лишь те,
+  // которым соответствует выбранные в чекбоксах графики.
+
+  // Опции чекбоксов имеют такие же имена, как и ключи в хэше datasets и datasetsOtherPerson. 
+  // В массив data забиваются лишь те данные из datasets и datasetsOtherPerson, ключи которых отмечены чекбоксами.
+  // Затем, data подается в plot для отрисовки.
+
+  // В зависимости от типа графика (Годовой, месячный, дневной), в datasets и datasetsOtherPerson 
+  // содержатся соответствующие им данные.
+
   var CoefConvRubyToJSDate = 1000;         // Коэффициент перевода даты из руби формата в js формат
 
-  var SinusCalculateStepYear = 1000000;    // Шаг вычисления синуса для годового графика
-  var SinusCalculateStepMonth = 100000;    // Шаг вычисления синуса для месечного графика
+  var SinusCalculateStepYear  = 1000000;    // Шаг вычисления синуса для годового графика
+  var SinusCalculateStepMonth = 100000;     // Шаг вычисления синуса для месечного графика
+  var SinusCalculateStepMonth = 1000;       // Шаг вычисления синуса для дневного графика
 
   var MaxDateStr           = '2064-01-01'; // Максимальная дата
   var MaxDateStrYear       = '2064-01-01'; // Максимальная дата для годового графика
   var MaxDateStrMonth      = '2034-01-01'; // Максимальная дата для месячного графика
+  var MaxDateStrDay        = '2024-01-01'; // Максимальная дата для дневного графика
 
-  var yearPeriod = 1;                      // Количество периодов синусоиды между двумя датами для годового графика
+  var yearPeriod  = 1;                     // Количество периодов синусоиды между двумя датами для годового графика
   var monthPeriod = 12;                    // Количество периодов синусоиды между двумя датами для месячного графика
+  var dayPeriod   = 365;                   // Количество периодов синусоиды между двумя датами для дневного графика
 
-  var graphTypeYear = 1;                   // Идентификатор годового типа
-  var graphTypeMonth = 2;                  // Идентификатор месячного типа
+  var graphTypeYear  = 1;                   // Идентификатор годового типа
+  var graphTypeMonth = 2;                   // Идентификатор месячного типа
+  var graphTypeDay   = 3;                   // Идентификатор дневного типа
 
   var data;                                // Данные для отрисовки. Глобальные, потому что заполняются везде
   
@@ -20,8 +38,10 @@
   var datasetsOtherPerson = {};            // То же самое для второго человека
   var yearDatasets = {};                   // Годовые данные
   var monthDatasets = {};                  // Месячные данные
+  var dayDatasets = {};                    // Дневные данные
   var yearDatasetsOtherPerson = {};
   var monthDatasetsOtherPerson = {};
+  var dayDatasetsOtherPerson = {};
 
   var choiceTable;                         // DOM элемент для таблички выбора графиков первой персоны
   var choiceTableOtherPerson;              // DOM элемент для таблички выбора графиков второй персоны
@@ -29,6 +49,7 @@
 
   var maxDateYear = Number(new Date(MaxDateStrYear)) / 1000;    // Максимальная дата для расчета годовых графиков
   var maxDateMonth = Number(new Date(MaxDateStrMonth)) / 1000;  // Максимальная дата для расчета месячных графиков
+  var maxDateDay = Number(new Date(MaxDateStrDay)) / 1000;      // Максимальная дата для расчета дневных графиков
 
   var birthYear;                           // Год рождения первой персоны
   var birthYearOtherPerson;                // Год рождения второй персоны
