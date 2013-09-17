@@ -17,7 +17,7 @@
 
   var SinusCalculateStepYear  = 1000000;    // Шаг вычисления синуса для годового графика
   var SinusCalculateStepMonth = 100000;     // Шаг вычисления синуса для месечного графика
-  var SinusCalculateStepMonth = 1000;       // Шаг вычисления синуса для дневного графика
+  var SinusCalculateStepDay   = 50000;       // Шаг вычисления синуса для дневного графика
 
   var MaxDateStr           = '2064-01-01'; // Максимальная дата
   var MaxDateStrYear       = '2064-01-01'; // Максимальная дата для годового графика
@@ -53,6 +53,8 @@
 
   var birthYear;                           // Год рождения первой персоны
   var birthYearOtherPerson;                // Год рождения второй персоны
+
+  var DailyLookForward = 2;
 
   // Получить разницу между датами в годах
   function yearDifference(Date1, Date2)
@@ -108,18 +110,21 @@
   }
 
   // Генерация массива с точками для синуса
-  function genPointsToSinus(LeftEndPoint, RightEndPoint, Step, XCoeff, Offset, CoordZero)
+  function genPointsToSinus(LeftEndPoint, MinPoint, RightEndPoint, Step, XCoeff, Offset, CoordZero)
   {
+      MinPoint *= CoefConvRubyToJSDate;
       var Points = [];
       for(var i = LeftEndPoint - CoordZero; i < RightEndPoint - CoordZero; i += Step)
       {
-          Points.push([(i + CoordZero) * CoefConvRubyToJSDate, Math.sin(XCoeff * i - Offset)]);
+          var x = (i + CoordZero) * CoefConvRubyToJSDate;
+          if(x >= MinPoint)
+              Points.push([x, Math.sin(XCoeff * i - Offset)]);
       }
       return Points;
   }
 
   // Генерация массива с точками (Минусы, Плюсы, Нули, Определившие период)
-  function genOtherPoints(BirthDate, MemoryDate1, MemoryDate2, EndPoint, Zero, T1, T2, dy)
+  function genOtherPoints(BirthDate, MinDate, MemoryDate1, MemoryDate2, EndPoint, Zero, T1, T2, dy)
   {
 
       var CtrlPoints  = [];
@@ -127,29 +132,37 @@
       var PlusPoints  = []; 
       var ZeroPoints  = [];
 
+      MinDate *= CoefConvRubyToJSDate;
+
       var counter = 0;
       var IsPositive = false;
 
-      CtrlPoints.push([MemoryDate1 * CoefConvRubyToJSDate, dy]);
-      CtrlPoints.push([MemoryDate2 * CoefConvRubyToJSDate, dy]);
+      if(MemoryDate1 * CoefConvRubyToJSDate >= MinDate)
+          CtrlPoints.push([MemoryDate1 * CoefConvRubyToJSDate, dy]);
+      if(MemoryDate2 * CoefConvRubyToJSDate >= MinDate)
+          CtrlPoints.push([MemoryDate2 * CoefConvRubyToJSDate, dy]);
 
       for(var i = BirthDate; i < Zero; i += T2 / 2)
       {
           if(counter % 2 == 0)
           {
-              if(IsPositive)
+              if(i * CoefConvRubyToJSDate >= MinDate)
               {
-                  PlusPoints.push([i * CoefConvRubyToJSDate, dy]);
-              }
-              else 
-              {
-                  MinusPoints.push([i * CoefConvRubyToJSDate, dy]);
+                  if(IsPositive)
+                  {
+                      PlusPoints.push([i * CoefConvRubyToJSDate, dy]);
+                  }
+                  else 
+                  {
+                      MinusPoints.push([i * CoefConvRubyToJSDate, dy]);
+                  }
               }
               IsPositive = !IsPositive;
           }
           else
           {
-              ZeroPoints.push([i * CoefConvRubyToJSDate,   dy]);
+              if(i * CoefConvRubyToJSDate >= MinDate)
+                  ZeroPoints.push([i * CoefConvRubyToJSDate,   dy]);
           }
           counter++;
       }
@@ -158,19 +171,23 @@
       {
           if(counter % 2 == 0)
           {
-              if(IsPositive)
+              if(i * CoefConvRubyToJSDate >= MinDate)
               {
-                  PlusPoints.push([i * CoefConvRubyToJSDate, dy]);
-              }
-              else
-              {
-                  MinusPoints.push([i * CoefConvRubyToJSDate, dy]);
+                  if(IsPositive)
+                  {
+                      PlusPoints.push([i * CoefConvRubyToJSDate, dy]);
+                  }
+                  else
+                  {
+                      MinusPoints.push([i * CoefConvRubyToJSDate, dy]);
+                  }
               }
               IsPositive = !IsPositive;
           }
           else
-          {
-              ZeroPoints.push([i * CoefConvRubyToJSDate,   dy]);
+          {   
+              if(i * CoefConvRubyToJSDate >= MinDate)
+                ZeroPoints.push([i * CoefConvRubyToJSDate,   dy]);
           }
           counter++;
       }
@@ -218,7 +235,7 @@
   }
 
   // Создание хэша с данными о дискретизации, откуда они будут забиваться в хэш, принимаемый плотом
-  function lifeInit(BirthDate, EndPoint, personType, graphType)
+  function lifeInit(BirthDate, MinDate, EndPoint, personType, graphType)
   {
       var Graph  = {};
       var GraphPoints = [];
@@ -231,17 +248,24 @@
       var counter = 0;
       var len = MultiplyStr.length;
 
+      MinDate *= CoefConvRubyToJSDate;
+
       while(BDate < EndDate)
-      {
-          GraphPoints.push([BDate.valueOf(), (MultiplyStr[counter].charCodeAt(0) - "0".charCodeAt(0)) / 4 + 2.5]);
+      {   
+          if(BDate >= MinDate)
+              GraphPoints.push([BDate.valueOf(), (MultiplyStr[counter].charCodeAt(0) - "0".charCodeAt(0)) / 4 + 2.5]);
 
           if(graphType == graphTypeYear)
           {
               BDate.setFullYear(BDate.getFullYear() + 1);
           }
-          else
+          if(graphType == graphTypeMonth)
           {
               BDate.setMonth(BDate.getMonth() + 1);
+          }
+          if(graphType == graphTypeDay)
+          {
+              BDate.setDate(BDate.getDate() + 1);
           }
           counter++;
           if(counter == len) counter = 0;
@@ -367,12 +391,13 @@
   }
 
   // Создание хэша с данными о дискретизации, откуда они будут загоняться в хэш, принимаемый флотом
-  function graphInit(BirthDate, MemoryDate1, MemoryDate2, EndPoint, period, personType)
+  function graphInit(BirthDate, MinDate, MemoryDate1, MemoryDate2, EndPoint, period, personType)
   {
       var difference = yearDifference(new Date(MemoryDate1 * CoefConvRubyToJSDate), new Date(MemoryDate2 * CoefConvRubyToJSDate));
       var differenceCount = 1;
       var currentDifference = 12;
-      var SinusCalculateStep;
+      var sinusCalculateStep;
+      var Offset = Math.PI;
 
       while(currentDifference < difference)
       {
@@ -380,13 +405,18 @@
           currentDifference *= 2;
       }
 
-      if(period == 1) 
+      if(period == yearPeriod) 
       {
           sinusCalculateStep = SinusCalculateStepYear;
       }
-      else
+      if(period == monthPeriod)
       {
           sinusCalculateStep = SinusCalculateStepMonth;
+      }
+      if(period == dayPeriod)
+      {
+          sinusCalculateStep = SinusCalculateStepDay;
+          //Offset -= Math.PI * 0.5;
       }
 
       var Graph = {};
@@ -402,12 +432,12 @@
 
       var PreXCoeff = period * 2 * Math.PI / (Zero - BirthDate);
       GraphPoints = GraphPoints.concat(
-          genPointsToSinus(BirthDate, Zero, sinusCalculateStep, PreXCoeff, Math.PI, Zero),
-          genPointsToSinus(Zero, EndPoint, sinusCalculateStep, XCoeff, Math.PI, Zero)
+          genPointsToSinus(BirthDate, MinDate, Zero, sinusCalculateStep, PreXCoeff, Offset, Zero),
+          genPointsToSinus(Zero, MinDate, EndPoint, sinusCalculateStep, XCoeff, Offset, Zero)
         );
 
-      var OtherPoints = genOtherPoints(BirthDate, MemoryDate1, MemoryDate2, EndPoint, Zero, T, (Zero - BirthDate) / period, 0);
-      var PointsLabels = genOtherPoints(BirthDate, MemoryDate1, MemoryDate2, EndPoint, Zero, T, (Zero - BirthDate) / period, 1.2);
+      var OtherPoints = genOtherPoints(BirthDate, MinDate, MemoryDate1, MemoryDate2, EndPoint, Zero, T, (Zero - BirthDate) / period, 0);
+      var PointsLabels = genOtherPoints(BirthDate, MinDate, MemoryDate1, MemoryDate2, EndPoint, Zero, T, (Zero - BirthDate) / period, 1.2);
 
       if(personType == 1)
       {
@@ -490,12 +520,13 @@
   }
 
   // Создать датасет для персоны с указанным периодом ( Массив с данными для флота )
-  function createDatasets(BirthDate, MaxDate, Dates, period, personType, graphType)
+  function createDatasets(BirthDate, MinDate, MaxDate, Dates, period, personType, graphType)
   {
 
       var Datasets = {};
 
-      setLines(Datasets, lifeInit(BirthDate, MaxDate, personType, graphType), "Дискретизация");
+      setLines(Datasets, lifeInit(BirthDate, MinDate, MaxDate, personType, graphType), "Дискретизация");
+
       setLines(Datasets, labelInit(personType), "Легенда");
 
       var graphCount = 1;
@@ -508,7 +539,7 @@
               {
                   if( ( getSign(Dates[i]) != getSign(Dates[j]) ) == isDifferent && getDate(Dates[j]) && getDate(Dates[i]) )
                   {
-                      var Graph = graphInit(BirthDate, getDate(Dates[i]), getDate(Dates[j]), MaxDate, period, personType);
+                      var Graph = graphInit(BirthDate, MinDate, getDate(Dates[i]), getDate(Dates[j]), MaxDate, period, personType);
 
                       var label = genLabelStr(Dates[i], Dates[j]) + graphCount.toString() + " (";
                       label += 
@@ -539,8 +570,80 @@
   }
 
   // Забивает в датасеты второго человека и делает для него чекбоксы
+  function recalcDailyGraphs(otherPersonId, personType)
+  {
+      var MaxDayDatePicker = document.getElementById("DailyMaxCustomise").getElementsByClassName('input-medium')[0];
+      maxDateDay =  (new Date(MaxDayDatePicker.value)).valueOf() / 1000;
+
+      var MinDayDatePicker = document.getElementById("DailyMinCustomise").getElementsByClassName('input-medium')[0];
+      var minDateDay =  (new Date(MinDayDatePicker.value)).valueOf() / 1000;
+
+      if(personType == 1)
+          $.cookie("secondPersin", $('select[name=otherPersons]').val());
+      else
+          $.cookie("firstPersin", $('select[name=firstPersons]').val());
+
+      var localChoiceTable;
+
+      if(personType == 0)
+      {
+          localChoiceTable = choiceTable;
+      }
+      else
+      {
+          localChoiceTable = choiceTableOtherPerson;
+      }  
+
+      <% Person.all.each do |per| %>
+          if(<%= per.id %> == otherPersonId)
+          {
+              var dates = <%= raw per.get_dates_with_signs %>;
+              var birthDate = <%= per.get_birth %>;
+
+              if(personType == 0)
+              {
+                  birthYear = new Date((new Date(birthDate * CoefConvRubyToJSDate)).getFullYear(), 0, 1);
+                  dayDatasets = createDatasets(birthDate, minDateDay, maxDateDay, dates, dayPeriod, 0, graphTypeDay);
+              }
+              else
+              {
+                  birthYearOtherPerson = new Date((new Date(birthDate * CoefConvRubyToJSDate)).getFullYear(), 0, 1);
+                  dayDatasetsOtherPerson = createDatasets(birthDate, minDateDay, maxDateDay, dates, dayPeriod, 1, graphTypeDay);
+              }
+
+              if(personType == 0)
+              {
+                $.each(yearDatasets, function(key, val)
+                { 
+                    if(key != "Легенда")
+                    {
+                        dayDatasets[key]["Sinus"].color = val["Sinus"].color;
+                    }
+                });
+              }
+              else
+              {
+                $.each(yearDatasetsOtherPerson, function(key, val)
+                { 
+                    if(key != "Легенда")
+                    {
+                        dayDatasetsOtherPerson[key]["Sinus"].color = val["Sinus"].color;
+                    }
+                });
+              } 
+          }
+      <% end %>
+  }
+
+  // Забивает в датасеты второго человека и делает для него чекбоксы
   function upgradePlotByOtherPerson(otherPersonId, personType)
   {
+      var MaxDayDatePicker = document.getElementById("DailyMaxCustomise").getElementsByClassName('input-medium')[0];
+      maxDateDay =  (new Date(MaxDayDatePicker.value)).valueOf() / 1000;
+
+      var MinDayDatePicker = document.getElementById("DailyMinCustomise").getElementsByClassName('input-medium')[0];
+      var minDateDay =  (new Date(MinDayDatePicker.value)).valueOf() / 1000;
+
       if(personType == 1)
           $.cookie("secondPersin", $('select[name=otherPersons]').val());
       else
@@ -600,8 +703,9 @@
               if(personType == 0)
               {
                   birthYear = new Date((new Date(birthDate * CoefConvRubyToJSDate)).getFullYear(), 0, 1);
-                  yearDatasets = createDatasets(birthDate, maxDateYear, dates, yearPeriod, 0, graphTypeYear);
-                  monthDatasets = createDatasets(birthDate, maxDateMonth, dates, monthPeriod, 0, graphTypeMonth);
+                  yearDatasets = createDatasets(birthDate, birthDate, maxDateYear, dates, yearPeriod, 0, graphTypeYear);
+                  monthDatasets = createDatasets(birthDate, birthDate, maxDateMonth, dates, monthPeriod, 0, graphTypeMonth);
+                  dayDatasets = createDatasets(birthDate, minDateDay, maxDateDay, dates, dayPeriod, 0, graphTypeDay);
 
                   personInfo = '<%= form_for per do |f| %>' +
                     '<div id = "firstShowBirth" style="display: block;" >' + 
@@ -621,8 +725,9 @@
               else
               {
                   birthYearOtherPerson = new Date((new Date(birthDate * CoefConvRubyToJSDate)).getFullYear(), 0, 1);
-                  yearDatasetsOtherPerson = createDatasets(birthDate, maxDateYear, dates, yearPeriod, 1, graphTypeYear);
-                  monthDatasetsOtherPerson = createDatasets(birthDate, maxDateMonth, dates, monthPeriod, 1, graphTypeMonth);
+                  yearDatasetsOtherPerson = createDatasets(birthDate, birthDate, maxDateYear, dates, yearPeriod, 1, graphTypeYear);
+                  monthDatasetsOtherPerson = createDatasets(birthDate, birthDate, maxDateMonth, dates, monthPeriod, 1, graphTypeMonth);
+                  dayDatasetsOtherPerson = createDatasets(birthDate, minDateDay, maxDateDay, dates, dayPeriod, 1, graphTypeDay);
 
                   personInfo = '<%= form_for per do |f| %>' +
                     '<div id = "secondShowBirth" style="display: block;" >' + 
@@ -735,6 +840,7 @@
 
                         val["Sinus"].color = "#" + rgbToHex(r, g, b);
                         monthDatasets[key]["Sinus"].color = val["Sinus"].color;
+                        dayDatasets[key]["Sinus"].color = val["Sinus"].color;
 
                         choiceTableStr += "<tr>";
 
@@ -787,6 +893,7 @@
 
                         val["Sinus"].color = "#" + rgbToHex(r, g, b);
                         monthDatasetsOtherPerson[key]["Sinus"].color = val["Sinus"].color;
+                        dayDatasetsOtherPerson[key]["Sinus"].color = val["Sinus"].color;
 
                         choiceTableStr += "<tr>";
 
@@ -856,6 +963,11 @@
 
   function choices()
   {
+      var startDate;
+
+      var MaxDayDatePicker = document.getElementById("DailyMaxCustomise").getElementsByClassName('input-medium')[0];
+      maxDateDay =  (new Date(MaxDayDatePicker.value)).valueOf() / 1000;
+
       var maxDate;
       var graphType = $('input[name=graphType]:checked').val();
 
@@ -875,11 +987,20 @@
       {
           setDataSet(yearDatasets, yearDatasetsOtherPerson);
           maxDate = maxDateYear;
+          startDate = Math.min(birthYear.valueOf(), birthYearOtherPerson.valueOf());
       }
-      else
+      if(graphType == graphTypeMonth)
       {
           setDataSet(monthDatasets, monthDatasetsOtherPerson);
           maxDate = maxDateMonth;
+          startDate = Math.min(birthYear.valueOf(), birthYearOtherPerson.valueOf());
+      }
+      if(graphType == graphTypeDay)
+      {
+          setDataSet(dayDatasets, dayDatasetsOtherPerson);
+          maxDate = maxDateDay;
+          var MinDayDatePicker = document.getElementById("DailyMinCustomise").getElementsByClassName('input-medium')[0];
+          startDate = (new Date(MinDayDatePicker.value)).valueOf();
       }
 
       data = [];
@@ -913,7 +1034,6 @@
       if(firstPersonId != -1 && secondPersonId != -1)
           pushToData(datasets, "Легенда");
 
-      var startDate =  Math.min(birthYear.valueOf(), birthYearOtherPerson.valueOf());
       var endDate = maxDate * CoefConvRubyToJSDate;
       var startDateDate = new Date(startDate);
       var labelStr = "";
@@ -1030,13 +1150,17 @@
       var plot;
       plot = $.plot("#placeholder", data, options);
 
+      if(graphType == graphTypeYear)
+      {
+          plot.zoom({ center: { left: -700, top: 1} });
+      }
       if(graphType == graphTypeMonth)
       {
           plot.zoom({ center: { left: -1700, top: 1} });
       }
-      else
+      if(graphType == graphTypeDay)
       {
-          plot.zoom({ center: { left: -700, top: 1} });
+          plot.zoom({ center: { left: -1700, top: 1} });
       }
 
   }
@@ -1045,6 +1169,19 @@
   {
       choices();
   } 
+
+  function plotAccordingToChoicesDailyMaxCustomise()
+  {
+      var personId;
+      var otherPersonId;
+      personId = $('select[name=firstPersons]').val();
+      otherPersonId = $('select[name=otherPersons]').val();
+
+      recalcDailyGraphs(personId, 0);
+      recalcDailyGraphs(otherPersonId, 1);
+
+      choices();
+  }
 
   // Внесение изменений на страницу (Чекбоксы, радиокнопки)
   // А так же отрисовка графа после изменений
@@ -1072,16 +1209,20 @@
 
   $(function() {
 
+      var MinDayDatePicker = document.getElementById("DailyMinCustomise").getElementsByClassName('input-medium')[0];
+      var currentDate = new Date();
+      MinDayDatePicker.value = (currentDate.getFullYear()).toString() + "-01-01";
+
+      var MaxDayDatePicker = document.getElementById("DailyMaxCustomise").getElementsByClassName('input-medium')[0];
+      currentDate = new Date();
+      MaxDayDatePicker.value = (currentDate.getFullYear() + DailyLookForward).toString() + "-01-01";
+
       var htmlStr = "";
 
       otherPersons = []; 
 
       var prevFirst = $.cookie("firstPersin");
       var prevSecond = $.cookie("secondPersin");
-
-      //alert(prevFirst);
-      //alert(prevSecond);
-
 
       <% Person.all.each do |per| %>
           otherPersons.push(["<%= raw per.id %>", "<%= raw per.name.to_s %>"]);
@@ -1138,7 +1279,22 @@
       <div id="placeholder" class="demo-placeholder" style="float:left; height: 420px;"></div>
     </div>
 
+    <b>Тип графика:</b><br/>
     <input id = "graphType1" type="radio" name="graphType" value=1 onClick="plotAccordingToChoicesGraphType()" checked> Годовой график <br>
-    <input id = "graphType2" type="radio" name="graphType" value=2 onClick="plotAccordingToChoicesGraphType()"> Месячный график
+    <input id = "graphType2" type="radio" name="graphType" value=2 onClick="plotAccordingToChoicesGraphType()"> Месячный график </br>
+    <input id = "graphType3" type="radio" name="graphType" value=3 onClick="plotAccordingToChoicesGraphType()"> Дневной график <br/><br/>
+
+    <b>Настройки:</b><br/>
+    <div id = "DailyMinCustomise" name = "DailyMinCustomise">
+      <%= form_for Story.new do |f| %>
+          Начало расчета дневного графика: <%= f.date_field :date, :class=>'input-medium', :onchange => "plotAccordingToChoicesDailyMaxCustomise();" %>
+      <% end %>
+    </div>
+
+    <div id = "DailyMaxCustomise" name = "DailyMaxCustomise">
+      <%= form_for Story.new do |f| %>
+          Предел расчета дневного графика: <%= f.date_field :date, :class=>'input-medium', :onchange => "plotAccordingToChoicesDailyMaxCustomise();" %>
+      <% end %>
+    </div>
 
 </div>
