@@ -1113,7 +1113,7 @@
                   }
               }
           }
-          else
+          if(graphType == graphTypeMonth)
           {
               for(i = new Date(startDate); i < new Date(endDate); i.setMonth(i.getMonth() + 1))
               {
@@ -1143,6 +1143,26 @@
                               xticks.push([i.valueOf(), "<text class='monthLabelLess3'>" + labelStr + "</text>"]);
                           }
                       }
+                  }
+              }
+          }
+          if(graphType == graphTypeDay)
+          {
+              for(i = new Date(startDate); i < new Date(endDate); i.setDate(i.getDate() + 1))
+              {
+                  if( ( i.getMonth() == 0 || i.valueOf() == (new Date(startDate)).valueOf() ) && i.getDate() == 1 )
+                  {
+                      xticks.push([i.valueOf(), "<b class='dayLabelYear'>" + i.getFullYear().toString() + "</b>"]);
+                  }
+                  else if(i.getDate() == 1)
+                  {
+                      labelStr = i.getMonth().toString();
+                      xticks.push([i.valueOf(), "<b class='dayLabelMonth'>" + labelStr + "</b>"]);
+                  }
+                  else if(i.getDate() % 4 == 0)
+                  {
+                      labelStr = i.getDate().toString();
+                      xticks.push([i.valueOf(), "<text class='dayLabelDay'>" + labelStr + "</text>"]);
                   }
               }
           }

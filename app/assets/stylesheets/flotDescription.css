@@ -56,20 +56,37 @@ table.legendtable
 
 .monthLabel39
 {
-	font-size: 10px;
+	font-size: 12px;
 	margin-left: -2px;
 }
 
 .monthLabelMore9
 {
-	font-size: 10px;
+	font-size: 12px;
 	margin-left: -11px;
 }
 
 .monthLabelLess3
 {
-	font-size: 10px;
+	font-size: 12px;
 	margin-left: 2px;
+}
+
+.dayLabelDay
+{
+	font-size: 10px;
+}
+
+.dayLabelMonth
+{
+	font-size: 12px;
+	margin-left: 2px;
+}
+
+.dayLabelYear
+{
+	font-size: 14px;
+	margin-left: -14px;
 }
 
 .divHidden
