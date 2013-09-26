@@ -1,68 +1,67 @@
-<p id="notice"><%= notice %></p>
-
-<div id = "newPerson" class="btn btn-primary btn-link btn-small" onclick="showNew();">
-   Создание новой персоны
-</div>
-<div id = "newPersonForm" style="display: none;">
-    <%= form_for(Person.new) do |f| %>
-
-    <div class="hero-unit" style="font-size:14px; padding-top: 10px; padding-bottom: 10px;">
-        <b style="font-size:20px;">Новая персона:</b><br/>
-        <b>Имя:</b><br>
-        <%= f.text_field :name %><br>
-        <b>Дата рождения:</b><br>
-        <%= f.date_field :birth %><br>
-        <%= f.submit :class => "btn btn-primary", :value => "Создать" %> 
+<div class="divDemoBody">
+    <div id="windowTitleDialog" class="modal hide fade" tabindex="-1" role="dialog" aria-labelledby="windowTitleLabel" aria-hidden="true">
+        <div class="modal-header">
+            <a href="#" class="close" data-dismiss="modal">&times;</a>
+            <h3>Создание новой персоны</h3>
+            </div>
+        <div class="modal-body">
+            <div class="divDialogElements">
+                <div id = "newPersonForm">
+                    <%= form_for(Person.new) do |f| %>
+                        <div class="hero-unit" style="font-size:14px; padding-top: 10px; padding-bottom: 10px; background-color: white; text-align: center;">
+                            <b>Имя:</b><br>
+                            <%= f.text_field :name %><br>
+                            <b>Дата рождения:</b><br>
+                            <%= f.date_field :birth %><br> 
+                        </div>
+                    </div>
+                </div>
+            </div>
+        <div class="modal-footer">
+            <a href="#" class="btn" onclick="closeDialog ('windowTitleDialog');">Отмена</a>
+            <%= f.submit :class => "btn", :value => "Создать" %>
+            <% end %>
+            </div>
+        </div>
     </div>
-</div>
 
+<div class="hero-unit" style="padding-top: 10px; padding-bottom: 30px;">
 
-<% end %>
+    <p id="notice"><%= notice %></p>
 
-<div class="hero-unit" style="padding-top: 10px; padding-bottom: 0px;">
-
-    <table id="navigationTable" class="table table-bordered table-condensed" style="width: 100%;">
+    <table id="navigationTable" class="table table-condensed" style="width: 100%;">
 
         <tr>
-            <td style="text-align: center; font-size:20px; padding:10px; vertical-align: top; width: 50%;">
+            <td style="text-align: center; font-size:20px; padding-top: 10px; padding-bottom: 0px; vertical-align: top; width: 50%;">
                 <b>Первая персона:</b>
                 <select name="firstPersons" id="firstPersons" onchange="plotAccordingToChoicesChangePerson(0)">
                 </select>
-                <div id = "firstNameEdit">
+                <div id = "firstName">
                 </div>
             </td>
-            <td style="text-align: center; font-size:20px; padding:10px; vertical-align: top; width: 50%;">
+            <td style="text-align: center; font-size:20px; padding-top: 10px; padding-bottom: 0px; vertical-align: top; width: 50%;">
                 <b>Вторая персона:</b>
                 <select name="otherPersons" id="otherPersons" onchange="plotAccordingToChoicesChangePerson(1)">
                 </select>
-                <div id = "secondNameEdit">
+                <div id = "secondName">
                 </div>
             </td>
         </tr>
 
         <tr>
-            <td style="text-align: center; font-size:14px; padding:10px; vertical-align: top; width: 50%;">
-                <div id="firstBirth" align="center"></div>
-            </td>
-            <td style="text-align: center; font-size:14px; padding:10px; vertical-align: top; width: 50%;">
-                <div id="secondBirth" align="center"></div>
-            </td>
-        </tr>
-
-        <tr>
-            <td style="text-align: center; left; font-size:12px; padding:10px; vertical-align: top;">
+            <td style="text-align: center; font-size:12px; padding-top: 10px; padding-bottom: 0px; vertical-align: top;">
                 <div id="firstDates" align="center"></div>
             </td>
-            <td style="text-align: center; left; font-size:12px; padding:10px; vertical-align: top;">
+            <td style="text-align: center; font-size:12px; padding-top: 10px; padding-bottom: 0px; vertical-align: top;">
                 <div id="secondDates" align="center"></div>
             </td>
         </tr>
 
         <tr>
-            <td style="text-align: center; left; font-size:12px; padding:10px; vertical-align: top;">
+            <td style="text-align: center; font-size:12px; padding-top: 10px; padding-bottom: 0px; vertical-align: top;">
                 <div id="firstCustomDate" align="center"></div>
             </td>
-            <td style="text-align: center; left; font-size:12px; padding:10px; vertical-align: top;">
+            <td style="text-align: center; font-size:12px; padding-top: 10px; padding-bottom: 0px; vertical-align: top;">
                 <div id="secondCustomDate" align="center"></div>
             </td>
         </tr>
@@ -79,7 +78,6 @@
     </table>
 
 <%= render "graph2"%>
-<br>
 </div>
 
 <script type="text/javascript">
@@ -90,5 +88,21 @@ function showNew()
     if(elem.style.display == 'block') elem.style.display = 'none';
     else elem.style.display = 'block';
   }
+
+  $(document).ready(function() {
+                $('#windowTitleDialog').bind('show', function () {
+                    });
+                $('#windowTitleDialog2').bind('show', function () {
+                    });
+  });
+  function closeDialog (name) 
+  {
+      $('#' + name).modal('hide'); 
+  };
+  function okClicked (name) 
+  {
+      closeDialog (name);
+  };
+
 
 </script>
