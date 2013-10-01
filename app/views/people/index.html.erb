@@ -18,7 +18,7 @@
                 </div>
             </div>
         <div class="modal-footer">
-            <a href="#" class="btn" onclick="closeDialog ('windowTitleDialog');">Отмена</a>
+            <a data-target="#" class="btn" onclick="closeDialog ('windowTitleDialog');">Отмена</a>
             <%= f.submit :class => "btn", :value => "Создать" %>
             <% end %>
             </div>
@@ -27,23 +27,27 @@
 
 <div class="container" style="padding-top: 10px; padding-bottom: 30px; width: 98%;">
 
-    <p id="notice"><%= notice %></p>
-
     <table id="navigationTable" class="table table-condensed" style="width: 100%;">
 
         <tr>
             <td style="width: 50%;">
-                <b>Первая персона:</b>
-                <select name="firstPersons" id="firstPersons" onchange="plotAccordingToChoicesChangePerson(0)">
-                </select>
-                <div id = "firstName">
+                <div class="left">
+                    <select name="firstPersons" id="firstPersons" onchange="plotAccordingToChoicesChangePerson(0)">
+                    </select>
+                    <div id = "firstBirth">
+                    </div>
+                </div>
+                <div id = "firstName" class="right">
                 </div>
             </td>
             <td style="width: 50%;">
-                <b>Вторая персона:</b>
-                <select name="otherPersons" id="otherPersons" onchange="plotAccordingToChoicesChangePerson(1)">
-                </select>
-                <div id = "secondName">
+                <div class="left">
+                    <select name="otherPersons" id="otherPersons" onchange="plotAccordingToChoicesChangePerson(1)">
+                    </select>
+                    <div id = "secondBirth">
+                    </div>
+                </div>
+                <div id = "secondName" class="right">
                 </div>
             </td>
         </tr>
@@ -66,35 +70,39 @@
             </td>
         </tr>
 
-        <tr>
-            <td>
-                <div id='choicestable' align="center"></div>
-            </td>
-            <td>
-                <div id='choicestableotherperson' align="center"></div>
-            </td>
-        </tr>
-
     </table>
+    
+    <div class="accordion" id="accordion5">
+      <div class="accordion-group">
+        <div class="accordion-heading">
+          <a class="accordion-toggle" data-toggle="collapse" data-parent="#accordion5" href="#collapseFour">
+            Выбор графиков
+          </a>
+        </div>
+        <div id="collapseFour" class="accordion-body collapse">
+          <div class="accordion-inner">
+            <table id="navigationTable" class="table table-condensed" style="width: 100%;">
+
+                <tr>
+                    <td>
+                        <div id='choicestable' align="center"></div>
+                    </td>
+                    <td>
+                        <div id='choicestableotherperson' align="center"></div>
+                    </td>
+                </tr>
+
+            </table>
+          </div>
+        </div>
+      </div>
+    </div>
 
 <%= render "graph2"%>
 </div>
 
 <script type="text/javascript">
 
-function showNew()
-  {
-    var elem = document.getElementById("newPersonForm");
-    if(elem.style.display == 'block') elem.style.display = 'none';
-    else elem.style.display = 'block';
-  }
-
-  $(document).ready(function() {
-                $('#windowTitleDialog').bind('show', function () {
-                    });
-                $('#windowTitleDialog2').bind('show', function () {
-                    });
-  });
   function closeDialog (name) 
   {
       $('#' + name).modal('hide'); 

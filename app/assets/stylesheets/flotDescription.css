@@ -121,11 +121,13 @@ table.legendtable
 	width: 50%;
 	float: right;
 	position: relative;
+	text-align: left;
 }
 .left {
     width: 50%;
     float: left;
     position: relative;
+    text-align: right;
 }
 
 .input-medium[class=input-medium] {

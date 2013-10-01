@@ -339,12 +339,13 @@
       var DatePicker;
       if( personType == 0 )
       {
-          DatePicker = document.getElementById("firstCustomDate").getElementsByClassName('input-medium')[0];
+          DatePicker = document.getElementById("firstCustomDate").getElementsByClassName('input-large')[0];
       }
       else
       {
-          DatePicker = document.getElementById("secondCustomDate").getElementsByClassName('input-medium')[0];
+          DatePicker = document.getElementById("secondCustomDate").getElementsByClassName('input-large')[0];
       }
+
 
       if(DatePicker)
       {
@@ -652,6 +653,7 @@
   // Забивает в датасеты второго человека и делает для него чекбоксы
   function upgradePlotByOtherPerson(otherPersonId, personType)
   {
+      var finded = false;
       var MaxDayDatePicker = document.getElementById("DailyMaxCustomise").getElementsByClassName('input-medium')[0];
       maxDateDay =  (new Date(MaxDayDatePicker.value)).valueOf() / 1000;
 
@@ -669,11 +671,13 @@
       var localDates;
       var localName;
       var localCustomDate;
+      var localBirth;
 
       if(personType == 0)
       {
           localName = $('#firstName');
           localDates = $("#firstDates");
+          localBirth = $("#firstBirth");
           localCustomDate = $('#firstCustomDate');
           localChoiceTable = choiceTable;
       }
@@ -681,6 +685,7 @@
       {
           localName = $('#secondName');
           localDates = $("#secondDates");
+          localBirth = $("#secondBirth");
           localCustomDate = $('#secondCustomDate');
           localChoiceTable = choiceTableOtherPerson;
       }  
@@ -689,20 +694,28 @@
       localDates.empty();
       localName.empty();
       localCustomDate.empty();
+      localBirth.empty();
 
       <% Person.all.each do |per| %>
           if(<%= per.id %> == otherPersonId)
           {
+              finded = true;
               var dates = <%= raw per.get_dates_with_signs %>;
               var birthDate = <%= per.get_birth %>;
               var personName = "";
               var customDate = "";
+              var personBirth = "";
+
+              personBirth = '<%= form_for per do |f| %>' +
+              '<b>Дата рождения: <%= per.birth.strftime("%d.%m.%Y") %></b><br>' +
+              '<%end%>';
 
               customDate = '<%= form_for Story.new do |f| %>' +
               '<b>Проверочное событие: </b> <%= f.date_field :date, :class=>'input-large', :onchange => "choices();" %>' +
               '<% end %>';
 
               localCustomDate.append(customDate);
+              localBirth.append(personBirth);
 
               if(personType == 0)
               {
@@ -731,16 +744,17 @@
                                 '</div>' +
                             '</div>' +
                         '<div class="modal-footer">' +
-                            '<a href="#" class="btn" onclick="closeDialog (' +  "'windowTitleDialog3'" + ');">Отмена</a>' +
+                            '<a data-target="#" class="btn" onclick="closeDialog (' +  "'windowTitleDialog3'" + ');">Отмена</a>' +
                             '<%= f.submit :class => "btn", :value => "Сохранить" %>' +
                             '<% end %>' +
                             '</div>' +
                         '</div>' +
                     '</div>' + 
                     '<%= form_for per do |f| %>' +
-                    '<b>Дата рождения: <%= per.birth.strftime("%d.%m.%Y") %></b><br>' +
-                    '<a data-toggle="modal" class="btn btn-primary btn-link btn-small" href="#windowTitleDialog3">Редактировать персону</a>' + 
-                    '<%= link_to 'Удалить персону', per, method: :delete, data: { confirm: 'Вы уверены?' }, :class => "btn btn-primary btn-link btn-small" %>' + 
+                    '<a data-toggle="modal" class="btn btn-primary btn-link btn-small" href="#windowTitleDialog3">Редактировать</a>' + 
+                    '<%= link_to( per, method: :delete, data: { confirm: 'Вы уверены?' }, :class => "btn btn-primary btn-link btn-small") do %>' +
+                    'Удалить' +
+                    '<%end%>' + 
                     '<a data-toggle="modal" href="#windowTitleDialog" class="btn btn-primary btn-link btn-small">Новая персона</a>' +
                     '<%end%>';
               }
@@ -772,16 +786,17 @@
                                 '</div>' +
                             '</div>' +
                         '<div class="modal-footer">' +
-                            '<a href="#" class="btn" onclick="closeDialog (' +  "'windowTitleDialog2'" + ');">Отмена</a>' +
+                            '<a data-target="#" class="btn" onclick="closeDialog (' +  "'windowTitleDialog2'" + ');">Отмена</a>' +
                             '<%= f.submit :class => "btn", :value => "Сохранить" %>' +
                             '<% end %>' +
                             '</div>' +
                         '</div>' +
                     '</div>' + 
                     '<%= form_for per do |f| %>' +
-                    '<b>Дата рождения: <%= per.birth.strftime("%d.%m.%Y") %></b><br>' +
-                    '<a data-toggle="modal" class="btn btn-primary btn-link btn-small" href="#windowTitleDialog2">Редактировать персону</a>' + 
-                    '<%= link_to 'Удалить персону', per, method: :delete, data: { confirm: 'Вы уверены?' }, :class => "btn btn-primary btn-link btn-small" %>' + 
+                    '<a data-toggle="modal" class="btn btn-primary btn-link btn-small" href="#windowTitleDialog2">Редактировать</a>' + 
+                    '<%= link_to( per, method: :delete, data: { confirm: 'Вы уверены?' }, :class => "btn btn-primary btn-link btn-small") do %>' +
+                    'Удалить' +
+                    '<%end%>' + 
                     '<a data-toggle="modal" href="#windowTitleDialog" class="btn btn-primary btn-link btn-small">Новая персона</a>' +
                     '<%end%>';
               }
@@ -791,8 +806,6 @@
               var strDates = "";
               strDates += 
               '<div class="left">' +
-
-              "<b>Позитивные события:</b><br/>" + 
                 "<table>" +
                 "<tr>" +
                   "<th>Описание</th>" +
@@ -830,7 +843,6 @@
                 '</div>' +
                 '<div class="right">' +
 
-                "<b>Негативные события:</b><br/>" + 
                 "<table>" +
                 "<tr>" +
                   "<th>Описание</th>" +
@@ -985,6 +997,13 @@
               } 
           }
       <% end %>
+
+      if(!finded)
+      {
+        localName.append('<%= form_for Person.new do |f| %>' +
+                    '<a data-toggle="modal" href="#windowTitleDialog" class="btn btn-primary btn-link btn-small">Новая персона</a>' +
+                    '<%end%>');
+      }
 
       choiceTableStr += "</table>";
 
@@ -1359,31 +1378,67 @@
  </script>
 
 <div id="content">
-    <b>Годовые графики:</b><br>
-    <div class="demo-container">
-      <div id="placeholderYear" class="demo-placeholder" style="float:left; height: 420px;"></div>
-    </div><br>
 
-    <b>Месячные графики:</b><br>
-    <div class="demo-container">
-      <div id="placeholderMonth" class="demo-placeholder" style="float:left; height: 420px;"></div>
-    </div><br>
 
-    <b>Дневные графики:</b><br>
-    <div id = "DailyMinCustomise" name = "DailyMinCustomise">
-      <%= form_for Story.new do |f| %>
-          Начало расчета дневного графика: <%= f.date_field :date, :class=>'input-medium', :onchange => "plotAccordingToChoicesDailyMaxCustomise();" %>
-      <% end %>
+    <div class="accordion" id="accordion2">
+      <div class="accordion-group">
+        <div class="accordion-heading">
+          <a class="accordion-toggle" data-toggle="collapse" data-parent="#accordion2" href="#collapseOne">
+            Годовой график
+          </a>
+        </div>
+        <div id="collapseOne" class="accordion-body collapse in">
+          <div class="accordion-inner">
+            <div class="demo-container">
+              <div id="placeholderYear" class="demo-placeholder" style="float:left; height: 420px;"></div>
+            </div>
+          </div>
+        </div>
+      </div>
     </div>
-
-    <div id = "DailyMaxCustomise" name = "DailyMaxCustomise">
-      <%= form_for Story.new do |f| %>
-          Предел расчета дневного графика: <%= f.date_field :date, :class=>'input-medium', :onchange => "plotAccordingToChoicesDailyMaxCustomise();" %>
-      <% end %>
+    <div class="accordion" id="accordion3">
+      <div class="accordion-group">
+        <div class="accordion-heading">
+          <a class="accordion-toggle" data-toggle="collapse" data-parent="#accordion3" href="#collapseTwo">
+            Месячный график
+          </a>
+        </div>
+        <div id="collapseTwo" class="accordion-body collapse">
+          <div class="accordion-inner">
+            <div class="demo-container">
+              <div id="placeholderMonth" class="demo-placeholder" style="float:left; height: 420px;"></div>
+            </div>
+          </div>
+        </div>
+      </div>
     </div>
+    <div class="accordion" id="accordion4">
+      <div class="accordion-group">
+        <div class="accordion-heading">
+          <a class="accordion-toggle" data-toggle="collapse" data-parent="#accordion4" href="#collapseThree">
+            Дневной график
+          </a>
+        </div>
+        <div id="collapseThree" class="accordion-body collapse">
+          <div class="accordion-inner">
+            <div id = "DailyMinCustomise" name = "DailyMinCustomise">
+              <%= form_for Story.new do |f| %>
+                  Начало расчета дневного графика: <%= f.date_field :date, :class=>'input-medium', :onchange => "plotAccordingToChoicesDailyMaxCustomise();" %>
+              <% end %>
+            </div>
 
-    <div class="demo-container">
-      <div id="placeholderDay" class="demo-placeholder" style="float:left; height: 420px;"></div>
+            <div id = "DailyMaxCustomise" name = "DailyMaxCustomise">
+              <%= form_for Story.new do |f| %>
+                  Предел расчета дневного графика: <%= f.date_field :date, :class=>'input-medium', :onchange => "plotAccordingToChoicesDailyMaxCustomise();" %>
+              <% end %>
+            </div>
+
+            <div class="demo-container">
+              <div id="placeholderDay" class="demo-placeholder" style="float:left; height: 420px;"></div>
+            </div>
+          </div>
+        </div>
+      </div>
     </div>
-
+    
 </div>
