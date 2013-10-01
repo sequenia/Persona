@@ -3,7 +3,7 @@
 	box-sizing: border-box;
 	margin: 5px auto 0px auto;
 	padding: 0px 15px 15px 15px;
-	width: 100%;
+	width: 92%;
 	height: 440px;
 	border: 1px solid #ddd;
 	background: #fff;
@@ -135,29 +135,6 @@ table.legendtable
 
 body { font-size: 1em;}
 
-@media (min-width: 300px) {
-    .table td {
-	   padding-top: 3px;
-	   padding-right: 3px;
-	   padding-bottom: 3px; 
-	   padding-left: 3px;
-	   text-align: center;  
-	   font-size: 50%;
-    }
-    .table th {
-	   padding-top: 3px;
-	   padding-right: 3px;
-	   padding-bottom: 3px; 
-	   padding-left: 3px;
-	   text-align: center;  
-	   font-size: 50%;
-    }
-    .input-medium[class=input-medium] {
-        width: 60px;
-        font-size: 70%;
-    }
-}
-
 @media (min-width: 600px) {
     .table td {
 	   padding-top: 3px;
@@ -165,7 +142,7 @@ body { font-size: 1em;}
 	   padding-bottom: 3px; 
 	   padding-left: 3px;
 	   text-align: center;  
-	   font-size: 60%;
+	   font-size: 50%;
     }
     .table th {
 	   padding-top: 3px;
@@ -173,22 +150,45 @@ body { font-size: 1em;}
 	   padding-bottom: 3px; 
 	   padding-left: 3px;
 	   text-align: center;  
-	   font-size: 60%;
+	   font-size: 50%;
     }
     .input-medium[class=input-medium] {
-        width: 80px;
+        width: 40px;
+        font-size: 70%;
+    }
+}
+
+@media (min-width: 700px) {
+    .table td {
+	   padding-top: 3px;
+	   padding-right: 3px;
+	   padding-bottom: 3px; 
+	   padding-left: 3px;
+	   text-align: center;  
+	   font-size: 70%;
+    }
+    .table th {
+	   padding-top: 3px;
+	   padding-right: 3px;
+	   padding-bottom: 3px; 
+	   padding-left: 3px;
+	   text-align: center;  
+	   font-size: 70%;
+    }
+    .input-medium[class=input-medium] {
+        width: 60px;
         font-size: 80%;
     }
 }
 
-@media (min-width: 900px) {
+@media (min-width: 800px) {
     .table td {
 	   padding-top: 3px;
 	   padding-right: 3px;
 	   padding-bottom: 3px; 
 	   padding-left: 3px;
 	   text-align: center;  
-	   font-size: 70%;
+	   font-size: 80%;
     }
     .table th {
 	   padding-top: 3px;
@@ -196,22 +196,22 @@ body { font-size: 1em;}
 	   padding-bottom: 3px; 
 	   padding-left: 3px;
 	   text-align: center;  
-	   font-size: 70%;
+	   font-size: 80%;
     }
     .input-medium[class=input-medium] {
-        width: 100px;
+        width: 85px;
         font-size: 90%;
     }
 }
 
-@media (min-width: 1200px) {
+@media (min-width: 1100px) {
     .table td {
 	   padding-top: 3px;
 	   padding-right: 3px;
 	   padding-bottom: 3px; 
 	   padding-left: 3px;
 	   text-align: center;  
-	   font-size: 80%;
+	   font-size: 90%;
     }
     .table th {
 	   padding-top: 3px;
@@ -219,7 +219,7 @@ body { font-size: 1em;}
 	   padding-bottom: 3px; 
 	   padding-left: 3px;
 	   text-align: center;  
-	   font-size: 80%;
+	   font-size: 90%;
     }
     .input-medium[class=input-medium] {
         width: 115px;
