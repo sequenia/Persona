@@ -789,66 +789,89 @@
               localName.append(personName);
 
               var strDates = "";
-              strDates += "<b>Позитивные события:<b><br/>" + 
+              strDates += 
+              '<table>' +
+              '<tbody>' +
+              '<tr>' +
+              '<td>' +
+
+              "<b>Позитивные события:</b><br/>" + 
                 "<table class='table table-condensed'>" +
                 "<tr>" +
                   "<th>Описание</th>" +
                   "<th>Дата</th>" +
-                  "<th>Действие</th>" +
+                  "<th><i class='icon-white icon-cog'></i></th>" +
+                  "<th></th>" +
                 "</tr>" + 
                 "<tbody>" +
                 "<% for i in 0..per.get_dates_count - 1 %>" +
                 "<% if per.stories[i].story_type == 1 %>" + 
                 "<tr>" +
-                  "<th><%= per.stories[i].description%></th>" +
+                  "<td><%= per.stories[i].description%></td>" +
                   '<%= form_for([per.stories[i].person, per.stories[i]]) do |f| %>' + 
-                  '<th><%= f.date_field :date, :class=>'input-medium' %></th>' +
-                  '<th>' + 
-                            '<div style="float: left; width: auto;">' + 
-                              '<%= f.submit :class => 'btn btn-primary btn-link btn-small', :value => 'Сохранить' %><%end%>' +
-                            '</div>' +
-                            '<div style="float: left; width: auto;">' +  
+                  '<td><%= f.date_field :date, :class=>'input-medium', :style=>'width:130px;' %></td>' +
+                  '<td>' + 
+                              '<%= button_tag( :class => "btn btn-primary btn-link btn-small" ) do %>' +
+                                  '<i class="icon-white icon-ok"></i>' +
+                              '<% end %>' +
+                              '<%end%>' +
+                  '</td>' +
+                  '<td>' + 
                               '<%= form_for([per.stories[i].person, per.stories[i]]) do |f| %>' + 
                                   '<%= f.hidden_field :date, :value => nil %>' + 
-                                  '<%= f.submit :class => 'btn btn-primary btn-link btn-small', :value => 'Очистить' %>' + 
+                                  '<%= button_tag( :class => "btn btn-primary btn-link btn-small" ) do %>' +
+                                      '<i class="icon-white icon-remove"></i>' +
+                                  '<% end %>' +
                               '<%end%>' +
-                            '</div>' + 
-                  '</th>' +
+                  '</td>' +
                 "</tr>" +
                 "<%end%>" + 
                 "<%end%>" +
                 "</tbody>" +
                 "</table>" + 
-                "<b>Негативные события:<b><br/>" + 
+
+                '</td>' +
+                '<td>' + 
+
+                "<b>Негативные события:</b><br/>" + 
                 "<table class='table table-condensed'>" +
                 "<tr>" +
                   "<th>Описание</th>" +
                   "<th>Дата</th>" +
-                  "<th>Действие</th>" +
+                  "<th><i class='icon-white icon-cog'></i></th>" +
+                  "<th></th>" +
                 "</tr>" + 
                 "<tbody>" +
                 "<% for i in 0..per.get_dates_count - 1 %>" +
                 "<% if per.stories[i].story_type == 0 %>" + 
                 "<tr>" +
-                  "<th><%= per.stories[i].description%></th>" +
+                  "<td><%= per.stories[i].description%></td>" +
                   '<%= form_for([per.stories[i].person, per.stories[i]]) do |f| %>' + 
-                  '<th><%= f.date_field :date, :class=>'input-medium' %></th>' +
-                  '<th>' + 
-                            '<div style="float: left; width: auto;">' + 
-                              '<%= f.submit :class => 'btn btn-primary btn-link btn-small', :value => 'Сохранить' %><%end%>' +
-                            '</div>' +
-                            '<div style="float: left; width: auto;">' +  
+                  '<td><%= f.date_field :date, :class=>'input-medium', :style=>'width:130px;' %></td>' +
+                  '<td>' + 
+                              '<%= button_tag( :class => "btn btn-primary btn-link btn-small" ) do %>' +
+                                  '<i class="icon-white icon-ok"></i>' +
+                              '<% end %>' +
+                              '<%end%>' +
+                  "</td>" +
+                  "<td>" +
                               '<%= form_for([per.stories[i].person, per.stories[i]]) do |f| %>' + 
                                   '<%= f.hidden_field :date, :value => nil %>' + 
-                                  '<%= f.submit :class => 'btn btn-primary btn-link btn-small', :value => 'Очистить' %>' + 
+                                  '<%= button_tag( :class => "btn btn-primary btn-link btn-small" ) do %>' +
+                                      '<i class="icon-white icon-remove"></i>' +
+                                  '<% end %>' +
                               '<%end%>' +
-                            '</div>' + 
-                  '</th>' +
+                  '</td>' +
                 "</tr>" +
                 "<%end%>" + 
                 "<%end%>" +
                 "</tbody>" +
-                "</table>";
+                "</table>" +
+
+                '</td>' +
+                '</tr>' +
+                '</tbody>' + 
+                '</table>';
 
               localDates.append(strDates);
 
@@ -899,7 +922,7 @@
                               ");overflow:hidden'></div>" +
                             "</div>" + 
                         "</td>" +
-                        "<td>" +
+                        "<td style='text-align: left;'>" +
                             key +
                         "</td>" + 
                         "<td>" +
@@ -953,7 +976,7 @@
                               ");overflow:hidden'></div>" +
                             "</div>" + 
                         "</td>" +
-                        "<td>" +
+                        "<td style='text-align: left;'>" +
                             key +
                         "</td>" +
                         "<td>" +

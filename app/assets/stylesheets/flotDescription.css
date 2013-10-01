@@ -1,10 +1,10 @@
 .demo-container 
 {
 	box-sizing: border-box;
+	margin: 5px auto 0px auto;
+	padding: 0px 15px 15px 15px;
 	width: 100%;
 	height: 440px;
-	padding: 0px 15px 15px 15px;
-	margin: 5px auto 0px auto;
 	border: 1px solid #ddd;
 	background: #fff;
 	background: linear-gradient(#f6f6f6 0, #fff 50px);
@@ -12,11 +12,11 @@
 	background: -ms-linear-gradient(#f6f6f6 0, #fff 50px);
 	background: -moz-linear-gradient(#f6f6f6 0, #fff 50px);
 	background: -webkit-linear-gradient(#f6f6f6 0, #fff 50px);
+	-webkit-box-shadow: 0 3px 10px rgba(0,0,0,0.1);
+	-moz-box-shadow: 0 3px 10px rgba(0,0,0,0.1);
 	box-shadow: 0 3px 10px rgba(0,0,0,0.15);
 	-o-box-shadow: 0 3px 10px rgba(0,0,0,0.1);
 	-ms-box-shadow: 0 3px 10px rgba(0,0,0,0.1);
-	-moz-box-shadow: 0 3px 10px rgba(0,0,0,0.1);
-	-webkit-box-shadow: 0 3px 10px rgba(0,0,0,0.1);
 }
 
 #placeholder div.xAxis div.tickLabel
@@ -26,9 +26,9 @@
 
 table.legendtable
 {
-	font-family: verdana,arial,sans-serif;
-	font-size:14px;
 	text-align: left;
+	font-size:14px;
+	font-family: verdana,arial,sans-serif;
 }
 
 .demo-placeholder 
@@ -56,20 +56,20 @@ table.legendtable
 
 .monthLabel39
 {
-	font-size: 12px;
 	margin-left: -2px;
+	font-size: 12px;
 }
 
 .monthLabelMore9
 {
-	font-size: 12px;
 	margin-left: -11px;
+	font-size: 12px;
 }
 
 .monthLabelLess3
 {
-	font-size: 12px;
 	margin-left: 2px;
+	font-size: 12px;
 }
 
 .dayLabelDay
@@ -79,14 +79,14 @@ table.legendtable
 
 .dayLabelMonth
 {
-	font-size: 12px;
 	margin-left: 2px;
+	font-size: 12px;
 }
 
 .dayLabelYear
 {
-	font-size: 14px;
 	margin-left: -14px;
+	font-size: 14px;
 }
 
 .divHidden
@@ -97,4 +97,21 @@ table.legendtable
 .divBlock
 {
 	display: block;
+}
+
+.table td {
+   padding-top: 3px;
+   padding-right: 3px;
+   padding-bottom: 3px; 
+   padding-left: 3px;
+   text-align: center;  
+   font-size: 12px;
+}
+
+.table th {
+   padding-top: 3px;
+   padding-right: 3px;
+   padding-bottom: 3px;   
+   padding-left: 3px;
+   text-align: center;
 }
