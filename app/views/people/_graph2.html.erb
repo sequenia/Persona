@@ -699,7 +699,7 @@
               var customDate = "";
 
               customDate = '<%= form_for Story.new do |f| %>' +
-              '<b>Проверочное событие: </b> <%= f.date_field :date, :class=>'input-medium', :onchange => "choices();" %>' +
+              '<b>Проверочное событие: </b> <%= f.date_field :date, :class=>'input-large', :onchange => "choices();" %>' +
               '<% end %>';
 
               localCustomDate.append(customDate);
@@ -738,7 +738,7 @@
                         '</div>' +
                     '</div>' + 
                     '<%= form_for per do |f| %>' +
-                    '<b style="font-size:14px;">Дата рождения: <%= per.birth.strftime("%d.%m.%Y") %></b><br>' +
+                    '<b>Дата рождения: <%= per.birth.strftime("%d.%m.%Y") %></b><br>' +
                     '<a data-toggle="modal" class="btn btn-primary btn-link btn-small" href="#windowTitleDialog3">Редактировать персону</a>' + 
                     '<%= link_to 'Удалить персону', per, method: :delete, data: { confirm: 'Вы уверены?' }, :class => "btn btn-primary btn-link btn-small" %>' + 
                     '<a data-toggle="modal" href="#windowTitleDialog" class="btn btn-primary btn-link btn-small">Новая персона</a>' +
@@ -779,7 +779,7 @@
                         '</div>' +
                     '</div>' + 
                     '<%= form_for per do |f| %>' +
-                    '<b style="font-size:14px;">Дата рождения: <%= per.birth.strftime("%d.%m.%Y") %></b><br>' +
+                    '<b>Дата рождения: <%= per.birth.strftime("%d.%m.%Y") %></b><br>' +
                     '<a data-toggle="modal" class="btn btn-primary btn-link btn-small" href="#windowTitleDialog2">Редактировать персону</a>' + 
                     '<%= link_to 'Удалить персону', per, method: :delete, data: { confirm: 'Вы уверены?' }, :class => "btn btn-primary btn-link btn-small" %>' + 
                     '<a data-toggle="modal" href="#windowTitleDialog" class="btn btn-primary btn-link btn-small">Новая персона</a>' +
@@ -790,13 +790,10 @@
 
               var strDates = "";
               strDates += 
-              '<table>' +
-              '<tbody>' +
-              '<tr>' +
-              '<td>' +
+              '<div class="left">' +
 
               "<b>Позитивные события:</b><br/>" + 
-                "<table class='table table-condensed'>" +
+                "<table>" +
                 "<tr>" +
                   "<th>Описание</th>" +
                   "<th>Дата</th>" +
@@ -809,7 +806,7 @@
                 "<tr>" +
                   "<td><%= per.stories[i].description%></td>" +
                   '<%= form_for([per.stories[i].person, per.stories[i]]) do |f| %>' + 
-                  '<td><%= f.date_field :date, :class=>'input-medium', :style=>'width:130px;' %></td>' +
+                  '<td><%= f.date_field :date, :class=>'input-medium' %></td>' +
                   '<td>' + 
                               '<%= button_tag( :class => "btn btn-primary btn-link btn-small" ) do %>' +
                                   '<i class="icon-white icon-ok"></i>' +
@@ -830,11 +827,11 @@
                 "</tbody>" +
                 "</table>" + 
 
-                '</td>' +
-                '<td>' + 
+                '</div>' +
+                '<div class="right">' +
 
                 "<b>Негативные события:</b><br/>" + 
-                "<table class='table table-condensed'>" +
+                "<table>" +
                 "<tr>" +
                   "<th>Описание</th>" +
                   "<th>Дата</th>" +
@@ -847,7 +844,7 @@
                 "<tr>" +
                   "<td><%= per.stories[i].description%></td>" +
                   '<%= form_for([per.stories[i].person, per.stories[i]]) do |f| %>' + 
-                  '<td><%= f.date_field :date, :class=>'input-medium', :style=>'width:130px;' %></td>' +
+                  '<td><%= f.date_field :date, :class=>'input-medium'%></td>' +
                   '<td>' + 
                               '<%= button_tag( :class => "btn btn-primary btn-link btn-small" ) do %>' +
                                   '<i class="icon-white icon-ok"></i>' +
@@ -868,14 +865,11 @@
                 "</tbody>" +
                 "</table>" +
 
-                '</td>' +
-                '</tr>' +
-                '</tbody>' + 
-                '</table>';
+                '</div>';
 
               localDates.append(strDates);
 
-              choiceTableStr += "<table class='table table-condensed'>";
+              choiceTableStr += "<table>";
               choiceTableStr += "<thead>";
               choiceTableStr += "<tr><th>Показать</th><th>Цвет</th><th>Подпись</th><th>Причина</th></tr>";
               choiceTableStr += "</thead>";
