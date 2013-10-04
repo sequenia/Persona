@@ -24,6 +24,10 @@
   var MaxDateStrMonth      = '2034-01-01'; // Максимальная дата для месячного графика
   var MaxDateStrDay        = '2024-01-01'; // Максимальная дата для дневного графика
 
+  var MinDateStrYear       = '1920-01-01'; // Максимальная дата для годового графика
+  var MinDateStrMonth      = '1960-01-01'; // Максимальная дата для месячного графика
+  var MinDateStrDay        = '2013-01-01'; // Максимальная дата для дневного графика
+
   var yearPeriod  = 1;                     // Количество периодов синусоиды между двумя датами для годового графика
   var monthPeriod = 12;                    // Количество периодов синусоиды между двумя датами для месячного графика
   var dayPeriod   = 365;                   // Количество периодов синусоиды между двумя датами для дневного графика
@@ -579,10 +583,9 @@
     document.getElementById(elemId + "Show").style.display = 'block';
   }
 
-  // Забивает в датасеты второго человека и делает для него чекбоксы
-  function recalcDailyGraphs(otherPersonId, personType)
+  function recalcGraphs(otherPersonId, personType, graphType)
   {
-      var MaxDayDatePicker = document.getElementById("DailyMaxCustomise").getElementsByClassName('input-medium')[0];
+      /*var MaxDayDatePicker = document.getElementById("DailyMaxCustomise").getElementsByClassName('input-medium')[0];
       maxDateDay =  (new Date(MaxDayDatePicker.value)).valueOf() / 1000;
 
       var MinDayDatePicker = document.getElementById("DailyMinCustomise").getElementsByClassName('input-medium')[0];
@@ -641,6 +644,140 @@
                     }
                 });
               } 
+          }
+      <% end %>*/
+
+      var MaxDatePicker;
+      var MinDatePicker;
+      var MaxDate;
+      var MinDate;
+
+      if(graphType == graphTypeDay)
+      {
+          MaxDatePicker = document.getElementById("DailyMaxCustomise").getElementsByClassName('input-medium')[0];
+          maxDateDay =  (new Date(MaxDatePicker.value)).valueOf() / 1000;
+          maxDate = maxDateDay;
+
+
+          MinDatePicker = document.getElementById("DailyMinCustomise").getElementsByClassName('input-medium')[0];
+          minDate =  (new Date(MinDatePicker.value)).valueOf() / 1000;
+      }
+      if(graphType == graphTypeMonth)
+      {
+          MaxDatePicker = document.getElementById("MonthMaxCustomise").getElementsByClassName('input-medium')[0];
+          maxDateMonth =  (new Date(MaxDatePicker.value)).valueOf() / 1000;
+          maxDate = maxDateMonth;
+
+
+          MinDatePicker = document.getElementById("MonthMinCustomise").getElementsByClassName('input-medium')[0];
+          minDate =  (new Date(MinDatePicker.value)).valueOf() / 1000;
+      }
+      if(graphType == graphTypeYear)
+      {
+          MaxDatePicker = document.getElementById("YearMaxCustomise").getElementsByClassName('input-medium')[0];
+          maxDateYear =  (new Date(MaxDatePicker.value)).valueOf() / 1000;
+          maxDate = maxDateYear;
+
+
+          MinDatePicker = document.getElementById("YearMinCustomise").getElementsByClassName('input-medium')[0];
+          minDate =  (new Date(MinDatePicker.value)).valueOf() / 1000;
+      }
+
+      if(personType == 1)
+          $.cookie("secondPersin", $('select[name=otherPersons]').val());
+      else
+          $.cookie("firstPersin", $('select[name=firstPersons]').val());
+
+      var localChoiceTable;
+
+      if(personType == 0)
+      {
+          localChoiceTable = choiceTable;
+      }
+      else
+      {
+          localChoiceTable = choiceTableOtherPerson;
+      }  
+
+      <% Person.all.each do |per| %>
+          if(<%= per.id %> == otherPersonId)
+          {
+              var dates = <%= raw per.get_dates_with_signs %>;
+              var birthDate = <%= per.get_birth %>;
+
+              if(personType == 0)
+              {
+                  birthYear = new Date((new Date(birthDate * CoefConvRubyToJSDate)).getFullYear(), 0, 1);
+                  if(graphType == graphTypeDay)
+                      dayDatasets = createDatasets(birthDate, minDate, maxDate, dates, dayPeriod, 0, graphTypeDay);
+                  if(graphType == graphTypeMonth)
+                    monthDatasets = createDatasets(birthDate, minDate, maxDate, dates, monthPeriod, 0, graphTypeMonth);
+                  if(graphType == graphTypeYear)
+                    yearDatasets = createDatasets(birthDate, minDate, maxDate, dates, yearPeriod, 0, graphTypeYear);
+              }
+              else
+              {
+                  birthYearOtherPerson = new Date((new Date(birthDate * CoefConvRubyToJSDate)).getFullYear(), 0, 1);
+                  if(graphType == graphTypeDay)
+                    dayDatasetsOtherPerson = createDatasets(birthDate, minDate, maxDate, dates, dayPeriod, 1, graphTypeDay);
+                  if(graphType == graphTypeMonth)
+                    monthDatasetsOtherPerson = createDatasets(birthDate, minDate, maxDate, dates, monthPeriod, 1, graphTypeMonth);
+                  if(graphType == graphTypeYear)
+                    yearDatasetsOtherPerson = createDatasets(birthDate, minDate, maxDate, dates, yearPeriod, 1, graphTypeYear);
+              }
+
+              if(graphType != graphTypeYear)
+              {
+                if(personType == 0)
+                {
+                  $.each(yearDatasets, function(key, val)
+                  { 
+                      if(key != "Легенда")
+                      {
+                          if(graphType == graphTypeDay)
+                            dayDatasets[key]["Sinus"].color = val["Sinus"].color;
+                          if(graphType == graphTypeMonth)
+                            monthDatasets[key]["Sinus"].color = val["Sinus"].color;
+                      }
+                  });
+                }
+                else
+                {
+                  $.each(yearDatasetsOtherPerson, function(key, val)
+                  { 
+                      if(key != "Легенда")
+                      {
+                          if(graphType == graphTypeDay)
+                            dayDatasetsOtherPerson[key]["Sinus"].color = val["Sinus"].color;
+                          if(graphType == graphTypeMonth)
+                            monthDatasetsOtherPerson[key]["Sinus"].color = val["Sinus"].color;
+                      }
+                  });
+                } 
+              }
+              else
+              {
+                if(personType == 0)
+                {
+                  $.each(monthDatasets, function(key, val)
+                  { 
+                      if(key != "Легенда")
+                      {
+                          yearDatasets[key]["Sinus"].color = val["Sinus"].color;
+                      }
+                  });
+                }
+                else
+                {
+                  $.each(monthDatasetsOtherPerson, function(key, val)
+                  { 
+                      if(key != "Легенда")
+                      {
+                          yearDatasetsOtherPerson[key]["Sinus"].color = val["Sinus"].color;
+                      }
+                  });
+                } 
+              }
           }
       <% end %>
   }
@@ -1069,13 +1206,17 @@
           {
               setDataSet(yearDatasets, yearDatasetsOtherPerson);
               maxDate = maxDateYear;
-              startDate = Math.min(birthYear.valueOf(), birthYearOtherPerson.valueOf());
+              var MinYearDatePicker = document.getElementById("YearMinCustomise").getElementsByClassName('input-medium')[0];
+              startDate = Math.max(Math.min(birthYear.valueOf(), birthYearOtherPerson.valueOf()),
+                         (new Date(MinYearDatePicker.value)).valueOf());
           }
           if(graphType == graphTypeMonth)
           {
               setDataSet(monthDatasets, monthDatasetsOtherPerson);
               maxDate = maxDateMonth;
-              startDate = Math.min(birthYear.valueOf(), birthYearOtherPerson.valueOf());
+              var MinMonthDatePicker = document.getElementById("MonthMinCustomise").getElementsByClassName('input-medium')[0];
+              startDate = Math.max(Math.min(birthYear.valueOf(), birthYearOtherPerson.valueOf()),
+                          (new Date(MinMonthDatePicker.value)).valueOf());
           }
           if(graphType == graphTypeDay)
           {
@@ -1274,15 +1415,15 @@
       choices();
   } 
 
-  function plotAccordingToChoicesDailyMaxCustomise()
+  function plotAccordingToChoicesMaxCustomise(graphType)
   {
       var personId;
       var otherPersonId;
       personId = $('select[name=firstPersons]').val();
       otherPersonId = $('select[name=otherPersons]').val();
 
-      recalcDailyGraphs(personId, 0);
-      recalcDailyGraphs(otherPersonId, 1);
+      recalcGraphs(personId, 0, graphType);
+      recalcGraphs(otherPersonId, 1, graphType);
 
       choices();
   }
@@ -1314,12 +1455,20 @@
   $(function() {
 
       var MinDayDatePicker = document.getElementById("DailyMinCustomise").getElementsByClassName('input-medium')[0];
+      var MinMonthDatePicker = document.getElementById("MonthMinCustomise").getElementsByClassName('input-medium')[0];
+      var MinYearDatePicker = document.getElementById("YearMinCustomise").getElementsByClassName('input-medium')[0];
       var currentDate = new Date();
       MinDayDatePicker.value = (currentDate.getFullYear()).toString() + "-01-01";
+      MinMonthDatePicker.value = MinDateStrMonth;
+      MinYearDatePicker.value = MinDateStrYear;
 
       var MaxDayDatePicker = document.getElementById("DailyMaxCustomise").getElementsByClassName('input-medium')[0];
+      var MaxMonthDatePicker = document.getElementById("MonthMaxCustomise").getElementsByClassName('input-medium')[0];
+      var MaxYearDatePicker = document.getElementById("YearMaxCustomise").getElementsByClassName('input-medium')[0];
       currentDate = new Date();
       MaxDayDatePicker.value = (currentDate.getFullYear() + DailyLookForward).toString() + "-01-01";
+      MaxMonthDatePicker.value = MaxDateStrMonth;
+      MaxYearDatePicker.value = MaxDateStrYear;
 
       var htmlStr = "";
 
@@ -1389,6 +1538,21 @@
         </div>
         <div id="collapseOne" class="accordion-body collapse in">
           <div class="accordion-inner">
+
+            <div id="YearCustomize" class="container">
+              <div id = "YearMinCustomise" name = "YearMinCustomise" class="left" style="text-align: left;">
+                <%= form_for Story.new do |f| %>
+                    Начало расчета годового графика: <%= f.date_field :date, :class=>'input-medium', :onchange => "plotAccordingToChoicesMaxCustomise(graphTypeYear);" %>
+                <% end %>
+              </div>
+
+              <div id = "YearMaxCustomise" name = "YearMaxCustomise" class="right" style="text-align: right;">
+                <%= form_for Story.new do |f| %>
+                    Предел расчета годового графика: <%= f.date_field :date, :class=>'input-medium', :onchange => "plotAccordingToChoicesMaxCustomise(graphTypeYear);" %>
+                <% end %>
+              </div>
+            </div>
+
             <div class="demo-container">
               <div id="placeholderYear" class="demo-placeholder" style="float:left; height: 420px;"></div>
             </div>
@@ -1396,6 +1560,7 @@
         </div>
       </div>
     </div>
+
     <div class="accordion" id="accordion3">
       <div class="accordion-group">
         <div class="accordion-heading">
@@ -1405,6 +1570,21 @@
         </div>
         <div id="collapseTwo" class="accordion-body collapse">
           <div class="accordion-inner">
+
+            <div id="MonthCustomize" class="container">
+              <div id = "MonthMinCustomise" name = "MonthMinCustomise" class="left" style="text-align: left;">
+                <%= form_for Story.new do |f| %>
+                    Начало расчета месячного графика: <%= f.date_field :date, :class=>'input-medium', :onchange => "plotAccordingToChoicesMaxCustomise(graphTypeMonth);" %>
+                <% end %>
+              </div>
+
+              <div id = "MonthMaxCustomise" name = "MonthMaxCustomise" class="right" style="text-align: right;">
+                <%= form_for Story.new do |f| %>
+                    Предел расчета месячного графика: <%= f.date_field :date, :class=>'input-medium', :onchange => "plotAccordingToChoicesMaxCustomise(graphTypeMonth);" %>
+                <% end %>
+              </div>
+            </div>
+
             <div class="demo-container">
               <div id="placeholderMonth" class="demo-placeholder" style="float:left; height: 420px;"></div>
             </div>
@@ -1412,6 +1592,7 @@
         </div>
       </div>
     </div>
+
     <div class="accordion" id="accordion4">
       <div class="accordion-group">
         <div class="accordion-heading">
@@ -1421,16 +1602,18 @@
         </div>
         <div id="collapseThree" class="accordion-body collapse">
           <div class="accordion-inner">
-            <div id = "DailyMinCustomise" name = "DailyMinCustomise">
-              <%= form_for Story.new do |f| %>
-                  Начало расчета дневного графика: <%= f.date_field :date, :class=>'input-medium', :onchange => "plotAccordingToChoicesDailyMaxCustomise();" %>
-              <% end %>
-            </div>
+            <div id="DailyCustomize" class="container">
+              <div id = "DailyMinCustomise" name = "DailyMinCustomise" class="left" style="text-align: left;">
+                <%= form_for Story.new do |f| %>
+                    Начало расчета дневного графика: <%= f.date_field :date, :class=>'input-medium', :onchange => "plotAccordingToChoicesMaxCustomise(graphTypeDay);" %>
+                <% end %>
+              </div>
 
-            <div id = "DailyMaxCustomise" name = "DailyMaxCustomise">
-              <%= form_for Story.new do |f| %>
-                  Предел расчета дневного графика: <%= f.date_field :date, :class=>'input-medium', :onchange => "plotAccordingToChoicesDailyMaxCustomise();" %>
-              <% end %>
+              <div id = "DailyMaxCustomise" name = "DailyMaxCustomise" class="right" style="text-align: right;">
+                <%= form_for Story.new do |f| %>
+                    Предел расчета дневного графика: <%= f.date_field :date, :class=>'input-medium', :onchange => "plotAccordingToChoicesMaxCustomise(graphTypeDay);" %>
+                <% end %>
+              </div>
             </div>
 
             <div class="demo-container">
