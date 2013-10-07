@@ -674,13 +674,13 @@
       }
       if(graphType == graphTypeYear)
       {
-          MaxDatePicker = document.getElementById("YearMaxCustomise").getElementsByClassName('input-medium')[0];
-          maxDateYear =  (new Date(MaxDatePicker.value)).valueOf() / 1000;
+          MaxDatePicker = document.getElementById("date_max_year");
+          maxDateYear =  (new Date(parseInt(MaxDatePicker.value) + 1, 0, 0)).valueOf() / 1000;
           maxDate = maxDateYear;
 
 
-          MinDatePicker = document.getElementById("YearMinCustomise").getElementsByClassName('input-medium')[0];
-          minDate =  (new Date(MinDatePicker.value)).valueOf() / 1000;
+          MinDatePicker = document.getElementById("date_min_year");
+          minDate =  (new Date(parseInt(MinDatePicker.value) + 1, 0, 0)).valueOf() / 1000;
       }
 
       if(personType == 1)
@@ -1208,9 +1208,9 @@
           {
               setDataSet(yearDatasets, yearDatasetsOtherPerson);
               maxDate = maxDateYear;
-              var MinYearDatePicker = document.getElementById("YearMinCustomise").getElementsByClassName('input-medium')[0];
+              var MinYearDatePicker = document.getElementById("date_min_year");
               startDate = Math.max(Math.min(birthYear.valueOf(), birthYearOtherPerson.valueOf()),
-                         (new Date(MinYearDatePicker.value)).valueOf());
+                         (new Date(parseInt(MinYearDatePicker.value) + 1, 0, 0)).valueOf());
           }
           if(graphType == graphTypeMonth)
           {
@@ -1476,19 +1476,19 @@
 
       var MinDayDatePicker = document.getElementById("DailyMinCustomise").getElementsByClassName('input-medium')[0];
       var MinMonthDatePicker = document.getElementById("MonthMinCustomise").getElementsByClassName('input-medium')[0];
-      var MinYearDatePicker = document.getElementById("YearMinCustomise").getElementsByClassName('input-medium')[0];
+      var MinYearDatePicker = document.getElementById("date_min_year");
       var currentDate = new Date();
       MinDayDatePicker.value = (currentDate.getFullYear()).toString() + "-01-01";
       MinMonthDatePicker.value = MinDateStrMonth;
-      MinYearDatePicker.value = MinDateStrYear;
+      MinYearDatePicker.value = "1960";
 
       var MaxDayDatePicker = document.getElementById("DailyMaxCustomise").getElementsByClassName('input-medium')[0];
       var MaxMonthDatePicker = document.getElementById("MonthMaxCustomise").getElementsByClassName('input-medium')[0];
-      var MaxYearDatePicker = document.getElementById("YearMaxCustomise").getElementsByClassName('input-medium')[0];
+      var MaxYearDatePicker = document.getElementById("date_max_year");
       currentDate = new Date();
       MaxDayDatePicker.value = (currentDate.getFullYear() + DailyLookForward).toString() + "-01-01";
       MaxMonthDatePicker.value = MaxDateStrMonth;
-      MaxYearDatePicker.value = MaxDateStrYear;
+      MaxYearDatePicker.value = "2064";
 
       var htmlStr = "";
 
@@ -1564,15 +1564,11 @@
 
             <div id="YearCustomize" class="container customize">
               <div id = "YearMinCustomise" name = "YearMinCustomise" class="limits-left">
-                <%= form_for Story.new do |f| %>
-                    <%= f.date_field :date, :class=>'input-medium' %>
-                <% end %>
+                <%= select_year(Date.today, {:start_year => 2064, :end_year => 1920, :field_name => 'min_year'}, :style => "width: 121px;") %>
               </div>
 
               <div id = "YearMaxCustomise" name = "YearMaxCustomise" class="limits-left">
-                <%= form_for Story.new do |f| %>
-                    <%= f.date_field :date, :class=>'input-medium' %>
-                <% end %>
+                <%= select_year(Date.today, {:start_year => 2064, :end_year => 1920, :field_name => 'max_year'}, :style => "width: 121px;") %>
               </div>
 
               <div class="limits-right">
