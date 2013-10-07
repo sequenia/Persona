@@ -99,35 +99,52 @@ table.legendtable
 	display: block;
 }
 
-.table td {
+.table td, .table th {
    padding-top: 3px;
    padding-right: 3px;
    padding-bottom: 3px; 
    padding-left: 3px;
    text-align: center;  
    font-size: 100%;
-}
-
-.table th {
-   padding-top: 3px;
-   padding-right: 3px;
-   padding-bottom: 3px; 
-   padding-left: 3px;
-   text-align: center;  
-   font-size: 100%;
+   border-top: none; 
 }
 
 .right {
-	width: 50%;
-	float: right;
 	position: relative;
+	float: right;
+	width: 50%;
 	text-align: left;
 }
+
 .left {
-    width: 50%;
-    float: left;
     position: relative;
+    float: left;
+    width: 50%;
     text-align: right;
+}
+
+.limits-left
+{ 
+	position: relative;
+	float: left;
+	width: 40%;
+	text-align: left;
+}
+
+.limits-right
+{ 
+	position: relative;
+	float: right;
+	width: 40%;
+	text-align: right;
+}
+
+.limits-center
+{ 
+	position: relative;
+	float: left;
+	width: 20%;
+	text-align: center;
 }
 
 .input-medium[class=input-medium] {

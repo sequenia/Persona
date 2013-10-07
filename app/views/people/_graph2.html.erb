@@ -1061,13 +1061,12 @@
                             "<input type='checkbox' name='" + key + "' id='id" + key + "'></input>" +
                         "</td>" + 
                         "<td>" +
-                            "<div style='width:14px; border:1px solid #ccc;padding:1px'>" + 
-                              "<div style='width:4px;height:0;border:5px solid rgb(" + 
+                            '<i class="icon-stop" style="' +  
+                              "color: rgb(" + 
                               Math.floor(r).toString() + "," + 
                               Math.floor(g).toString() + "," + 
                               Math.floor(b).toString() +  
-                              ");overflow:hidden'></div>" +
-                            "</div>" + 
+                              ");"+'"></i>' + 
                         "</td>" +
                         "<td style='text-align: left;'>" +
                             key +
@@ -1115,13 +1114,12 @@
                             "<input type='checkbox' name='" + key + "' id='id" + key + "'></input>" +
                         "</td>" + 
                         "<td>" +
-                            "<div style='width:14px; border:1px solid #ccc;padding:1px'>" + 
-                              "<div style='width:4px;height:0;border:5px solid rgb(" + 
+                            '<i class="icon-stop" style="' +  
+                              "color: rgb(" + 
                               Math.floor(r).toString() + "," + 
                               Math.floor(g).toString() + "," + 
                               Math.floor(b).toString() +  
-                              ");overflow:hidden'></div>" +
-                            "</div>" + 
+                              ");"+'"></i>' + 
                         "</td>" +
                         "<td style='text-align: left;'>" +
                             key +
@@ -1271,6 +1269,7 @@
           data.push(controlPointInit(1, startDate, endDate)["Sinus"]);
 
           var xticks = [];
+          var axes = {};
           if(graphType == graphTypeYear)
           {
               for(i = new Date(startDate); i < new Date(endDate); i.setFullYear(i.getFullYear() + 1))
@@ -1293,6 +1292,13 @@
                       xticks.push([i.valueOf(), labelStr]);
                   }
               }
+
+              axes = 
+              {
+                  panRange: [startDate, endDate],
+                  ticks: xticks,
+                  position: 'bottom'
+              };
           }
           if(graphType == graphTypeMonth)
           {
@@ -1304,7 +1310,7 @@
                   }
                   else if(i.getMonth() % 2 == 0)
                   {
-                      labelStr = i.getMonth().toString();
+                      labelStr = (i.getMonth()+1).toString();
                       if(i.getMonth() <= 9 && i.getMonth() >= 3)
                       {
                           xticks.push([i.valueOf(), "<text class='monthLabel39'>" + labelStr + "</text>"]);
@@ -1326,10 +1332,17 @@
                       }
                   }
               }
+
+              axes = 
+              {
+                  panRange: [startDate, endDate],
+                  ticks: xticks,
+                  position: 'bottom'
+              };
           }
           if(graphType == graphTypeDay)
           {
-              for(i = new Date(startDate); i < new Date(endDate); i.setDate(i.getDate() + 1))
+              /*for(i = new Date(startDate); i < new Date(endDate); i.setDate(i.getDate() + 1))
               {
                   if( ( i.getMonth() == 0 || i.valueOf() == (new Date(startDate)).valueOf() ) && i.getDate() == 1 )
                   {
@@ -1337,7 +1350,7 @@
                   }
                   else if(i.getDate() == 1)
                   {
-                      labelStr = i.getMonth().toString();
+                      labelStr = (i.getMonth()+1).toString();
                       xticks.push([i.valueOf(), "<b class='dayLabelMonth'>" + labelStr + "</b>"]);
                   }
                   else if(i.getDate() % 4 == 0)
@@ -1345,7 +1358,14 @@
                       labelStr = i.getDate().toString();
                       xticks.push([i.valueOf(), "<text class='dayLabelDay'>" + labelStr + "</text>"]);
                   }
-              }
+              }*/
+              axes = 
+              {
+                  panRange: [startDate, endDate],
+                  mode: 'time',
+                  position: 'bottom',
+                  monthNames: ["Янв", "Фев", "Мар", "Апр", "Май", "Июн", "Июл", "Авг", "Сен", "Окт", "Ноя", "Дек"]
+              };
           }
 
           var options;
@@ -1374,11 +1394,7 @@
               },
               xaxes: 
               [
-                  {
-                      panRange: [startDate, endDate],
-                      ticks: xticks,
-                      position: 'bottom'
-                  }
+                  axes
               ],
               pan: 
               {
@@ -1544,15 +1560,19 @@
           <div class="accordion-inner">
 
             <div id="YearCustomize" class="container">
-              <div id = "YearMinCustomise" name = "YearMinCustomise" class="left" style="text-align: left;">
+              <div id = "YearMinCustomise" name = "YearMinCustomise" class="limits-left">
                 <%= form_for Story.new do |f| %>
-                    Начало расчета годового графика: <%= f.date_field :date, :class=>'input-medium', :onchange => "plotAccordingToChoicesMaxCustomise(graphTypeYear);" %>
+                    Начало расчета годового графика: <%= f.date_field :date, :class=>'input-medium' %>
                 <% end %>
               </div>
 
-              <div id = "YearMaxCustomise" name = "YearMaxCustomise" class="right" style="text-align: right;">
+              <div class="limits-center">
+                <btn class="btn btn-primary btn-link" onclick="plotAccordingToChoicesMaxCustomise(graphTypeYear);">Изменить пределы</btn>
+              </div>
+
+              <div id = "YearMaxCustomise" name = "YearMaxCustomise" class="limits-right">
                 <%= form_for Story.new do |f| %>
-                    Предел расчета годового графика: <%= f.date_field :date, :class=>'input-medium', :onchange => "plotAccordingToChoicesMaxCustomise(graphTypeYear);" %>
+                    Предел расчета годового графика: <%= f.date_field :date, :class=>'input-medium' %>
                 <% end %>
               </div>
             </div>
@@ -1576,15 +1596,19 @@
           <div class="accordion-inner">
 
             <div id="MonthCustomize" class="container">
-              <div id = "MonthMinCustomise" name = "MonthMinCustomise" class="left" style="text-align: left;">
+              <div id = "MonthMinCustomise" name = "MonthMinCustomise" class="limits-left">
                 <%= form_for Story.new do |f| %>
-                    Начало расчета месячного графика: <%= f.date_field :date, :class=>'input-medium', :onchange => "plotAccordingToChoicesMaxCustomise(graphTypeMonth);" %>
+                    Начало расчета месячного графика: <%= f.date_field :date, :class=>'input-medium' %>
                 <% end %>
               </div>
 
-              <div id = "MonthMaxCustomise" name = "MonthMaxCustomise" class="right" style="text-align: right;">
+              <div class="limits-center">
+                <btn class="btn btn-primary btn-link" onclick="plotAccordingToChoicesMaxCustomise(graphTypeMonth);">Изменить пределы</btn>
+              </div>
+
+              <div id = "MonthMaxCustomise" name = "MonthMaxCustomise" class="limits-right">
                 <%= form_for Story.new do |f| %>
-                    Предел расчета месячного графика: <%= f.date_field :date, :class=>'input-medium', :onchange => "plotAccordingToChoicesMaxCustomise(graphTypeMonth);" %>
+                    Предел расчета месячного графика: <%= f.date_field :date, :class=>'input-medium' %>
                 <% end %>
               </div>
             </div>
@@ -1607,15 +1631,19 @@
         <div id="collapseThree" class="accordion-body collapse">
           <div class="accordion-inner">
             <div id="DailyCustomize" class="container">
-              <div id = "DailyMinCustomise" name = "DailyMinCustomise" class="left" style="text-align: left;">
+              <div id = "DailyMinCustomise" name = "DailyMinCustomise" class="limits-left">
                 <%= form_for Story.new do |f| %>
-                    Начало расчета дневного графика: <%= f.date_field :date, :class=>'input-medium', :onchange => "plotAccordingToChoicesMaxCustomise(graphTypeDay);" %>
+                    Начало расчета дневного графика: <%= f.date_field :date, :class=>'input-medium' %>
                 <% end %>
               </div>
 
-              <div id = "DailyMaxCustomise" name = "DailyMaxCustomise" class="right" style="text-align: right;">
+              <div class="limits-center">
+                <btn class="btn btn-primary btn-link" onclick="plotAccordingToChoicesMaxCustomise(graphTypeDay);">Изменить пределы</btn>
+              </div>
+
+              <div id = "DailyMaxCustomise" name = "DailyMaxCustomise" class="limits-right">
                 <%= form_for Story.new do |f| %>
-                    Предел расчета дневного графика: <%= f.date_field :date, :class=>'input-medium', :onchange => "plotAccordingToChoicesMaxCustomise(graphTypeDay);" %>
+                    Предел расчета дневного графика: <%= f.date_field :date, :class=>'input-medium' %>
                 <% end %>
               </div>
             </div>
