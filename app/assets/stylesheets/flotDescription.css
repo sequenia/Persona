@@ -125,26 +125,23 @@ table.legendtable
 
 .limits-left
 { 
-	position: relative;
 	float: left;
-	width: 40%;
+	width: 12%;
 	text-align: left;
 }
 
 .limits-right
 { 
-	position: relative;
-	float: right;
-	width: 40%;
-	text-align: right;
-}
-
-.limits-center
-{ 
-	position: relative;
 	float: left;
 	width: 20%;
-	text-align: center;
+	text-align: left;
+}
+
+.customize
+{
+	position:absolute;
+	margin-top: -430px;
+	margin-left: 110px;
 }
 
 .input-medium[class=input-medium] {

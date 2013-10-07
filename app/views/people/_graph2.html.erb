@@ -948,7 +948,7 @@
                   '<td><%= f.date_field :birth, :class=>'input-medium' %></td>' +
                   '<td>' + 
                               '<%= button_tag( :class => "btn btn-primary btn-link btn-small" ) do %>' +
-                                  '<i class="icon-white icon-ok"></i>' +
+                                  '<span>Ок</span>' +
                               '<% end %>' +
                               '<%end%>' +
                   '</td>' +
@@ -963,7 +963,7 @@
                   '<td><%= f.date_field :date, :class=>'input-medium' %></td>' +
                   '<td>' + 
                               '<%= button_tag( :class => "btn btn-primary btn-link btn-small" ) do %>' +
-                                  '<i class="icon-white icon-ok"></i>' +
+                                  '<span>Ок</span>' +
                               '<% end %>' +
                               '<%end%>' +
                   '</td>' +
@@ -1000,7 +1000,7 @@
                   '<td><%= f.date_field :date, :class=>'input-medium'%></td>' +
                   '<td>' + 
                               '<%= button_tag( :class => "btn btn-primary btn-link btn-small" ) do %>' +
-                                  '<i class="icon-white icon-ok"></i>' +
+                                  '<span>Ок</span>' +
                               '<% end %>' +
                               '<%end%>' +
                   "</td>" +
@@ -1058,7 +1058,7 @@
 
                         choiceTableStr += 
                         "<td>" +
-                            "<input type='checkbox' name='" + key + "' id='id" + key + "'></input>" +
+                            "<input type='checkbox' name='" + key + "' id='id" + key + "' style='vertical-align: top;'></input>" +
                         "</td>" + 
                         "<td>" +
                             '<i class="icon-stop" style="' +  
@@ -1110,8 +1110,8 @@
                         choiceTableStr += "<tr>";
 
                         choiceTableStr += 
-                        "<td>" +
-                            "<input type='checkbox' name='" + key + "' id='id" + key + "'></input>" +
+                        "<td>" + 
+                            "<input type='checkbox' name='" + key + "' id='id" + key + "' style='vertical-align: top;'></input>" +
                         "</td>" + 
                         "<td>" +
                             '<i class="icon-stop" style="' +  
@@ -1558,28 +1558,28 @@
         </div>
         <div id="collapseOne" class="accordion-body collapse in">
           <div class="accordion-inner">
-
-            <div id="YearCustomize" class="container">
-              <div id = "YearMinCustomise" name = "YearMinCustomise" class="limits-left">
-                <%= form_for Story.new do |f| %>
-                    Начало расчета годового графика: <%= f.date_field :date, :class=>'input-medium' %>
-                <% end %>
-              </div>
-
-              <div class="limits-center">
-                <btn class="btn btn-primary btn-link" onclick="plotAccordingToChoicesMaxCustomise(graphTypeYear);">Изменить пределы</btn>
-              </div>
-
-              <div id = "YearMaxCustomise" name = "YearMaxCustomise" class="limits-right">
-                <%= form_for Story.new do |f| %>
-                    Предел расчета годового графика: <%= f.date_field :date, :class=>'input-medium' %>
-                <% end %>
-              </div>
-            </div>
-
             <div class="demo-container">
               <div id="placeholderYear" class="demo-placeholder" style="float:left; height: 420px;"></div>
             </div>
+
+            <div id="YearCustomize" class="container customize">
+              <div id = "YearMinCustomise" name = "YearMinCustomise" class="limits-left">
+                <%= form_for Story.new do |f| %>
+                    <%= f.date_field :date, :class=>'input-medium' %>
+                <% end %>
+              </div>
+
+              <div id = "YearMaxCustomise" name = "YearMaxCustomise" class="limits-left">
+                <%= form_for Story.new do |f| %>
+                    <%= f.date_field :date, :class=>'input-medium' %>
+                <% end %>
+              </div>
+
+              <div class="limits-right">
+                <btn class="btn btn-primary btn-link" onclick="plotAccordingToChoicesMaxCustomise(graphTypeYear);">Изменить пределы</btn>
+              </div>
+            </div>
+
           </div>
         </div>
       </div>
@@ -1594,28 +1594,28 @@
         </div>
         <div id="collapseTwo" class="accordion-body collapse">
           <div class="accordion-inner">
-
-            <div id="MonthCustomize" class="container">
-              <div id = "MonthMinCustomise" name = "MonthMinCustomise" class="limits-left">
-                <%= form_for Story.new do |f| %>
-                    Начало расчета месячного графика: <%= f.date_field :date, :class=>'input-medium' %>
-                <% end %>
-              </div>
-
-              <div class="limits-center">
-                <btn class="btn btn-primary btn-link" onclick="plotAccordingToChoicesMaxCustomise(graphTypeMonth);">Изменить пределы</btn>
-              </div>
-
-              <div id = "MonthMaxCustomise" name = "MonthMaxCustomise" class="limits-right">
-                <%= form_for Story.new do |f| %>
-                    Предел расчета месячного графика: <%= f.date_field :date, :class=>'input-medium' %>
-                <% end %>
-              </div>
-            </div>
-
             <div class="demo-container">
               <div id="placeholderMonth" class="demo-placeholder" style="float:left; height: 420px;"></div>
             </div>
+
+            <div id="MonthCustomize" class="container customize">
+              <div id = "MonthMinCustomise" name = "MonthMinCustomise" class="limits-left">
+                <%= form_for Story.new do |f| %>
+                    <%= f.date_field :date, :class=>'input-medium' %>
+                <% end %>
+              </div>
+
+              <div id = "MonthMaxCustomise" name = "MonthMaxCustomise" class="limits-left">
+                <%= form_for Story.new do |f| %>
+                    <%= f.date_field :date, :class=>'input-medium' %>
+                <% end %>
+              </div>
+
+              <div class="limits-right">
+                <btn class="btn btn-primary btn-link" onclick="plotAccordingToChoicesMaxCustomise(graphTypeMonth);">Изменить пределы</btn>
+              </div>
+            </div>
+
           </div>
         </div>
       </div>
@@ -1630,27 +1630,29 @@
         </div>
         <div id="collapseThree" class="accordion-body collapse">
           <div class="accordion-inner">
-            <div id="DailyCustomize" class="container">
-              <div id = "DailyMinCustomise" name = "DailyMinCustomise" class="limits-left">
-                <%= form_for Story.new do |f| %>
-                    Начало расчета дневного графика: <%= f.date_field :date, :class=>'input-medium' %>
-                <% end %>
-              </div>
-
-              <div class="limits-center">
-                <btn class="btn btn-primary btn-link" onclick="plotAccordingToChoicesMaxCustomise(graphTypeDay);">Изменить пределы</btn>
-              </div>
-
-              <div id = "DailyMaxCustomise" name = "DailyMaxCustomise" class="limits-right">
-                <%= form_for Story.new do |f| %>
-                    Предел расчета дневного графика: <%= f.date_field :date, :class=>'input-medium' %>
-                <% end %>
-              </div>
-            </div>
 
             <div class="demo-container">
               <div id="placeholderDay" class="demo-placeholder" style="float:left; height: 420px;"></div>
             </div>
+
+            <div id="DailyCustomize" class="container customize">
+              <div id = "DailyMinCustomise" name = "DailyMinCustomise" class="limits-left">
+                <%= form_for Story.new do |f| %>
+                    <%= f.date_field :date, :class=>'input-medium' %>
+                <% end %>
+              </div>
+
+              <div id = "DailyMaxCustomise" name = "DailyMaxCustomise" class="limits-left">
+                <%= form_for Story.new do |f| %>
+                    <%= f.date_field :date, :class=>'input-medium' %>
+                <% end %>
+              </div>
+
+              <div class="limits-right">
+                <btn class="btn btn-primary btn-link" onclick="plotAccordingToChoicesMaxCustomise(graphTypeDay);">Изменить пределы</btn>
+              </div>
+            </div>
+
           </div>
         </div>
       </div>
