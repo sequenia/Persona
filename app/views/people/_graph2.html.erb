@@ -13,6 +13,8 @@
   // В зависимости от типа графика (Годовой, месячный, дневной), в datasets и datasetsOtherPerson 
   // содержатся соответствующие им данные.
 
+  var plot = {};
+
   var CoefConvRubyToJSDate = 1000;         // Коэффициент перевода даты из руби формата в js формат
 
   var SinusCalculateStepYear  = 1000000;    // Шаг вычисления синуса для годового графика
@@ -59,6 +61,8 @@
   var birthYearOtherPerson;                // Год рождения второй персоны
 
   var DailyLookForward = 2;
+
+  var justDrowed = true;
 
   // Получить разницу между датами в годах
   function yearDifference(Date1, Date2)
@@ -840,7 +844,7 @@
               var personBirth = "";
 
               customDate = '<%= form_for Story.new do |f| %>' +
-              '<b>Проверочное событие: </b> <%= f.date_field :date, :class=>'input-large', :onchange => "choices();" %>' +
+              '<b>Проверочное событие: </b> <%= f.date_field :date, :class=>'input-large', :onchange => "choices(1, 3, false);" %>' +
               '<% end %>';
 
               localCustomDate.append(customDate);
@@ -1180,9 +1184,9 @@
       data.push(DSets[Key]["ZeroLabel"]);
   }
 
-  function choices()
+  function choices(startType, endType, resetZoom)
   {
-      for(var graphType = 1; graphType <= 3; graphType++)
+      for(var graphType = startType; graphType <= endType; graphType++)
       {
           var startDate;
 
@@ -1190,7 +1194,6 @@
           maxDateDay =  (new Date(MaxDayDatePicker.value)).valueOf() / 1000;
 
           var maxDate;
-          //var graphType = $('input[name=graphType]:checked').val();
 
           var otherPersonId = $('select[name=otherPersons]').val();
           var personId = $('select[name=firstPersons]').val();
@@ -1207,7 +1210,8 @@
           if(graphType == graphTypeYear)
           {
               setDataSet(yearDatasets, yearDatasetsOtherPerson);
-              maxDate = maxDateYear;
+              var MaxYearDatePicker = document.getElementById("date_max_year");
+              maxDate = (new Date(parseInt(MaxYearDatePicker.value), 0, 0)).valueOf() / 1000;
               var MinYearDatePicker = document.getElementById("date_min_year");
               startDate = Math.max(Math.min(birthYear.valueOf(), birthYearOtherPerson.valueOf()),
                          (new Date(parseInt(MinYearDatePicker.value) + 1, 0, 0)).valueOf());
@@ -1215,7 +1219,8 @@
           if(graphType == graphTypeMonth)
           {
               setDataSet(monthDatasets, monthDatasetsOtherPerson);
-              maxDate = maxDateMonth;
+              var MaxMonthDatePicker = document.getElementById("MonthMaxCustomise").getElementsByClassName('input-medium')[0];
+              maxDate = (new Date(MaxMonthDatePicker.value)).valueOf() / 1000;
               var MinMonthDatePicker = document.getElementById("MonthMinCustomise").getElementsByClassName('input-medium')[0];
               startDate = Math.max(Math.min(birthYear.valueOf(), birthYearOtherPerson.valueOf()),
                           (new Date(MinMonthDatePicker.value)).valueOf());
@@ -1223,7 +1228,8 @@
           if(graphType == graphTypeDay)
           {
               setDataSet(dayDatasets, dayDatasetsOtherPerson);
-              maxDate = maxDateDay;
+              var MaxDayDatePicker = document.getElementById("DailyMaxCustomise").getElementsByClassName('input-medium')[0];
+              maxDate = (new Date(MaxDayDatePicker.value)).valueOf() / 1000;
               var MinDayDatePicker = document.getElementById("DailyMinCustomise").getElementsByClassName('input-medium')[0];
               startDate = (new Date(MinDayDatePicker.value)).valueOf();
           }
@@ -1270,6 +1276,15 @@
 
           var xticks = [];
           var axes = {};
+          var oldOptions;
+          var axisMin = null;
+          var axisMax = null;
+          if(!resetZoom && !justDrowed)
+          {
+              oldOptions = plot[graphType].getOptions();
+              axisMax = oldOptions.xaxes[0].max;
+              axisMin = oldOptions.xaxes[0].min;
+          }
           if(graphType == graphTypeYear)
           {
               for(i = new Date(startDate); i < new Date(endDate); i.setFullYear(i.getFullYear() + 1))
@@ -1297,7 +1312,9 @@
               {
                   panRange: [startDate, endDate],
                   ticks: xticks,
-                  position: 'bottom'
+                  position: 'bottom',
+                  min: axisMin,
+                  max: axisMax
               };
           }
           if(graphType == graphTypeMonth)
@@ -1337,34 +1354,21 @@
               {
                   panRange: [startDate, endDate],
                   ticks: xticks,
-                  position: 'bottom'
+                  position: 'bottom',
+                  min: axisMin,
+                  max: axisMax
               };
           }
           if(graphType == graphTypeDay)
           {
-              /*for(i = new Date(startDate); i < new Date(endDate); i.setDate(i.getDate() + 1))
-              {
-                  if( ( i.getMonth() == 0 || i.valueOf() == (new Date(startDate)).valueOf() ) && i.getDate() == 1 )
-                  {
-                      xticks.push([i.valueOf(), "<b class='dayLabelYear'>" + i.getFullYear().toString() + "</b>"]);
-                  }
-                  else if(i.getDate() == 1)
-                  {
-                      labelStr = (i.getMonth()+1).toString();
-                      xticks.push([i.valueOf(), "<b class='dayLabelMonth'>" + labelStr + "</b>"]);
-                  }
-                  else if(i.getDate() % 4 == 0)
-                  {
-                      labelStr = i.getDate().toString();
-                      xticks.push([i.valueOf(), "<text class='dayLabelDay'>" + labelStr + "</text>"]);
-                  }
-              }*/
               axes = 
               {
                   panRange: [startDate, endDate],
                   mode: 'time',
                   position: 'bottom',
-                  monthNames: ["Янв", "Фев", "Мар", "Апр", "Май", "Июн", "Июл", "Авг", "Сен", "Окт", "Ноя", "Дек"]
+                  monthNames: ["Янв", "Фев", "Мар", "Апр", "Май", "Июн", "Июл", "Авг", "Сен", "Окт", "Ноя", "Дек"],
+                  min: axisMin,
+                  max: axisMax
               };
           }
 
@@ -1410,29 +1414,41 @@
               }
           };
 
-          var plot;
-
           if(graphType == graphTypeYear)
           {
-              plot = $.plot("#placeholderYear", data, options);
-              plot.zoom({ center: { left: -700, top: 1} });
+              plot[graphType] = $.plot("#placeholderYear", data, options);
+              if(resetZoom || justDrowed) plot[graphType].zoom(
+              { 
+                  amount: Math.pow((new Date(endDate)).getFullYear() / startDateDate.getFullYear(), 25),
+                  center: { left: 0, top: 0}
+              });
           }
           if(graphType == graphTypeMonth)
           {
-              plot = $.plot("#placeholderMonth", data, options);
-              plot.zoom({ center: { left: -1700, top: 1} });
+              plot[graphType] = $.plot("#placeholderMonth", data, options);
+              if(resetZoom || justDrowed) plot[graphType].zoom(
+              { 
+                  amount: Math.pow((new Date(endDate)).getFullYear() / startDateDate.getFullYear(), 95),
+                  center: { left: 0, top: 0}
+              });
           }
           if(graphType == graphTypeDay)
           {
-              plot = $.plot("#placeholderDay", data, options);
-              plot.zoom({ center: { left: -1700, top: 1} });
+              plot[graphType] = $.plot("#placeholderDay", data, options);
+              if(resetZoom || justDrowed) plot[graphType].zoom(
+              { 
+                  amount: Math.pow((new Date(endDate)).getFullYear() / startDateDate.getFullYear(), 1111),
+                  center: { left: 0, top: 0}
+              });
           }
       }
+
+      justDrowed = false;
   }
 
   function plotAccordingToChoicesCheck()
   {
-      choices();
+      choices(1, 3, false);
   } 
 
   function plotAccordingToChoicesMaxCustomise(graphType)
@@ -1445,7 +1461,7 @@
       recalcGraphs(personId, 0, graphType);
       recalcGraphs(otherPersonId, 1, graphType);
 
-      choices();
+      choices(graphType, graphType, true);
   }
 
   // Внесение изменений на страницу (Чекбоксы, радиокнопки)
@@ -1454,13 +1470,17 @@
   {
       var otherPersonId;
       if(personType == 0)
+      {
           otherPersonId = $('select[name=firstPersons]').val();
+      }
       else
+      {
           otherPersonId = $('select[name=otherPersons]').val();
+      }
 
       upgradePlotByOtherPerson(otherPersonId, personType);
 
-      choices();
+      choices(1, 3, false);
   }
 
   function plotAccordingToChoicesGraphType() 
@@ -1469,7 +1489,7 @@
 
       //upgradePlotByOtherPerson(otherPersonId);
 
-      choices();
+      choices(1, 3, true);
   }
 
   $(function() {
@@ -1479,8 +1499,8 @@
       var MinYearDatePicker = document.getElementById("date_min_year");
       var currentDate = new Date();
       MinDayDatePicker.value = (currentDate.getFullYear()).toString() + "-01-01";
-      MinMonthDatePicker.value = MinDateStrMonth;
-      MinYearDatePicker.value = "1960";
+      MinMonthDatePicker.value = "1920-01-01";
+      MinYearDatePicker.value = "1920";
 
       var MaxDayDatePicker = document.getElementById("DailyMaxCustomise").getElementsByClassName('input-medium')[0];
       var MaxMonthDatePicker = document.getElementById("MonthMaxCustomise").getElementsByClassName('input-medium')[0];
@@ -1525,6 +1545,7 @@
       choiceTableOtherPerson = $("#choicestableotherperson");
 
       plotAccordingToChoicesChangePerson(0);
+      justDrowed = true;
 
       htmlStr = "";
       for(var i = 0; i < otherPersons.length; i++)
@@ -1541,6 +1562,7 @@
       personSelecter.append(htmlStr);
 
       plotAccordingToChoicesChangePerson(1);
+      justDrowed = true;
 
   });
 
@@ -1572,7 +1594,7 @@
               </div>
 
               <div class="limits-right">
-                <btn class="btn btn-primary btn-link" onclick="plotAccordingToChoicesMaxCustomise(graphTypeYear);">Изменить пределы</btn>
+                <btn class="btn btn-primary btn-link" onclick="choices(1, 1, true);">Изменить пределы</btn>
               </div>
             </div>
 
@@ -1608,7 +1630,7 @@
               </div>
 
               <div class="limits-right">
-                <btn class="btn btn-primary btn-link" onclick="plotAccordingToChoicesMaxCustomise(graphTypeMonth);">Изменить пределы</btn>
+                <btn class="btn btn-primary btn-link" onclick="choices(2, 2, true);">Изменить пределы</btn>
               </div>
             </div>
 

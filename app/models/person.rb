@@ -85,12 +85,16 @@ class Person < ActiveRecord::Base
 		def build_default_stories
 		  # build default profile instance. Will use default params.
 		  # The foreign key to the owning User model is set automatically
-		  self.stories.create(:description => 'Любовь', :story_type => 1)
+		  self.stories.create(:description => 'Любовь 1', :story_type => 1)
+		  self.stories.create(:description => 'Любовь 2', :story_type => 1)
+		  self.stories.create(:description => 'Любовь 3', :story_type => 1)
 		  self.stories.create(:description => 'Выигрыш', :story_type => 1)
 		  self.stories.create(:description => 'Рождение детей', :story_type => 1)
 		  self.stories.create(:description => 'Свадьба', :story_type => 1)
 
-		  self.stories.create(:description => 'Расставание', :story_type => 0)
+		  self.stories.create(:description => 'Расставание 1', :story_type => 0)
+		  self.stories.create(:description => 'Расставание 2', :story_type => 0)
+		  self.stories.create(:description => 'Расставание 3', :story_type => 0)
 		  self.stories.create(:description => 'Предательство', :story_type => 0)
 		  self.stories.create(:description => 'Финансовые потери', :story_type => 0)
 		  self.stories.create(:description => 'Смерть близкого', :story_type => 0)
