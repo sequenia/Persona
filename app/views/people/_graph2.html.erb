@@ -607,13 +607,13 @@
       }
       if(graphType == graphTypeMonth)
       {
-          MaxDatePicker = document.getElementById("MonthMaxCustomise").getElementsByClassName('input-medium')[0];
-          maxDateMonth =  (new Date(MaxDatePicker.value)).valueOf() / 1000;
+          MaxDatePicker = document.getElementById("date_max_month");
+          maxDateMonth =  (new Date(parseInt(MaxDatePicker.value) + 1, 0, 0)).valueOf() / 1000;
           maxDate = maxDateMonth;
 
 
-          MinDatePicker = document.getElementById("MonthMinCustomise").getElementsByClassName('input-medium')[0];
-          minDate =  (new Date(MinDatePicker.value)).valueOf() / 1000;
+          MinDatePicker = document.getElementById("date_min_month");
+          minDate =  (new Date(parseInt(MinDatePicker.value) + 1, 0, 0)).valueOf() / 1000;
       }
       if(graphType == graphTypeYear)
       {
@@ -782,9 +782,13 @@
               var customDate = "";
               var personBirth = "";
 
-              customDate = '<%= form_for Story.new do |f| %>' +
-              '<b>Проверочное событие: </b> <%= f.date_field :date, :class=>'input-large', :onchange => "choices(1, 3, false);" %>' +
-              '<% end %>';
+              customDate = '<div class="left" style="width: 80%;">'+
+              '<%= form_for Story.new do |f| %>' +
+              '<b>Проверочное событие: </b> <%= f.date_field :date, :class=>'input-large' %>' +
+              '<% end %>' +
+              '</div>' + 
+              '<div class="right" style="width: 20%;">' + '<a class="btn btn-link" onclick="choices(1, 3, false);">Ок</a>'
+              '</div>';
 
               localCustomDate.append(customDate);
 
@@ -1158,11 +1162,11 @@
           if(graphType == graphTypeMonth)
           {
               setDataSet(monthDatasets, monthDatasetsOtherPerson);
-              var MaxMonthDatePicker = document.getElementById("MonthMaxCustomise").getElementsByClassName('input-medium')[0];
-              maxDate = (new Date(MaxMonthDatePicker.value)).valueOf() / 1000;
-              var MinMonthDatePicker = document.getElementById("MonthMinCustomise").getElementsByClassName('input-medium')[0];
+              var MaxMonthDatePicker = document.getElementById("date_max_month");
+              maxDate = (new Date(parseInt(MaxMonthDatePicker.value), 0, 0)).valueOf() / 1000;
+              var MinMonthDatePicker = document.getElementById("date_min_month");
               startDate = Math.max(Math.min(birthYear.valueOf(), birthYearOtherPerson.valueOf()),
-                          (new Date(MinMonthDatePicker.value)).valueOf());
+                          (new Date(parseInt(MinMonthDatePicker.value) + 1, 0, 0)).valueOf());
           }
           if(graphType == graphTypeDay)
           {
@@ -1228,7 +1232,7 @@
 
           if(graphType == graphTypeYear)
           {
-              for(i = new Date(startDate); i < new Date(endDate); i.setFullYear(i.getFullYear() + 1))
+              /*for(i = new Date(startDate); i < new Date(endDate); i.setFullYear(i.getFullYear() + 1))
               {
                   if( ( i.valueOf() == (new Date(startDate)).valueOf() ) || ( i.getFullYear() % 10 == 0 ) )
                   {
@@ -1247,12 +1251,14 @@
                       }
                       xticks.push([i.valueOf(), labelStr]);
                   }
-              }
+              }*/
 
               axes = 
               {
                   panRange: [startDate, endDate],
-                  ticks: xticks,
+                  mode: 'time',
+                  monthNames: ["Янв", "Фев", "Мар", "Апр", "Май", "Июн", "Июл", "Авг", "Сен", "Окт", "Ноя", "Дек"],
+                  //ticks: xticks,
                   position: 'bottom',
                   min: axisMin,
                   max: axisMax
@@ -1260,7 +1266,7 @@
           }
           if(graphType == graphTypeMonth)
           {
-              for(i = new Date(startDate); i < new Date(endDate); i.setMonth(i.getMonth() + 1))
+              /*for(i = new Date(startDate); i < new Date(endDate); i.setMonth(i.getMonth() + 1))
               {
                   if(i.getMonth() == 0 || i.valueOf() == (new Date(startDate)).valueOf())
                   {
@@ -1289,12 +1295,14 @@
                           }
                       }
                   }
-              }
+              }*/
 
               axes = 
               {
                   panRange: [startDate, endDate],
-                  ticks: xticks,
+                  mode: 'time',
+                  monthNames: ["Янв", "Фев", "Мар", "Апр", "Май", "Июн", "Июл", "Авг", "Сен", "Окт", "Ноя", "Дек"],
+                  //ticks: xticks,
                   position: 'bottom',
                   min: axisMin,
                   max: axisMax
@@ -1452,19 +1460,19 @@
   $(function() {
 
       var MinDayDatePicker = document.getElementById("DailyMinCustomise").getElementsByClassName('input-medium')[0];
-      var MinMonthDatePicker = document.getElementById("MonthMinCustomise").getElementsByClassName('input-medium')[0];
+      var MinMonthDatePicker = document.getElementById("date_min_month");
       var MinYearDatePicker = document.getElementById("date_min_year");
       var currentDate = new Date();
       MinDayDatePicker.value = (currentDate.getFullYear()).toString() + "-01-01";
-      MinMonthDatePicker.value = "1920-01-01";
+      MinMonthDatePicker.value = "1920";
       MinYearDatePicker.value = "1920";
 
       var MaxDayDatePicker = document.getElementById("DailyMaxCustomise").getElementsByClassName('input-medium')[0];
-      var MaxMonthDatePicker = document.getElementById("MonthMaxCustomise").getElementsByClassName('input-medium')[0];
+      var MaxMonthDatePicker = document.getElementById("date_max_month");
       var MaxYearDatePicker = document.getElementById("date_max_year");
       currentDate = new Date();
       MaxDayDatePicker.value = (currentDate.getFullYear() + DailyLookForward).toString() + "-01-01";
-      MaxMonthDatePicker.value = MaxDateStrMonth;
+      MaxMonthDatePicker.value = "2034"
       MaxYearDatePicker.value = "2064";
 
       var htmlStr = "";
@@ -1575,15 +1583,11 @@
 
             <div id="MonthCustomize" class="container customize">
               <div id = "MonthMinCustomise" name = "MonthMinCustomise" class="limits-left">
-                <%= form_for Story.new do |f| %>
-                    <%= f.date_field :date, :class=>'input-medium' %>
-                <% end %>
+                <%= select_year(Date.today, {:start_year => 2064, :end_year => 1920, :field_name => 'min_month'}, :style => "width: 121px;") %>
               </div>
 
               <div id = "MonthMaxCustomise" name = "MonthMaxCustomise" class="limits-left">
-                <%= form_for Story.new do |f| %>
-                    <%= f.date_field :date, :class=>'input-medium' %>
-                <% end %>
+                <%= select_year(Date.today, {:start_year => 2034, :end_year => 1920, :field_name => 'max_month'}, :style => "width: 121px;") %>
               </div>
 
               <div class="limits-right">
