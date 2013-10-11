@@ -590,68 +590,6 @@
 
   function recalcGraphs(otherPersonId, personType, graphType)
   {
-      /*var MaxDayDatePicker = document.getElementById("DailyMaxCustomise").getElementsByClassName('input-medium')[0];
-      maxDateDay =  (new Date(MaxDayDatePicker.value)).valueOf() / 1000;
-
-      var MinDayDatePicker = document.getElementById("DailyMinCustomise").getElementsByClassName('input-medium')[0];
-      var minDateDay =  (new Date(MinDayDatePicker.value)).valueOf() / 1000;
-
-      if(personType == 1)
-          $.cookie("secondPersin", $('select[name=otherPersons]').val());
-      else
-          $.cookie("firstPersin", $('select[name=firstPersons]').val());
-
-      var localChoiceTable;
-
-      if(personType == 0)
-      {
-          localChoiceTable = choiceTable;
-      }
-      else
-      {
-          localChoiceTable = choiceTableOtherPerson;
-      }  
-
-      <% Person.all.each do |per| %>
-          if(<%= per.id %> == otherPersonId)
-          {
-              var dates = <%= raw per.get_dates_with_signs %>;
-              var birthDate = <%= per.get_birth %>;
-
-              if(personType == 0)
-              {
-                  birthYear = new Date((new Date(birthDate * CoefConvRubyToJSDate)).getFullYear(), 0, 1);
-                  dayDatasets = createDatasets(birthDate, minDateDay, maxDateDay, dates, dayPeriod, 0, graphTypeDay);
-              }
-              else
-              {
-                  birthYearOtherPerson = new Date((new Date(birthDate * CoefConvRubyToJSDate)).getFullYear(), 0, 1);
-                  dayDatasetsOtherPerson = createDatasets(birthDate, minDateDay, maxDateDay, dates, dayPeriod, 1, graphTypeDay);
-              }
-
-              if(personType == 0)
-              {
-                $.each(yearDatasets, function(key, val)
-                { 
-                    if(key != "Легенда")
-                    {
-                        dayDatasets[key]["Sinus"].color = val["Sinus"].color;
-                    }
-                });
-              }
-              else
-              {
-                $.each(yearDatasetsOtherPerson, function(key, val)
-                { 
-                    if(key != "Легенда")
-                    {
-                        dayDatasetsOtherPerson[key]["Sinus"].color = val["Sinus"].color;
-                    }
-                });
-              } 
-          }
-      <% end %>*/
-
       var MaxDatePicker;
       var MinDatePicker;
       var MaxDate;
@@ -1480,7 +1418,7 @@
 
   // Внесение изменений на страницу (Чекбоксы, радиокнопки)
   // А так же отрисовка графа после изменений
-  function plotAccordingToChoicesChangePerson(personType) 
+  function plotAccordingToChoicesChangePerson(personType, needZoom) 
   {
       var otherPersonId;
       if(personType == 0)
@@ -1494,9 +1432,9 @@
 
       upgradePlotByOtherPerson(otherPersonId, personType);
 
-      choices(1, 3, true);
+      choices(1, 3, needZoom);
 
-      if($('select[name=firstPersons]').val() == -1 || $('select[name=otherPersons]').val() == -1)
+      if($('select[name=firstPersons]').val() == -1 && $('select[name=otherPersons]').val() == -1)
       {
         peopleNotSelected = true;
       }
@@ -1563,7 +1501,7 @@
       choiceTable = $("#choicestable");
       choiceTableOtherPerson = $("#choicestableotherperson");
 
-      plotAccordingToChoicesChangePerson(0);
+      plotAccordingToChoicesChangePerson(0, true);
       justDrowed = true;
 
       htmlStr = "";
@@ -1580,7 +1518,7 @@
       }
       personSelecter.append(htmlStr);
 
-      plotAccordingToChoicesChangePerson(1);
+      plotAccordingToChoicesChangePerson(1, true);
       justDrowed = true;
 
   });
