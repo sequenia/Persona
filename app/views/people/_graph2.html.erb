@@ -531,7 +531,7 @@
   }
 
   // Создать датасет для персоны с указанным периодом ( Массив с данными для флота )
-  function createDatasets(BirthDate, MinDate, MaxDate, Dates, period, personType, graphType)
+  function createDatasets(BirthDate, MinDate, MaxDate, Dates, period, personType, graphType, psycho)
   {
 
       var Datasets = {};
@@ -548,7 +548,12 @@
           {
               for(var j = i + 1; j < Dates.length; j++)
               {
-                  if( ( getSign(Dates[i]) != getSign(Dates[j]) ) == isDifferent && getDate(Dates[j]) && getDate(Dates[i]) )
+                  var dateDifference = yearDifference((new Date(getDate(Dates[i]) * CoefConvRubyToJSDate)), 
+                                                      (new Date(getDate(Dates[j]) * CoefConvRubyToJSDate)));
+                  if(dateDifference < 0) dateDifference = -dateDifference;
+
+                  if( ( getSign(Dates[i]) != getSign(Dates[j]) ) == isDifferent && getDate(Dates[j]) && getDate(Dates[i]) &&
+                        (dateDifference > 2 || psycho ))
                   {
                       var Graph = graphInit(BirthDate, MinDate, getDate(Dates[i]), getDate(Dates[j]), MaxDate, period, personType);
 
@@ -653,21 +658,21 @@
               {
                   birthYear = new Date((new Date(birthDate * CoefConvRubyToJSDate)).getFullYear(), 0, 1);
                   if(graphType == graphTypeDay)
-                      dayDatasets = createDatasets(birthDate, minDate, maxDate, dates, dayPeriod, 0, graphTypeDay);
+                      dayDatasets = createDatasets(birthDate, minDate, maxDate, dates, dayPeriod, 0, graphTypeDay, <%= per.psycho %>);
                   if(graphType == graphTypeMonth)
-                    monthDatasets = createDatasets(birthDate, minDate, maxDate, dates, monthPeriod, 0, graphTypeMonth);
+                    monthDatasets = createDatasets(birthDate, minDate, maxDate, dates, monthPeriod, 0, graphTypeMonth, <%= per.psycho %>);
                   if(graphType == graphTypeYear)
-                    yearDatasets = createDatasets(birthDate, minDate, maxDate, dates, yearPeriod, 0, graphTypeYear);
+                    yearDatasets = createDatasets(birthDate, minDate, maxDate, dates, yearPeriod, 0, graphTypeYear, <%= per.psycho %>);
               }
               else
               {
                   birthYearOtherPerson = new Date((new Date(birthDate * CoefConvRubyToJSDate)).getFullYear(), 0, 1);
                   if(graphType == graphTypeDay)
-                    dayDatasetsOtherPerson = createDatasets(birthDate, minDate, maxDate, dates, dayPeriod, 1, graphTypeDay);
+                    dayDatasetsOtherPerson = createDatasets(birthDate, minDate, maxDate, dates, dayPeriod, 1, graphTypeDay, <%= per.psycho %>);
                   if(graphType == graphTypeMonth)
-                    monthDatasetsOtherPerson = createDatasets(birthDate, minDate, maxDate, dates, monthPeriod, 1, graphTypeMonth);
+                    monthDatasetsOtherPerson = createDatasets(birthDate, minDate, maxDate, dates, monthPeriod, 1, graphTypeMonth, <%= per.psycho %>);
                   if(graphType == graphTypeYear)
-                    yearDatasetsOtherPerson = createDatasets(birthDate, minDate, maxDate, dates, yearPeriod, 1, graphTypeYear);
+                    yearDatasetsOtherPerson = createDatasets(birthDate, minDate, maxDate, dates, yearPeriod, 1, graphTypeYear, <%= per.psycho %>);
               }
 
               if(graphType != graphTypeYear)
@@ -796,9 +801,9 @@
               if(personType == 0)
               {
                   birthYear = new Date((new Date(birthDate * CoefConvRubyToJSDate)).getFullYear(), 0, 1);
-                  yearDatasets = createDatasets(birthDate, birthDate, maxDateYear, dates, yearPeriod, 0, graphTypeYear);
-                  monthDatasets = createDatasets(birthDate, birthDate, maxDateMonth, dates, monthPeriod, 0, graphTypeMonth);
-                  dayDatasets = createDatasets(birthDate, minDateDay, maxDateDay, dates, dayPeriod, 0, graphTypeDay);
+                  yearDatasets = createDatasets(birthDate, birthDate, maxDateYear, dates, yearPeriod, 0, graphTypeYear, <%= per.psycho %>);
+                  monthDatasets = createDatasets(birthDate, birthDate, maxDateMonth, dates, monthPeriod, 0, graphTypeMonth, <%= per.psycho %>);
+                  dayDatasets = createDatasets(birthDate, minDateDay, maxDateDay, dates, dayPeriod, 0, graphTypeDay, <%= per.psycho %>);
 
                   personName = '<div class="divDemoBody">' +
                     '<div id="windowTitleDialog3" class="modal hide fade" tabindex="-1" role="dialog" aria-labelledby="windowTitleLabel" aria-hidden="true">' +
@@ -815,6 +820,8 @@
                                           '<%= f.text_field :name %><br>' +
                                           '<b>Дата рождения:</b><br>' +
                                           '<%= f.date_field :birth %><br>' +
+                                          '<b>Показывать графики меньше двух лет: </b>' +
+                                          '<%= f.check_box :psycho %>' + 
                                         '</div>' +
                                     '</div>' +
                                 '</div>' +
@@ -832,14 +839,15 @@
                     'Удалить' +
                     '<%end%>' + 
                     '<a data-toggle="modal" href="#windowTitleDialog" class="btn btn-primary btn-link btn-small">Новая персона</a>' +
+                    //'<%= check_box_tag(:first_psycho) %>' +
                     '<%end%>';
               }
               else
               {
                   birthYearOtherPerson = new Date((new Date(birthDate * CoefConvRubyToJSDate)).getFullYear(), 0, 1);
-                  yearDatasetsOtherPerson = createDatasets(birthDate, birthDate, maxDateYear, dates, yearPeriod, 1, graphTypeYear);
-                  monthDatasetsOtherPerson = createDatasets(birthDate, birthDate, maxDateMonth, dates, monthPeriod, 1, graphTypeMonth);
-                  dayDatasetsOtherPerson = createDatasets(birthDate, minDateDay, maxDateDay, dates, dayPeriod, 1, graphTypeDay);
+                  yearDatasetsOtherPerson = createDatasets(birthDate, birthDate, maxDateYear, dates, yearPeriod, 1, graphTypeYear, <%= per.psycho %>);
+                  monthDatasetsOtherPerson = createDatasets(birthDate, birthDate, maxDateMonth, dates, monthPeriod, 1, graphTypeMonth, <%= per.psycho %>);
+                  dayDatasetsOtherPerson = createDatasets(birthDate, minDateDay, maxDateDay, dates, dayPeriod, 1, graphTypeDay, <%= per.psycho %>);
 
                   personName = 
                     '<div class="divDemoBody">' +
@@ -857,6 +865,8 @@
                                           '<%= f.text_field :name %><br>' +
                                           '<b>Дата рождения:</b><br>' +
                                           '<%= f.date_field :birth %><br>' +
+                                          '<b>Показывать графики меньше двух лет: </b>' +
+                                          '<%= f.check_box :psycho %>' + 
                                         '</div>' +
                                     '</div>' +
                                 '</div>' +
@@ -874,6 +884,7 @@
                     'Удалить' +
                     '<%end%>' + 
                     '<a data-toggle="modal" href="#windowTitleDialog" class="btn btn-primary btn-link btn-small">Новая персона</a>' +
+                    //'<%= check_box_tag(:second_psycho) %>' +
                     '<%end%>';
               }
 
@@ -1003,7 +1014,7 @@
                         dayDatasets[key]["Sinus"].color = val["Sinus"].color;
 
                         choiceTableStr += "<tr>";
-
+                        
                         choiceTableStr += 
                         "<td>" +
                             "<input type='checkbox' name='" + key + "' id='id" + key + "' style='vertical-align: top;'></input>" +
