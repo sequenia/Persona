@@ -66,6 +66,8 @@
   var peopleNotSelected = true;
   var onceSelected = false;
 
+  var useLocalStorage = true;
+
   // Получить разницу между датами в годах
   function yearDifference(Date1, Date2)
   {
@@ -632,10 +634,22 @@
           minDate =  (new Date(parseInt(MinDatePicker.value) + 1, 0, 0)).valueOf() / 1000;
       }
 
-      if(personType == 1)
-          $.cookie("secondPersin", $('select[name=otherPersons]').val());
+      if(useLocalStorage)
+      {
+        if(personType == 1)
+            localStorage["secondPersinValue"] = $('select[name=otherPersons]').val();
+            //localStorage.setItem("secondPersinValue", $('select[name=otherPersons]').val());
+        else
+            localStorage["firstPersinValue"] = $('select[name=firstPersons]').val();
+            //localStorage.setItem("firstPersinValue", $('select[name=firstPersons]').val());
+      }
       else
-          $.cookie("firstPersin", $('select[name=firstPersons]').val());
+      {
+        if(personType == 1)
+            $.cookie("secondPersinValue", $('select[name=otherPersons]').val());
+        else
+            $.cookie("firstPersinValue", $('select[name=firstPersons]').val());
+      }
 
       var localChoiceTable;
 
@@ -746,10 +760,22 @@
       var MinDayDatePicker = document.getElementById("DailyMinCustomise").getElementsByClassName('input-medium')[0];
       var minDateDay =  (new Date(MinDayDatePicker.value)).valueOf() / 1000;
 
-      if(personType == 1)
-          $.cookie("secondPersin", $('select[name=otherPersons]').val());
+      if(useLocalStorage)
+      {
+        if(personType == 1)
+            localStorage["secondPersinValue"] = $('select[name=otherPersons]').val();
+            //useLocalStorage.setItem("secondPersinValue", $('select[name=otherPersons]').val());
+        else
+            localStorage["firstPersinValue"] = $('select[name=firstPersons]').val();
+            //useLocalStorage.setItem("firstPersinValue", $('select[name=firstPersons]').val());
+      }
       else
-          $.cookie("firstPersin", $('select[name=firstPersons]').val());
+      {
+        if(personType == 1)
+            $.cookie("secondPersinValue", $('select[name=otherPersons]').val());
+        else
+            $.cookie("firstPersinValue", $('select[name=firstPersons]').val());
+      }
 
       var choiceTableStr = "";
 
@@ -1477,7 +1503,21 @@
       choices(1, 3, true);
   }
 
+  function supports_html5_storage() 
+  {
+    try 
+    {
+      return 'localStorage' in window && window['localStorage'] !== null;
+    } 
+    catch (e) 
+    {
+      return false;
+    }
+  }
+
   $(function() {
+
+      useLocalStorage = supports_html5_storage();
 
       var MinDayDatePicker = document.getElementById("DailyMinCustomise").getElementsByClassName('input-medium')[0];
       var MinMonthDatePicker = document.getElementById("date_min_month");
@@ -1499,8 +1539,19 @@
 
       otherPersons = []; 
 
-      var prevFirst = $.cookie("firstPersin");
-      var prevSecond = $.cookie("secondPersin");
+      var prevFirst;
+      var prevSecond;
+
+      if(useLocalStorage)
+      {
+        var prevFirst = localStorage["firstPersinValue"];
+        var prevSecond = localStorage["secondPersinValue"];
+      }
+      else
+      {
+        prevFirst = $.cookie("firstPersinValue");
+        prevSecond = $.cookie("secondPersinValue");
+      }
 
       <% Person.all.each do |per| %>
           otherPersons.push(["<%= raw per.id %>", "<%= raw per.name.to_s %>"]);
