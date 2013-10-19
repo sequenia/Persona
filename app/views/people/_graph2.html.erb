@@ -68,6 +68,8 @@
 
   var useLocalStorage = true;
 
+  var extrasensitiveCoef = 0.95;
+
   // Получить разницу между датами в годах
   function yearDifference(Date1, Date2)
   {
@@ -488,6 +490,33 @@
 
   }
 
+  function checkExtra(BirthDate, MinDate, MemoryDate1, MemoryDate2, EndPoint, period, personType)
+  {
+      var difference = yearDifference(new Date(MemoryDate1 * CoefConvRubyToJSDate), new Date(MemoryDate2 * CoefConvRubyToJSDate));
+      var differenceCount = 1;
+      var currentDifference = 12;
+      var sinusCalculateStep;
+      var Offset = Math.PI;
+
+      while(currentDifference < difference)
+      {
+          differenceCount *= 2;
+          currentDifference *= 2;
+      }
+
+      var Zero = MemoryDate1;
+      var T    = (MemoryDate2 - MemoryDate1) / (differenceCount * period);
+
+      while(Zero - BirthDate > T * period)
+      {
+          Zero = Zero - T * period;
+      }
+
+      var dateDifference = Math.abs(MemoryDate1 * CoefConvRubyToJSDate - MemoryDate2 * CoefConvRubyToJSDate);
+      var birthZeroDifference = Math.abs(BirthDate * CoefConvRubyToJSDate - Zero * CoefConvRubyToJSDate);
+      return (birthZeroDifference > dateDifference * extrasensitiveCoef);
+  }
+
   function getDate(DateWithSign)
   {
       return DateWithSign[0];
@@ -533,7 +562,7 @@
   }
 
   // Создать датасет для персоны с указанным периодом ( Массив с данными для флота )
-  function createDatasets(BirthDate, MinDate, MaxDate, Dates, period, personType, graphType, psycho)
+  function createDatasets(BirthDate, MinDate, MaxDate, Dates, period, personType, graphType, psycho, extra)
   {
 
       var Datasets = {};
@@ -554,8 +583,11 @@
                                                       (new Date(getDate(Dates[j]) * CoefConvRubyToJSDate)));
                   if(dateDifference < 0) dateDifference = -dateDifference;
 
+                  var ckeck = checkExtra(BirthDate, MinDate, getDate(Dates[i]), getDate(Dates[j]), MaxDate, period, personType);
+
                   if( ( getSign(Dates[i]) != getSign(Dates[j]) ) == isDifferent && getDate(Dates[j]) && getDate(Dates[i]) &&
-                        (dateDifference > 2 || psycho ))
+                        (dateDifference > 2 || psycho ) && 
+                        (ckeck == extra))
                   {
                       var Graph = graphInit(BirthDate, MinDate, getDate(Dates[i]), getDate(Dates[j]), MaxDate, period, personType);
 
@@ -672,21 +704,27 @@
               {
                   birthYear = new Date((new Date(birthDate * CoefConvRubyToJSDate)).getFullYear(), 0, 1);
                   if(graphType == graphTypeDay)
-                      dayDatasets = createDatasets(birthDate, minDate, maxDate, dates, dayPeriod, 0, graphTypeDay, <%= per.psycho %>);
+                      dayDatasets = createDatasets(birthDate, minDate, maxDate, dates, dayPeriod, 
+                        0, graphTypeDay, <%= per.psycho %>, <%= per.extrasensitive %>);
                   if(graphType == graphTypeMonth)
-                    monthDatasets = createDatasets(birthDate, minDate, maxDate, dates, monthPeriod, 0, graphTypeMonth, <%= per.psycho %>);
+                    monthDatasets = createDatasets(birthDate, minDate, maxDate, dates, monthPeriod,
+                        0, graphTypeMonth, <%= per.psycho %>, <%= per.extrasensitive %>);
                   if(graphType == graphTypeYear)
-                    yearDatasets = createDatasets(birthDate, minDate, maxDate, dates, yearPeriod, 0, graphTypeYear, <%= per.psycho %>);
+                    yearDatasets = createDatasets(birthDate, minDate, maxDate, dates, yearPeriod, 0,
+                        graphTypeYear, <%= per.psycho %>, <%= per.extrasensitive %>);
               }
               else
               {
                   birthYearOtherPerson = new Date((new Date(birthDate * CoefConvRubyToJSDate)).getFullYear(), 0, 1);
                   if(graphType == graphTypeDay)
-                    dayDatasetsOtherPerson = createDatasets(birthDate, minDate, maxDate, dates, dayPeriod, 1, graphTypeDay, <%= per.psycho %>);
+                    dayDatasetsOtherPerson = createDatasets(birthDate, minDate, maxDate, dates, dayPeriod, 1, 
+                      graphTypeDay, <%= per.psycho %>, <%= per.extrasensitive %>);
                   if(graphType == graphTypeMonth)
-                    monthDatasetsOtherPerson = createDatasets(birthDate, minDate, maxDate, dates, monthPeriod, 1, graphTypeMonth, <%= per.psycho %>);
+                    monthDatasetsOtherPerson = createDatasets(birthDate, minDate, maxDate, dates, monthPeriod, 1,
+                      graphTypeMonth, <%= per.psycho %>, <%= per.extrasensitive %>);
                   if(graphType == graphTypeYear)
-                    yearDatasetsOtherPerson = createDatasets(birthDate, minDate, maxDate, dates, yearPeriod, 1, graphTypeYear, <%= per.psycho %>);
+                    yearDatasetsOtherPerson = createDatasets(birthDate, minDate, maxDate, dates, yearPeriod, 1, 
+                      graphTypeYear, <%= per.psycho %>, <%= per.extrasensitive %>);
               }
 
               if(graphType != graphTypeYear)
@@ -783,6 +821,7 @@
       var localDates;
       var localName;
       var localCustomDate;
+      var localDescription;
 
       if(personType == 0)
       {
@@ -790,6 +829,7 @@
           localDates = $("#firstDates");
           localCustomDate = $('#firstCustomDate');
           localChoiceTable = choiceTable;
+          localDescription = $('#firstDescription');
       }
       else
       {
@@ -797,12 +837,14 @@
           localDates = $("#secondDates");
           localCustomDate = $('#secondCustomDate');
           localChoiceTable = choiceTableOtherPerson;
+          localDescription = $('#secondDescription');
       }  
 
       localChoiceTable.empty();
       localDates.empty();
       localName.empty();
       localCustomDate.empty();
+      localDescription.empty();
 
       <% Person.all.each do |per| %>
           if(<%= per.id %> == otherPersonId)
@@ -823,13 +865,18 @@
               '</div>';
 
               localCustomDate.append(customDate);
+              if('<%= per.description %>' != "")
+                localDescription.append('<b>Примечание:</b> <%= per.description %>');
 
               if(personType == 0)
               {
                   birthYear = new Date((new Date(birthDate * CoefConvRubyToJSDate)).getFullYear(), 0, 1);
-                  yearDatasets = createDatasets(birthDate, birthDate, maxDateYear, dates, yearPeriod, 0, graphTypeYear, <%= per.psycho %>);
-                  monthDatasets = createDatasets(birthDate, birthDate, maxDateMonth, dates, monthPeriod, 0, graphTypeMonth, <%= per.psycho %>);
-                  dayDatasets = createDatasets(birthDate, minDateDay, maxDateDay, dates, dayPeriod, 0, graphTypeDay, <%= per.psycho %>);
+                  yearDatasets = createDatasets(birthDate, birthDate, maxDateYear, dates, yearPeriod, 0,
+                    graphTypeYear, <%= per.psycho %>, <%= per.extrasensitive %>);
+                  monthDatasets = createDatasets(birthDate, birthDate, maxDateMonth, dates, monthPeriod, 0, 
+                    graphTypeMonth, <%= per.psycho %>, <%= per.extrasensitive %>);
+                  dayDatasets = createDatasets(birthDate, minDateDay, maxDateDay, dates, dayPeriod, 0,
+                    graphTypeDay, <%= per.psycho %>, <%= per.extrasensitive %>);
 
                   personName = '<div class="divDemoBody">' +
                     '<div id="windowTitleDialog3" class="modal hide fade" tabindex="-1" role="dialog" aria-labelledby="windowTitleLabel" aria-hidden="true">' +
@@ -847,7 +894,11 @@
                                           '<b>Дата рождения:</b><br>' +
                                           '<%= f.date_field :birth %><br>' +
                                           '<b>Показывать графики меньше двух лет: </b>' +
-                                          '<%= f.check_box :psycho %>' + 
+                                          '<%= f.check_box :psycho %>' +
+                                          '<b>Экстрасенсорные способности: </b>' +
+                                          '<%= f.check_box :extrasensitive %><br>' +
+                                          '<b>Примечание:</b><br>' +
+                                          '<%= f.text_field :description %><br>' + 
                                         '</div>' +
                                     '</div>' +
                                 '</div>' +
@@ -865,15 +916,17 @@
                     'Удалить' +
                     '<%end%>' + 
                     '<a data-toggle="modal" href="#windowTitleDialog" class="btn btn-primary btn-link btn-small">Новая персона</a>' +
-                    //'<%= check_box_tag(:first_psycho) %>' +
                     '<%end%>';
               }
               else
               {
                   birthYearOtherPerson = new Date((new Date(birthDate * CoefConvRubyToJSDate)).getFullYear(), 0, 1);
-                  yearDatasetsOtherPerson = createDatasets(birthDate, birthDate, maxDateYear, dates, yearPeriod, 1, graphTypeYear, <%= per.psycho %>);
-                  monthDatasetsOtherPerson = createDatasets(birthDate, birthDate, maxDateMonth, dates, monthPeriod, 1, graphTypeMonth, <%= per.psycho %>);
-                  dayDatasetsOtherPerson = createDatasets(birthDate, minDateDay, maxDateDay, dates, dayPeriod, 1, graphTypeDay, <%= per.psycho %>);
+                  yearDatasetsOtherPerson = createDatasets(birthDate, birthDate, maxDateYear, dates, yearPeriod, 1, 
+                    graphTypeYear, <%= per.psycho %>, <%= per.extrasensitive %>);
+                  monthDatasetsOtherPerson = createDatasets(birthDate, birthDate, maxDateMonth, dates, monthPeriod, 1, 
+                    graphTypeMonth, <%= per.psycho %>, <%= per.extrasensitive %>);
+                  dayDatasetsOtherPerson = createDatasets(birthDate, minDateDay, maxDateDay, dates, dayPeriod, 1, 
+                    graphTypeDay, <%= per.psycho %>, <%= per.extrasensitive %>);
 
                   personName = 
                     '<div class="divDemoBody">' +
@@ -892,7 +945,11 @@
                                           '<b>Дата рождения:</b><br>' +
                                           '<%= f.date_field :birth %><br>' +
                                           '<b>Показывать графики меньше двух лет: </b>' +
-                                          '<%= f.check_box :psycho %>' + 
+                                          '<%= f.check_box :psycho %>' +
+                                          '<b>Экстрасенсорные способности: </b>' +
+                                          '<%= f.check_box :extrasensitive %><br>' +
+                                          '<b>Примечание:</b><br>' +
+                                          '<%= f.text_field :description %><br>' + 
                                         '</div>' +
                                     '</div>' +
                                 '</div>' +
@@ -910,7 +967,6 @@
                     'Удалить' +
                     '<%end%>' + 
                     '<a data-toggle="modal" href="#windowTitleDialog" class="btn btn-primary btn-link btn-small">Новая персона</a>' +
-                    //'<%= check_box_tag(:second_psycho) %>' +
                     '<%end%>';
               }
 
@@ -1270,27 +1326,6 @@
 
           if(graphType == graphTypeYear)
           {
-              /*for(i = new Date(startDate); i < new Date(endDate); i.setFullYear(i.getFullYear() + 1))
-              {
-                  if( ( i.valueOf() == (new Date(startDate)).valueOf() ) || ( i.getFullYear() % 10 == 0 ) )
-                  {
-                      xticks.push([i.valueOf(), "<b class='yearLabel'>" + i.getFullYear().toString() + "</b>"]);
-                  }
-                  else
-                  {
-                      if(startDateDate.getFullYear() < 1960 &&
-                         (i.getFullYear() % 10 == 1 || i.getFullYear() % 10 == 9 || i.getFullYear() == startDateDate.getFullYear() + 1))
-                      {
-                          labelStr = "";
-                      }
-                      else
-                      {
-                          labelStr = (i.getYear() % 10).toString();
-                      }
-                      xticks.push([i.valueOf(), labelStr]);
-                  }
-              }*/
-
               axes = 
               {
                   panRange: [startDate, endDate],
@@ -1304,37 +1339,6 @@
           }
           if(graphType == graphTypeMonth)
           {
-              /*for(i = new Date(startDate); i < new Date(endDate); i.setMonth(i.getMonth() + 1))
-              {
-                  if(i.getMonth() == 0 || i.valueOf() == (new Date(startDate)).valueOf())
-                  {
-                      xticks.push([i.valueOf(), "<b class='monthLabel'>" + i.getFullYear().toString() + "</b>"]);
-                  }
-                  else if(i.getMonth() % 2 == 0)
-                  {
-                      labelStr = (i.getMonth()+1).toString();
-                      if(i.getMonth() <= 9 && i.getMonth() >= 3)
-                      {
-                          xticks.push([i.valueOf(), "<text class='monthLabel39'>" + labelStr + "</text>"]);
-                      }
-                      else
-                      {
-                          if(startDateDate.getFullYear() < 1993)
-                          {
-                              labelStr = "";
-                          }
-                          if(i.getMonth() > 9 )
-                          {
-                              xticks.push([i.valueOf(), "<text class='monthLabelMore9'>" + labelStr + "</text>"]);
-                          }
-                          else 
-                          {
-                              xticks.push([i.valueOf(), "<text class='monthLabelLess3'>" + labelStr + "</text>"]);
-                          }
-                      }
-                  }
-              }*/
-
               axes = 
               {
                   panRange: [startDate, endDate],
