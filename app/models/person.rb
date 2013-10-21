@@ -8,6 +8,11 @@ class Person < ActiveRecord::Base
 
 	after_create :build_default_stories
 
+	before_save do
+		self.description = self.description.gsub("\\", "")
+		self.description = self.description.gsub("\r\n", "\\r\\n")
+	end
+
 	def get_dates_with_signs
 		date_arr = []
 		i = 0
@@ -27,29 +32,6 @@ class Person < ActiveRecord::Base
 		return stories.count()
 	end	
 
-
-	def valide_dates_for_graph
-		 cnt = stories.count()
-         result = true
-         count_pos = 0
-         count_neg = 0 
-         if cnt > 2 then
-         	i = 0
-            while i < cnt do
-            	if stories[i].story_type == 1 
-            		then count_pos += 1
-            	else count_neg += 1	
-            	end	
-            	i += 1	
-            end
-         end
-         
-         if count_neg == 0 or count_pos == 0 
-         	then result = false 
-		 end
-
-         return result
-	end	
 
 	def get_birth
         return birth.to_datetime.to_i

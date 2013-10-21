@@ -866,7 +866,7 @@
 
               localCustomDate.append(customDate);
               if('<%= per.description %>' != "")
-                localDescription.append('<b>Примечание:</b> <%= per.description %>');
+                localDescription.append('<b>Примечание:</b> <%= raw h(per.description).gsub("\\n", "<br/>") %>');
 
               if(personType == 0)
               {
@@ -898,7 +898,7 @@
                                           '<b>Экстрасенсорные способности: </b>' +
                                           '<%= f.check_box :extrasensitive %><br>' +
                                           '<b>Примечание:</b><br>' +
-                                          '<%= f.text_field :description %><br>' + 
+                                          '<%= raw f.text_area(:description, :size => "50x5").gsub("\n", "\\n") %><br>' +
                                         '</div>' +
                                     '</div>' +
                                 '</div>' +
@@ -949,7 +949,7 @@
                                           '<b>Экстрасенсорные способности: </b>' +
                                           '<%= f.check_box :extrasensitive %><br>' +
                                           '<b>Примечание:</b><br>' +
-                                          '<%= f.text_field :description %><br>' + 
+                                          '<%= raw f.text_area(:description, :size => "50x5").gsub("\n", "\\n")  %><br>' +
                                         '</div>' +
                                     '</div>' +
                                 '</div>' +
