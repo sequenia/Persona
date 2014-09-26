@@ -242,3 +242,12 @@ body { font-size: 1em;}
         font-size: 100%;
     }
 }
+
+.form-no-margin form {
+	margin-bottom: 0px;
+	white-space: nowrap;
+}
+
+.form-no-margin button {
+	margin-bottom: 13px;
+}

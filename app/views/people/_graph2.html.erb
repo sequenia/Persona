@@ -885,31 +885,31 @@
                             '<a href="#" class="close" data-dismiss="modal">&times;</a>' +
                             '<h3>Редактирование персоны</h3>' +
                             '</div>' +
+                        '<%= form_for per do |f| %>' +
                         '<div class="modal-body">' +
                             '<div class="divDialogElements">' +
                                 '<div id = "newPersonForm">' +
-                                    '<%= form_for per do |f| %>' +
-                                        '<div class="hero-unit" style="font-size:14px; padding-top: 10px; padding-bottom: 10px; background-color: white; text-align: center;">' +
-                                          '<b>Имя:</b><br>' +
-                                          '<%= f.text_field :name %><br>' +
-                                          '<b>Дата рождения:</b><br>' +
-                                          '<%= f.date_field :birth %><br>' +
-                                          '<b>Показывать графики меньше двух лет: </b>' +
-                                          '<%= f.check_box :psycho %>' +
-                                          '<b>Экстрасенсорные способности: </b>' +
-                                          '<%= f.check_box :extrasensitive %><br>' +
-                                          '<b>Примечание:</b><br>' +
-                                          '<%= raw f.text_area(:description, :size => "50x5").gsub("\n", "\\n") %><br>' +
-                                        '</div>' +
+                                    '<div class="hero-unit" style="font-size:14px; padding-top: 10px; padding-bottom: 10px; background-color: white; text-align: center;">' +
+                                      '<b>Имя:</b><br>' +
+                                      '<%= f.text_field :name %><br>' +
+                                      '<b>Дата рождения:</b><br>' +
+                                      '<%= f.date_field :birth %><br>' +
+                                      '<b>Показывать графики меньше двух лет: </b>' +
+                                      '<%= f.check_box :psycho %>' +
+                                      '<b>Экстрасенсорные способности: </b>' +
+                                      '<%= f.check_box :extrasensitive %><br>' +
+                                      '<b>Примечание:</b><br>' +
+                                      '<%= raw f.text_area(:description, :size => "50x5").gsub("\n", "\\n") %><br>' +
                                     '</div>' +
                                 '</div>' +
                             '</div>' +
+                        '</div>' +
                         '<div class="modal-footer">' +
                             '<a data-target="#" class="btn" onclick="closeDialog (' +  "'windowTitleDialog3'" + ');">Отмена</a>' +
                             '<%= f.submit :class => "btn", :value => "Сохранить" %>' +
-                            '<% end %>' +
                             '</div>' +
                         '</div>' +
+                        '<% end %>' +
                     '</div>' + 
                     '<%= form_for per do |f| %>' +
                     '<a data-toggle="modal" class="btn btn-primary btn-link btn-small" href="#windowTitleDialog3">Редактировать</a>' + 
@@ -936,31 +936,31 @@
                             '<a href="#" class="close" data-dismiss="modal">&times;</a>' +
                             '<h3>Редактирование персоны</h3>' +
                             '</div>' +
+                        '<%= form_for per do |f| %>' +
                         '<div class="modal-body">' +
                             '<div class="divDialogElements">' +
                                 '<div id = "newPersonForm">' +
-                                    '<%= form_for per do |f| %>' +
-                                        '<div class="hero-unit" style="font-size:14px; padding-top: 10px; padding-bottom: 10px; background-color: white; text-align: center;">' +
-                                          '<b>Имя:</b><br>' +
-                                          '<%= f.text_field :name %><br>' +
-                                          '<b>Дата рождения:</b><br>' +
-                                          '<%= f.date_field :birth %><br>' +
-                                          '<b>Показывать графики меньше двух лет: </b>' +
-                                          '<%= f.check_box :psycho %>' +
-                                          '<b>Экстрасенсорные способности: </b>' +
-                                          '<%= f.check_box :extrasensitive %><br>' +
-                                          '<b>Примечание:</b><br>' +
-                                          '<%= raw f.text_area(:description, :size => "50x5").gsub("\n", "\\n")  %><br>' +
-                                        '</div>' +
+                                    '<div class="hero-unit" style="font-size:14px; padding-top: 10px; padding-bottom: 10px; background-color: white; text-align: center;">' +
+                                      '<b>Имя:</b><br>' +
+                                      '<%= f.text_field :name %><br>' +
+                                      '<b>Дата рождения:</b><br>' +
+                                      '<%= f.date_field :birth %><br>' +
+                                      '<b>Показывать графики меньше двух лет: </b>' +
+                                      '<%= f.check_box :psycho %>' +
+                                      '<b>Экстрасенсорные способности: </b>' +
+                                      '<%= f.check_box :extrasensitive %><br>' +
+                                      '<b>Примечание:</b><br>' +
+                                      '<%= raw f.text_area(:description, :size => "50x5").gsub("\n", "\\n")  %><br>' +
                                     '</div>' +
                                 '</div>' +
                             '</div>' +
+                        '</div>' +
                         '<div class="modal-footer">' +
                             '<a data-target="#" class="btn" onclick="closeDialog (' +  "'windowTitleDialog2'" + ');">Отмена</a>' +
                             '<%= f.submit :class => "btn", :value => "Сохранить" %>' +
-                            '<% end %>' +
                             '</div>' +
                         '</div>' +
+                        '<% end %>' +
                     '</div>' + 
                     '<%= form_for per do |f| %>' +
                     '<a data-toggle="modal" class="btn btn-primary btn-link btn-small" href="#windowTitleDialog2">Редактировать</a>' + 
@@ -986,36 +986,34 @@
                 "<tbody>" +
                 "<tr>" +
                   "<td>Дата рождения</td>" +
-                  '<%= form_for(per) do |f| %>' + 
-                  '<td><%= f.date_field :birth, :class=>'input-medium' %></td>' +
-                  '<td>' + 
-                              '<%= button_tag( :class => "btn btn-primary btn-link btn-small" ) do %>' +
-                                  '<span>Ок</span>' +
-                              '<% end %>' +
-                              '<%end%>' +
-                  '</td>' +
-                  '<td>' + 
+                  '<td colspan="2" class="form-no-margin">' +
+                    '<%= form_for(per) do |f| %>' + 
+                      '<%= f.date_field :birth, :class=>"input-medium" %>' +
+                      '<%= button_tag( :class => "btn btn-primary btn-link btn-small" ) do %>' +
+                          '<span>Ок</span>' +
+                       '<% end %>' +
+                    '<%end%>' +
                   '</td>' +
                 "</tr>" +
                 "<% for i in 0..per.get_dates_count - 1 %>" +
                 "<% if per.stories[i].story_type == 1 %>" + 
                 "<tr>" +
                   "<td><%= per.stories[i].description%></td>" +
-                  '<%= form_for([per.stories[i].person, per.stories[i]]) do |f| %>' + 
-                  '<td><%= f.date_field :date, :class=>'input-medium' %></td>' +
-                  '<td>' + 
-                              '<%= button_tag( :class => "btn btn-primary btn-link btn-small" ) do %>' +
-                                  '<span>Ок</span>' +
-                              '<% end %>' +
-                              '<%end%>' +
+                  '<td colspan="2" class="form-no-margin">' +
+                    '<%= form_for([per.stories[i].person, per.stories[i]]) do |f| %>' + 
+                      '<%= f.date_field :date, :class=>'input-medium' %>' +
+                      '<%= button_tag( :class => "btn btn-primary btn-link btn-small" ) do %>' +
+                         '<span>Ок</span>' +
+                      '<% end %>' +
+                    '<%end%>' +
                   '</td>' +
                   '<td>' + 
-                              '<%= form_for([per.stories[i].person, per.stories[i]]) do |f| %>' + 
-                                  '<%= f.hidden_field :date, :value => nil %>' + 
-                                  '<%= button_tag( :class => "btn btn-primary btn-link btn-small" ) do %>' +
-                                      '<i class="icon-white icon-remove"></i>' +
-                                  '<% end %>' +
-                              '<%end%>' +
+                    '<%= form_for([per.stories[i].person, per.stories[i]]) do |f| %>' + 
+                        '<%= f.hidden_field :date, :value => nil %>' + 
+                        '<%= button_tag( :class => "btn btn-primary btn-link btn-small" ) do %>' +
+                            '<i class="icon-white icon-remove"></i>' +
+                        '<% end %>' +
+                    '<%end%>' +
                   '</td>' +
                 "</tr>" +
                 "<%end%>" + 
@@ -1038,21 +1036,21 @@
                 "<% if per.stories[i].story_type == 0 %>" + 
                 "<tr>" +
                   "<td><%= per.stories[i].description%></td>" +
-                  '<%= form_for([per.stories[i].person, per.stories[i]]) do |f| %>' + 
-                  '<td><%= f.date_field :date, :class=>'input-medium'%></td>' +
-                  '<td>' + 
-                              '<%= button_tag( :class => "btn btn-primary btn-link btn-small" ) do %>' +
-                                  '<span>Ок</span>' +
-                              '<% end %>' +
-                              '<%end%>' +
+                  '<td colspan="2" class="form-no-margin">' +
+                    '<%= form_for([per.stories[i].person, per.stories[i]]) do |f| %>' + 
+                      '<%= f.date_field :date, :class=>"input-medium"%>' +
+                      '<%= button_tag( :class => "btn btn-primary btn-link btn-small" ) do %>' +
+                        '<span>Ок</span>' +
+                      '<% end %>' +
+                    '<%end%>' +
                   "</td>" +
                   "<td>" +
-                              '<%= form_for([per.stories[i].person, per.stories[i]]) do |f| %>' + 
-                                  '<%= f.hidden_field :date, :value => nil %>' + 
-                                  '<%= button_tag( :class => "btn btn-primary btn-link btn-small" ) do %>' +
-                                      '<i class="icon-white icon-remove"></i>' +
-                                  '<% end %>' +
-                              '<%end%>' +
+                    '<%= form_for([per.stories[i].person, per.stories[i]]) do |f| %>' + 
+                        '<%= f.hidden_field :date, :value => nil %>' + 
+                        '<%= button_tag( :class => "btn btn-primary btn-link btn-small" ) do %>' +
+                            '<i class="icon-white icon-remove"></i>' +
+                        '<% end %>' +
+                    '<%end%>' +
                   '</td>' +
                 "</tr>" +
                 "<%end%>" + 

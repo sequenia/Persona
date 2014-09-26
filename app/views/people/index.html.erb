@@ -3,28 +3,28 @@
         <div class="modal-header">
             <a href="#" class="close" data-dismiss="modal">&times;</a>
             <h3>Создание новой персоны</h3>
-            </div>
+        </div>
+        <%= form_for(Person.new) do |f| %>
         <div class="modal-body">
             <div class="divDialogElements">
                 <div id = "newPersonForm">
-                    <%= form_for(Person.new) do |f| %>
-                        <div class="hero-unit" style="font-size:14px; padding-top: 10px; padding-bottom: 10px; background-color: white; text-align: center;">
-                            <b>Имя:</b><br>
-                            <%= f.text_field :name %><br>
-                            <b>Дата рождения:</b><br>
-                            <%= f.date_field :birth %><br>
-                            <b>Примечание:</b><br>
-                            <%= f.text_area(:description, :size => "50x5") %><br>
-                        </div>
+                    <div class="hero-unit" style="font-size:14px; padding-top: 10px; padding-bottom: 10px; background-color: white; text-align: center;">
+                        <b>Имя:</b><br>
+                        <%= f.text_field :name %><br>
+                        <b>Дата рождения:</b><br>
+                        <%= f.date_field :birth %><br>
+                        <b>Примечание:</b><br>
+                        <%= f.text_area(:description, :size => "50x5") %><br>
                     </div>
                 </div>
             </div>
+        </div>
         <div class="modal-footer">
             <a data-target="#" class="btn" onclick="closeDialog ('windowTitleDialog');">Отмена</a>
             <%= f.submit :class => "btn", :value => "Создать" %>
-            <% end %>
             </div>
         </div>
+        <% end %>
     </div>
 
 <div class="container" style="padding-top: 10px; padding-bottom: 30px; width: 98%;">
